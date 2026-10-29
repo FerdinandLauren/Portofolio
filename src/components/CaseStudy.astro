@@ -1,5 +1,5 @@
 ---
-const { project, heading = 'h2', kicker = 'Case study' } = Astro.props;
+const { project, heading = 'h2' } = Astro.props;
 const Heading = heading;
 const p = project;
 const stages = [
@@ -14,7 +14,6 @@ const stages = [
 <section class="section" id="case">
   <div class="wrap">
     <div class="case-head">
-      <p class="kicker">{kicker}</p>
       <div class="case-head__title">
         <Heading class="case-title">{p.title}</Heading>
         <span class="badge badge--documented">{p.typeLabel}</span>
@@ -60,9 +59,9 @@ const stages = [
         <span class="stage__name">{stages[0].name}</span>
       </div>
       <div class="stage__body">
-        <h4>The process as it runs today</h4>
+        <h2>The process as it runs today</h2>
         <p>{p.observe.context}</p>
-        <h4>What I took from it — and what I only suspect</h4>
+        <h2>What I took from it — and what I only suspect</h2>
         <ul class="trace__list" style="color:inherit">
           {p.observe.hypotheses.map((h) => (
             <li style="padding-left:1.1rem">
@@ -81,7 +80,7 @@ const stages = [
         <span class="stage__name">{stages[1].name}</span>
       </div>
       <div class="stage__body">
-        <h4>Actors and what each one needs</h4>
+        <h2>Actors and what each one needs</h2>
         <div class="table-wrap">
           <table>
             <caption>Stakeholder map — PRD §2.1</caption>
@@ -96,7 +95,7 @@ const stages = [
           </table>
         </div>
 
-        <h4>Where the process leaks</h4>
+        <h2>Where the process leaks</h2>
         <div class="flow">
           <div class="flow__row flow__row--head">
             <span>Step</span><span>As-is</span><span>To-be</span>
@@ -110,7 +109,7 @@ const stages = [
           ))}
         </div>
 
-        <h4>The decision that shaped the design</h4>
+        <h2>The decision that shaped the design</h2>
         <p>{p.analyse.insight}</p>
       </div>
     </div>
@@ -122,23 +121,23 @@ const stages = [
         <span class="stage__name">{stages[2].name}</span>
       </div>
       <div class="stage__body">
-        <h4>Scope, written down before any code</h4>
+        <h2>Scope, written down before any code</h2>
         <div class="states">
           <div class="states__card">
-            <h5>In scope, phase 1</h5>
+            <h3>In scope, phase 1</h3>
             <ul>
               {p.define.scope.in.map((s) => <li style="display:block">· {s}</li>)}
             </ul>
           </div>
           <div class="states__card">
-            <h5>Explicitly out of scope</h5>
+            <h3>Explicitly out of scope</h3>
             <ul>
               {p.define.scope.out.map((s) => <li style="display:block">· {s}</li>)}
             </ul>
           </div>
         </div>
 
-        <h4>Requirements by module</h4>
+        <h2>Requirements by module</h2>
         <div class="table-wrap">
           <table>
             <caption>PRD §4 — the full document has 1,166 lines</caption>
@@ -157,7 +156,7 @@ const stages = [
           </table>
         </div>
 
-        <h4>Decisions, with the alternative I rejected</h4>
+        <h2>Decisions, with the alternative I rejected</h2>
         <div class="table-wrap">
           <table>
             <caption>PRD §0.2 decision log — each entry needs owner sign-off before build</caption>
@@ -177,10 +176,10 @@ const stages = [
           </table>
         </div>
 
-        <h4>Behaviour, drawn as states</h4>
+        <h2>Behaviour, drawn as states</h2>
         <div class="states">
           <div class="states__card">
-            <h5>Attendance session — PRD §3.3</h5>
+            <h3>Attendance session — PRD §3.3</h3>
             <ul>
               {p.define.states.session.map((s) => (
                 <li>
@@ -192,7 +191,7 @@ const stages = [
             </ul>
           </div>
           <div class="states__card">
-            <h5>Locker — PRD §3.4</h5>
+            <h3>Locker — PRD §3.4</h3>
             <ul>
               {p.define.states.locker.map((s) => (
                 <li>
@@ -312,13 +311,13 @@ const stages = [
         <span class="stage__name">{stages[4].name}</span>
       </div>
       <div class="stage__body">
-        <h4>What this project shows</h4>
+        <h2>What this project shows</h2>
         <p>{p.reflect.demonstrates}</p>
-        <h4>What it does not show — yet</h4>
+        <h2>What it does not show — yet</h2>
         <ul class="trace__list" style="color:inherit">
           {p.reflect.limits.map((l) => <li style="padding-left:1.1rem">{l}</li>)}
         </ul>
-        <h4>What I would do next</h4>
+        <h2>What I would do next</h2>
         <ol style="display:grid;gap:0.45rem;padding-left:1.2rem;margin:0;font-size:var(--step-0)">
           {p.reflect.next.map((n) => <li>{n}</li>)}
         </ol>

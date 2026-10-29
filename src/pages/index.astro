@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import WorkFeature from '../components/WorkFeature.astro';
+import DecisionLab from '../components/DecisionLab.astro';
 import site from '../data/site.json';
 import work from '../data/work.json';
 import supporting from '../data/projects/supporting.json';
@@ -33,168 +34,143 @@ const skills = [
     text: 'No hands-on SAP, Dynamics or Odoo yet, and I do not claim any. What I am building is the layer underneath: process decomposition, master data, role design, cutover.',
   },
 ];
+
+const [first, ...rest] = site.name.split(' ');
 ---
 
 <Base>
-  <!-- HERO -->
-  <section class="hero hero--opening">
+  <!-- Opening -->
+  <section class="opening">
     <div class="wrap">
-      <div class="hero__meta">
-        <span>{site.location}</span>
-        <span>{site.education} · {site.cohort}</span>
-        <span>Portfolio 2026</span>
+      <div class="opening__top">
+        <h1 class="signature">
+          <span><i>{first}</i></span>
+          <span><i>{rest.join(' ')}</i></span>
+        </h1>
+
+        <div class="opening__intro">
+          <p class="opening__claim">
+            I turn messy processes into clear requirements — and into systems whose behaviour can be tested.
+          </p>
+          <p class="opening__role">
+            <strong>ERP functional consultant / IT business analyst</strong>, entry level. Computer Science
+            undergraduate at Universitas Lampung, building towards the work that happens before software:
+            reading an operation, writing down what it must do, and proving the result.
+          </p>
+        </div>
+
+        <div class="opening__foot">
+          <span class="avail">{site.availability}</span>
+          <a class="scroll-hint" href="#work"><span>See the work</span><span class="arrow" aria-hidden="true">↓</span></a>
+        </div>
       </div>
 
-      <h1 class="hero__name">{site.name}</h1>
-
-      <p class="hero__statement">
-        I turn messy processes into <em>clear requirements</em> — and into systems whose behaviour can be tested.
-      </p>
-
-      <p class="hero__lede">
-        Computer Science undergraduate, building towards ERP functional consulting and IT business
-        analysis. Early in my career, and I would rather show you how I think than claim experience I
-        do not have.
-      </p>
-
-      <div class="hero__actions">
-        <a class="btn" href="#work">See the work →</a>
-        <a class="btn btn--ghost" href={`mailto:${site.contact.email}`}>Email me</a>
+      <div class="strip">
+        <span><b>Based in</b> {site.location}</span>
+        <span><b>Studying</b> {site.education}</span>
+        <span><b>Cohort</b> {site.cohort}</span>
+        <span><b>Open to</b> internship · trainee · junior</span>
       </div>
-
-      <div class="hero__rail">
-        <svg class="rail" viewBox="0 0 900 40" aria-hidden="true" preserveAspectRatio="none">
-          <line class="rail__track" x1="0" y1="20" x2="900" y2="20" />
-          <line class="rail__fill" x1="0" y1="20" x2="900" y2="20" />
-          <circle class="rail__dot" cx="8" cy="20" r="5" />
-          <circle class="rail__dot" cx="300" cy="20" r="5" />
-          <circle class="rail__dot" cx="600" cy="20" r="5" />
-          <circle class="rail__dot" cx="892" cy="20" r="5" />
-        </svg>
-        <ul class="process">
-          {site.process.map((step) => (
-            <li>
-              <a class="process__link" href="#method">
-                <span class="process__n">{step.n}</span>
-                <p class="process__label">{step.label}</p>
-                <p class="process__note">{step.note}</p>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <p class="mono" style="margin-top:2rem;color:var(--ink-3)">{site.availability}</p>
     </div>
   </section>
 
-  <!-- WORK -->
-  <section class="work-head" id="work">
+  <!-- Work -->
+  <section class="section" id="work">
     <div class="wrap">
-      <p class="kicker">Selected work</p>
-      <h2>Four things I have made, and what each one actually taught me.</h2>
-      <p class="section__lede">
-        One is a system I designed end to end. Three are coursework, kept honest and small. The
-        evidence behind every line is in its repository, not in this page.
-      </p>
+      <div class="section__head">
+        <h2>Four things I have made, and what each one actually taught me.</h2>
+        <p class="section__lede">
+          One is a system I designed end to end. Three are coursework, kept honest and small. The evidence
+          behind every line is in its repository, not in this page.
+        </p>
+      </div>
     </div>
   </section>
 
-  {work.map((item, i) => <WorkFeature item={item} ink={i % 2 === 1} />)}
+  {work.map((item, i) => <WorkFeature item={item} ink={i === 0} />)}
 
   <section class="also">
     <div class="wrap">
-      <p class="mono" style="color:var(--ink-3)">
+      <p>
         Also on GitHub, not promoted: {alsoDone.map((p, i) => (
           <span>
             {i > 0 && ' · '}
             <a href={p.url} target="_blank" rel="noopener noreferrer">{p.name}</a>
-            <span style="opacity:.6"> ({p.kind.toLowerCase()}, {p.year})</span>
+            <span> ({p.kind.toLowerCase()}, {p.year})</span>
           </span>
         ))}
       </p>
     </div>
   </section>
 
-  <!-- ABOUT -->
+  <!-- About -->
   <section class="section" id="about">
     <div class="wrap">
       <div class="section__head">
-        <span class="section__num">01 — About</span>
-        <div>
-          <h2>I am more interested in why a system exists than in how it is built.</h2>
-          <p class="section__lede">
-            Computer Science taught me to build. The part I keep coming back to is earlier: how a
-            business actually runs, where it breaks, and what has to be true before software can help.
-          </p>
-        </div>
+        <h2>I am more interested in why a system exists than in how it is built.</h2>
+        <p class="section__lede">
+          Computer Science taught me to build. The part I keep coming back to is earlier: how a business
+          actually runs, where it breaks, and what has to be true before software can help.
+        </p>
       </div>
 
-      <div class="body-grid" style="margin-top:2.2rem">
-        <aside class="about__snapshot">
-          <dl>
-            <dt>Based in</dt>
-            <dd>{site.location}</dd>
-            <dt>Studying</dt>
-            <dd>{site.education}</dd>
-            <dt>Cohort</dt>
-            <dd>{site.cohort}</dd>
-            <dt>Working towards</dt>
-            <dd>ERP functional consultant · IT business analyst</dd>
-            <dt>Currently learning</dt>
-            <dd>Enterprise system foundations: process decomposition, master data, roles. No platform certification yet.</dd>
-            <dt>Open to</dt>
-            <dd>Internship, trainee programme, junior position</dd>
-          </dl>
-        </aside>
+      <div class="about">
         <div class="about__text">
           <p>
             I am Ferdinand Lauren, a Computer Science undergraduate at Universitas Lampung, in the 2022
-            cohort, based in Bandar Lampung. I am at the start of my career and I am deliberate about
-            the direction: ERP functional consulting, with IT business analysis as the second path.
+            cohort, based in Bandar Lampung. I am at the start of my career and I am deliberate about the
+            direction: ERP functional consulting, with IT business analysis as the second path.
           </p>
           <p>
-            What pulled me there was a simple observation. Two companies can run the same process and
-            get different results, and the difference is rarely the software. It is whether anyone wrote
-            down what the process is supposed to do, who it serves, and what should happen when it goes
-            wrong. That writing is the work I want to do.
+            What pulled me there was a simple observation. Two companies can run the same process and get
+            different results, and the difference is rarely the software. It is whether anyone wrote down
+            what the process is supposed to do, who it serves, and what should happen when it goes wrong.
+            That writing is the work I want to do.
           </p>
           <p>
-            So I practise the parts I can practise alone: reading how an operation runs, mapping the
-            actors and handoffs, naming where it leaks, turning that into requirements with IDs and
-            acceptance criteria, defining expected behaviour as states and rules, then checking the
-            result against scenarios written before the build.
+            So I practise the parts I can practise alone: reading how an operation runs, mapping the actors
+            and handoffs, naming where it leaks, turning that into requirements with IDs and acceptance
+            criteria, defining expected behaviour as states and rules, then checking the result against
+            scenarios written before the build.
           </p>
           <p>
-            I have no industry experience yet, and I do not pretend otherwise. What I can offer is
-            someone who reads the process before touching the system, writes the requirement down
-            instead of carrying it in his head, and says plainly when something has not been verified.
+            I have no industry experience yet, and I do not pretend otherwise. What I can offer is someone
+            who reads the process before touching the system, writes the requirement down instead of
+            carrying it in his head, and says plainly when something has not been verified.
           </p>
         </div>
+
+        <dl class="about__facts">
+          <div><dt>Based in</dt><dd>{site.location}</dd></div>
+          <div><dt>Studying</dt><dd>{site.education}</dd></div>
+          <div><dt>Cohort</dt><dd>{site.cohort}</dd></div>
+          <div><dt>Working towards</dt><dd>ERP functional consultant · IT business analyst</dd></div>
+          <div><dt>Currently learning</dt><dd>Enterprise system foundations: process decomposition, master data, roles. No platform certification yet.</dd></div>
+          <div><dt>Open to</dt><dd>Internship, trainee programme, junior position</dd></div>
+        </dl>
       </div>
     </div>
   </section>
 
-  <!-- METHOD -->
+  <!-- Method -->
   <section class="section" id="method">
     <div class="wrap">
       <div class="section__head">
-        <span class="section__num">02 — How I work</span>
-        <div>
-          <h2>Four steps, in this order, every time.</h2>
-          <p class="section__lede">
-            The order is the point. Most of the value is created before anyone writes code, and most of
-            the damage comes from skipping a step.
-          </p>
-        </div>
+        <h2>Four steps, in this order, every time.</h2>
+        <p class="section__lede">
+          The order is the point. Most of the value is created before anyone writes code, and most of the
+          damage comes from skipping a step.
+        </p>
       </div>
 
       <ol class="method">
         {site.process.map((step, i) => (
           <li class="method__step">
             <span class="method__n">{step.n}</span>
-            <h3>{step.label}</h3>
-            <p>{step.note}</p>
+            <div>
+              <h3>{step.label}</h3>
+              <p>{step.note}</p>
+            </div>
             <p class="method__artifact">
               {i === 0 && 'Output: process map, actors, friction list — every friction labelled a hypothesis.'}
               {i === 1 && 'Output: scope boundary, in and out, with the reason for each exclusion.'}
@@ -207,21 +183,18 @@ const skills = [
     </div>
   </section>
 
-  <!-- SKILLS -->
+  <!-- Skills -->
   <section class="section" id="skills">
     <div class="wrap">
       <div class="section__head">
-        <span class="section__num">03 — What I can do</span>
-        <div>
-          <h2>Capabilities, tied to evidence or to an honest limit.</h2>
-          <p class="section__lede">
-            “Demonstrated” means you can open the artefact. “Practised” means I have done it once,
-            carefully. “Learning” means exactly that.
-          </p>
-        </div>
+        <h2>Capabilities, tied to evidence or to an honest limit.</h2>
+        <p class="section__lede">
+          “Demonstrated” means you can open the artefact. “Practised” means I have done it once, carefully.
+          “Learning” means exactly that.
+        </p>
       </div>
 
-      <div class="skills" style="margin-top:2rem">
+      <div class="skills">
         {skills.map((s) => (
           <div class="skill">
             <h3>{s.name}</h3>
@@ -233,25 +206,27 @@ const skills = [
     </div>
   </section>
 
-  <!-- CONTACT -->
-  <section class="section contact" id="contact">
-    <div class="wrap contact__grid">
-      <div>
-        <p class="kicker">04 — Contact</p>
-        <h2>If you are hiring for a trainee or junior analyst role, I would like to talk.</h2>
-        <p style="margin-top:1rem;max-width:48ch;color:var(--ink-2)">
-          Ask me about any of the work above — including the decisions I would make differently now,
-          and the parts I still have not validated.
+  <!-- The Decision Lab -->
+  <DecisionLab />
+
+  <!-- Contact -->
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <h2>If you are hiring for a trainee or junior analyst role, I would like to talk.</h2>
+      <div class="contact__grid" style="margin-top:1.6rem">
+        <p class="contact__lede">
+          Ask me about any of the work above — including the decisions I would make differently now, and
+          the parts I still have not validated.
         </p>
-      </div>
-      <div class="contact__links">
-        <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
-        <a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
-        <a href={site.contact.github} target="_blank" rel="noopener noreferrer">github.com/FerdinandLauren ↗</a>
-        {site.contact.cv && <a href={site.contact.cv}>Download CV (PDF)</a>}
-        <a class="btn" style="margin-top:0.6rem" href={`mailto:${site.contact.email}?subject=Portfolio%20—%20internship%20or%20junior%20analyst%20role`}>
-          Email me →
-        </a>
+        <div class="contact__links">
+          <a class="contact__link" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+          <a class="contact__link" href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
+          <a class="contact__link" href={site.contact.github} target="_blank" rel="noopener noreferrer">github.com/FerdinandLauren <span aria-hidden="true">↗</span></a>
+          {site.contact.cv && <a class="contact__link" href={site.contact.cv}>Download CV (PDF)</a>}
+          <a class="btn" href={`mailto:${site.contact.email}?subject=Portfolio%20—%20internship%20or%20junior%20analyst%20role`}>
+            Email me
+          </a>
+        </div>
       </div>
     </div>
   </section>

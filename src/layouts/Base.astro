@@ -6,10 +6,12 @@ import site from '../data/site.json';
 interface Props {
   title?: string;
   description?: string;
+  bodyClass?: string;
 }
 const {
   title = `${site.name} — ERP functional consultant / IT business analyst`,
   description = 'Portfolio of Ferdinand Lauren: how I observe business processes, write requirements, design system behaviour and verify it.',
+  bodyClass = '',
 } = Astro.props;
 const base = import.meta.env.BASE_URL;
 // On a case-study page the section anchors live on the home page.
@@ -25,13 +27,9 @@ const hashBase = path === base || path === base.replace(/\/$/, '') ? '' : base;
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="color-scheme" content="light" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
-    />
+    <meta name="theme-color" content="#eeede8" />
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <link rel="preload" href={`${base}fonts/schibsted-var.woff2`} as="font" type="font/woff2" crossorigin />
     <script is:inline>document.documentElement.classList.add('js');</script>
     <script
       type="application/ld+json"
@@ -48,24 +46,28 @@ const hashBase = path === base || path === base.replace(/\/$/, '') ? '' : base;
       })}
     />
   </head>
-  <body>
+  <body class={bodyClass || undefined}>
     <a class="skip" href="#main">Skip to content</a>
     <div class="progress" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+
     <header class="nav">
       <div class="wrap nav__inner">
-        <a class="nav__mark" href={base}><b>{site.name}</b> — systems notebook</a>
+        <a class="nav__mark" href={base}>{site.name} <span>— analyst, entry level</span></a>
         <nav class="nav__links" aria-label="Sections">
-          <a href={`${hashBase}#work`}>01 Work</a>
-          <a href={`${hashBase}#about`}>02 About</a>
-          <a href={`${hashBase}#method`}>03 Method</a>
-          <a href={`${hashBase}#skills`}>04 Skills</a>
-          <a href={`${hashBase}#contact`}>05 Contact</a>
+          <a href={`${hashBase}#work`}>Work</a>
+          <a href={`${hashBase}#method`}>Method</a>
+          <a href={`${hashBase}#skills`}>Skills</a>
+          <a href={`${hashBase}#lab`}>Lab</a>
+          <a class="nav__talk" href={`mailto:${site.contact.email}`}>Let’s talk</a>
         </nav>
       </div>
     </header>
+
     <main id="main">
       <slot />
     </main>
+
     <footer class="footer">
       <div class="wrap footer__inner">
         <span>{site.name} · {site.location}</span>
@@ -76,27 +78,14 @@ const hashBase = path === base || path === base.replace(/\/$/, '') ? '' : base;
         </span>
       </div>
     </footer>
-    <script>
-      // Reveal-on-scroll, purely decorative: content is readable without it.
-      const items = document.querySelectorAll('.reveal');
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('is-in');
-                io.unobserve(entry.target);
-              }
-            }
-          },
-          { rootMargin: '0px 0px -8% 0px' }
-        );
-        items.forEach((el) => io.observe(el));
-      } else {
-        items.forEach((el) => el.classList.add('is-in'));
-      }
 
-      // Reading progress line.
+    <script>
+      // Chrome state: the bar only gains a surface once the page has moved.
+      const onScroll = () => document.body.classList.toggle('is-scrolled', window.scrollY > 12);
+      addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      // Reading progress.
       const bar = document.querySelector('.progress');
       if (bar) {
         const paint = () => {
@@ -109,28 +98,37 @@ const hashBase = path === base || path === base.replace(/\/$/, '') ? '' : base;
         paint();
       }
 
-      // Gentle parallax on the opening name.
-      const bigName = document.querySelector('.hero__name');
-      if (bigName && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        addEventListener('scroll', () => {
-          const y = Math.min(window.scrollY, 600);
-          bigName.style.transform = `translateY(${y * -0.06}px)`;
-        }, { passive: true });
+      // Reveal, decorative only: content is readable without it.
+      const items = document.querySelectorAll('.reveal');
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -10% 0px' }
+        );
+        items.forEach((el) => io.observe(el));
+      } else {
+        items.forEach((el) => el.classList.add('is-in'));
       }
 
-      // Active section marker in the nav.
-      const links = Array.from(document.querySelectorAll('.nav__links a'));
+      // Active section in the nav.
+      const links = Array.from(document.querySelectorAll('.nav__links a[href*="#"]'));
       const sections = links
-        .map((a) => document.querySelector(a.getAttribute('href')!))
-        .filter((el): el is Element => Boolean(el));
-      if ('IntersectionObserver' in window) {
+        .map((a) => document.querySelector(a.getAttribute('href').replace(/^.*#/, '#')))
+        .filter(Boolean);
+      if ('IntersectionObserver' in window && sections.length) {
         const navIo = new IntersectionObserver(
           (entries) => {
             for (const entry of entries) {
               if (!entry.isIntersecting) continue;
               links.forEach((a) => {
-                const on = a.getAttribute('href') === `#${entry.target.id}`;
-                if (on) a.setAttribute('aria-current', 'true');
+                if (a.getAttribute('href').endsWith(`#${entry.target.id}`)) a.setAttribute('aria-current', 'true');
                 else a.removeAttribute('aria-current');
               });
             }
