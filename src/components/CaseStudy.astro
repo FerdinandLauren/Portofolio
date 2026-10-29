@@ -1,0 +1,328 @@
+---
+const { project, heading = 'h2', kicker = 'Case study' } = Astro.props;
+const Heading = heading;
+const p = project;
+const stages = [
+  { n: '01', name: 'Observe' },
+  { n: '02', name: 'Analyse' },
+  { n: '03', name: 'Define' },
+  { n: '04', name: 'Verify' },
+  { n: '05', name: 'Reflect' },
+];
+---
+
+<section class="section" id="case">
+  <div class="wrap">
+    <div class="case-head">
+      <p class="kicker">{kicker}</p>
+      <div class="case-head__title">
+        <Heading class="case-title">{p.title}</Heading>
+        <span class="badge badge--documented">{p.typeLabel}</span>
+      </div>
+      <p class="case-head__sub">{p.subtitle}</p>
+      <p class="section__lede" style="margin-top:0">
+        One case study, taken all the way through — from a process I only observed to a requirement,
+        a designed behaviour, and a test plan. It is the clearest evidence I have of how I work.
+      </p>
+
+      <dl class="case-meta">
+        <div>
+          <dt>Role</dt>
+          <dd>{p.role}</dd>
+        </div>
+        <div>
+          <dt>Period</dt>
+          <dd>{p.period}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>{p.status}</dd>
+        </div>
+        <div>
+          <dt>Stack</dt>
+          <dd>{p.stack.join(' · ')}</dd>
+        </div>
+      </dl>
+
+      <p class="boundary">
+        <b>Scope boundary</b>
+        {p.boundary}
+      </p>
+      <p class="mono" style="color:var(--ink-3)">
+        Repository: <a href={p.repository} target="_blank" rel="noopener">{p.repository.replace('https://', '')}</a>
+      </p>
+    </div>
+
+    <!-- 01 OBSERVE -->
+    <div class="stage" id="stage-observe">
+      <div class="stage__label">
+        <span class="stage__n">{stages[0].n}</span>
+        <span class="stage__name">{stages[0].name}</span>
+      </div>
+      <div class="stage__body">
+        <h4>The process as it runs today</h4>
+        <p>{p.observe.context}</p>
+        <h4>What I took from it — and what I only suspect</h4>
+        <ul class="trace__list" style="color:inherit">
+          {p.observe.hypotheses.map((h) => (
+            <li style="padding-left:1.1rem">
+              {h.text} <span class="badge badge--assumption">hypothesis</span>
+            </li>
+          ))}
+        </ul>
+        <p style="margin-top:1rem;color:var(--ink-2);font-size:var(--step--1)">{p.observe.note}</p>
+      </div>
+    </div>
+
+    <!-- 02 ANALYSE -->
+    <div class="stage" id="stage-analyse">
+      <div class="stage__label">
+        <span class="stage__n">{stages[1].n}</span>
+        <span class="stage__name">{stages[1].name}</span>
+      </div>
+      <div class="stage__body">
+        <h4>Actors and what each one needs</h4>
+        <div class="table-wrap">
+          <table>
+            <caption>Stakeholder map — PRD §2.1</caption>
+            <thead>
+              <tr><th scope="col">Actor</th><th scope="col">Primary need</th></tr>
+            </thead>
+            <tbody>
+              {p.analyse.actors.map((a) => (
+                <tr><td><strong>{a.role}</strong></td><td>{a.need}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Where the process leaks</h4>
+        <div class="flow">
+          <div class="flow__row flow__row--head">
+            <span>Step</span><span>As-is</span><span>To-be</span>
+          </div>
+          {p.analyse.frictions.map((f) => (
+            <div class="flow__row">
+              <span class="flow__step">{f.step}</span>
+              <span>{f.asIs}</span>
+              <span>{f.toBe}<br /><span class="flow__leak">↳ {f.leak}</span></span>
+            </div>
+          ))}
+        </div>
+
+        <h4>The decision that shaped the design</h4>
+        <p>{p.analyse.insight}</p>
+      </div>
+    </div>
+
+    <!-- 03 DEFINE -->
+    <div class="stage" id="stage-define">
+      <div class="stage__label">
+        <span class="stage__n">{stages[2].n}</span>
+        <span class="stage__name">{stages[2].name}</span>
+      </div>
+      <div class="stage__body">
+        <h4>Scope, written down before any code</h4>
+        <div class="states">
+          <div class="states__card">
+            <h5>In scope, phase 1</h5>
+            <ul>
+              {p.define.scope.in.map((s) => <li style="display:block">· {s}</li>)}
+            </ul>
+          </div>
+          <div class="states__card">
+            <h5>Explicitly out of scope</h5>
+            <ul>
+              {p.define.scope.out.map((s) => <li style="display:block">· {s}</li>)}
+            </ul>
+          </div>
+        </div>
+
+        <h4>Requirements by module</h4>
+        <div class="table-wrap">
+          <table>
+            <caption>PRD §4 — the full document has 1,166 lines</caption>
+            <thead>
+              <tr><th scope="col">Module</th><th scope="col">Items</th><th scope="col">Example</th></tr>
+            </thead>
+            <tbody>
+              {p.define.modules.map((m) => (
+                <tr>
+                  <td class="num">{m.id}<br /><span style="color:var(--ink-3)">{m.name}</span></td>
+                  <td class="num">{m.count}</td>
+                  <td>{m.sample}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Decisions, with the alternative I rejected</h4>
+        <div class="table-wrap">
+          <table>
+            <caption>PRD §0.2 decision log — each entry needs owner sign-off before build</caption>
+            <thead>
+              <tr><th scope="col">ID</th><th scope="col">Decision</th><th scope="col">Why</th><th scope="col">Rejected</th></tr>
+            </thead>
+            <tbody>
+              {p.define.decisions.map((d) => (
+                <tr>
+                  <td class="num">{d.id}</td>
+                  <td>{d.decision}</td>
+                  <td>{d.reason}</td>
+                  <td style="color:var(--ink-3)">{d.rejected}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Behaviour, drawn as states</h4>
+        <div class="states">
+          <div class="states__card">
+            <h5>Attendance session — PRD §3.3</h5>
+            <ul>
+              {p.define.states.session.map((s) => (
+                <li>
+                  <span class="states__from">{s.from}</span>
+                  <span class="states__ev">{s.event}</span>
+                  <span class="states__to">{s.to}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="states__card">
+            <h5>Locker — PRD §3.4</h5>
+            <ul>
+              {p.define.states.locker.map((s) => (
+                <li>
+                  <span class="states__from">{s.from}</span>
+                  <span class="states__ev">{s.event}</span>
+                  <span class="states__to">{s.to}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 VERIFY -->
+    <div class="stage" id="stage-verify">
+      <div class="stage__label">
+        <span class="stage__n">{stages[3].n}</span>
+        <span class="stage__name">{stages[3].name}</span>
+      </div>
+      <div class="stage__body">
+        <p>{p.verify.summary}</p>
+
+        <div class="metrics">
+          {p.verify.metrics.map((m) => (
+            <div class="metric">
+              <span class="metric__label">{m.label}</span>
+              <span class="metric__value">{m.value}</span>
+              <span class="metric__detail">{m.detail}</span>
+              <span class={`badge badge--${m.evidence === 'verified' ? 'verified' : 'none'}`}>
+                {m.evidence === 'verified' ? 'checked' : 'not measured'}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <details class="artifact" open>
+          <summary>
+            <span class="artifact__id">AT-01 … AT-15</span>
+            <span>Acceptance scenarios</span>
+            <span class="badge badge--documented" style="margin-left:auto">documented</span>
+          </summary>
+          <div class="artifact__body">
+            <div class="table-wrap">
+              <table>
+                <caption>docs/UAT.md — “automated” means an automated test in the repo covers the same rule</caption>
+                <thead>
+                  <tr><th scope="col">ID</th><th scope="col">Scenario</th><th scope="col">Expected</th><th scope="col">Automated</th></tr>
+                </thead>
+                <tbody>
+                  {p.verify.uat.map((u) => (
+                    <tr>
+                      <td class="num">{u.id}</td>
+                      <td>{u.step}</td>
+                      <td>{u.expected}</td>
+                      <td class="num">{u.automated ? 'yes' : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p class="mono" style="color:var(--ink-3);margin-top:0.6rem">
+              No manual run is recorded in the repository: the evidence column in docs/UAT.md is empty.
+              The statuses above describe what the repository contains, not what a gym validated.
+            </p>
+          </div>
+        </details>
+
+        <details class="artifact">
+          <summary>
+            <span class="artifact__id">§7.3</span>
+            <span>Failure catalogue — what the member sees when the rule says no</span>
+          </summary>
+          <div class="artifact__body">
+            <div class="table-wrap">
+              <table>
+                <caption>PRD §7.3 error codes, selected</caption>
+                <thead>
+                  <tr><th scope="col">HTTP</th><th scope="col">Code</th><th scope="col">Condition</th></tr>
+                </thead>
+                <tbody>
+                  {p.verify.errors.map((e) => (
+                    <tr><td class="num">{e.http}</td><td class="num">{e.code}</td><td>{e.condition}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+
+        <details class="artifact">
+          <summary>
+            <span class="artifact__id">CI</span>
+            <span>What a reader can reproduce today</span>
+          </summary>
+          <div class="artifact__body">
+            <p class="mono" style="font-size:var(--step--1);line-height:1.7">
+              php artisan test → 130 passed, 849 assertions<br />
+              vendor/bin/pint --test → passed<br />
+              vendor/bin/phpstan analyse → 1 error, level 6 (AppServiceProvider.php:67)<br />
+              CI on main → failing at static analysis, tests skipped
+            </p>
+            <p style="font-size:var(--step--1);color:var(--ink-2);margin-top:0.6rem">
+              Run on 29 October 2026 against the repository at its current commit, with PHP 8.3.16,
+              MySQL 8.4.3 and Redis 5.0.14. The one static-analysis error is why the pipeline is red;
+              it is the first item on my own fix list.
+            </p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- 05 REFLECT -->
+    <div class="stage" id="stage-reflect">
+      <div class="stage__label">
+        <span class="stage__n">{stages[4].n}</span>
+        <span class="stage__name">{stages[4].name}</span>
+      </div>
+      <div class="stage__body">
+        <h4>What this project shows</h4>
+        <p>{p.reflect.demonstrates}</p>
+        <h4>What it does not show — yet</h4>
+        <ul class="trace__list" style="color:inherit">
+          {p.reflect.limits.map((l) => <li style="padding-left:1.1rem">{l}</li>)}
+        </ul>
+        <h4>What I would do next</h4>
+        <ol style="display:grid;gap:0.45rem;padding-left:1.2rem;margin:0;font-size:var(--step-0)">
+          {p.reflect.next.map((n) => <li>{n}</li>)}
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>

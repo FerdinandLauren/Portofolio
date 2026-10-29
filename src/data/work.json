@@ -1,0 +1,67 @@
+[
+  {
+    "n": "01",
+    "title": "GYM-QR",
+    "thesis": "One session per member. One key per locker.",
+    "context": "A gym records attendance in a paper book and hands out locker keys with no record of who holds them. I designed the system that replaces both — then wrote the requirements, the state rules and the acceptance tests before the code.",
+    "meta": ["System analysis", "Requirements", "Implementation", "2026"],
+    "type": "Independent concept",
+    "href": "/work/gym-qr",
+    "cta": "Read the case study",
+    "facts": [
+      ["PRD", "1,166 lines — personas, journeys, FR/NFR, DDL, API contract, decision log"],
+      ["Acceptance tests", "15 scenarios written before the build"],
+      ["Automated tests", "130 passing, 849 assertions"],
+      ["Boundary", "Concept only — no gym owner, no deployment, no measured result"]
+    ],
+    "visual": "states"
+  },
+  {
+    "n": "02",
+    "title": "Prak_WebLanjut",
+    "thesis": "The first time a request had to travel through a whole system.",
+    "context": "Coursework for Web Lanjut: a Laravel application built commit by commit — a landing page, routes and views, then a form that posts and validates.",
+    "meta": ["Coursework", "Laravel", "2024"],
+    "type": "Coursework",
+    "href": "https://github.com/FerdinandLauren/Prak_WebLanjut",
+    "cta": "Open the repository",
+    "facts": [
+      ["Built", "Landing page, route and view layer, form handling"],
+      ["Stack", "PHP · Laravel · Blade"],
+      ["Learned", "Where validation belongs when more than one screen is involved"]
+    ],
+    "visual": "flow"
+  },
+  {
+    "n": "03",
+    "title": "UAS-DSP",
+    "thesis": "Reading a dataset carefully enough to say what it does not prove.",
+    "context": "Final exam notebook for digital signal processing: consumer price data, cleaning, comparison, and a written interpretation of what the numbers can and cannot support.",
+    "meta": ["Coursework", "Python · Jupyter", "2025"],
+    "type": "Coursework",
+    "href": "https://github.com/FerdinandLauren/UAS-DSP",
+    "cta": "Open the repository",
+    "facts": [
+      ["Contents", "Analysis notebook, prediction table, two source datasets"],
+      ["Stack", "Python · pandas · Jupyter"],
+      ["Learned", "A conclusion is only as good as the column you did not check"]
+    ],
+    "visual": "table"
+  },
+  {
+    "n": "04",
+    "title": "pastebin",
+    "thesis": "Designing the schema first made every interface decision obvious.",
+    "context": "A paste service clone: a SQL schema, server routes and a Tailwind interface, built to understand what a small product needs before it needs features.",
+    "meta": ["Coursework", "SQL · Tailwind", "2024"],
+    "type": "Coursework",
+    "href": "https://github.com/FerdinandLauren/pastebin",
+    "cta": "Open the repository",
+    "facts": [
+      ["Built", "SQL schema, routes, Tailwind interface"],
+      ["Stack", "PHP · SQL · Tailwind CSS"],
+      ["Learned", "The data model is the design document nobody reads until it is wrong"]
+    ],
+    "visual": "schema"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "name": "Ferdinand Lauren",
+  "headline": "I turn messy processes into clear requirements.",
+  "positioning": "Computer Science undergraduate at Universitas Lampung, working towards ERP functional consulting and IT business analysis.",
+  "availability": "Open to internship, trainee programme and junior positions in ERP, enterprise systems and digital transformation.",
+  "location": "Bandar Lampung, Indonesia",
+  "education": "S1 Ilmu Komputer, Universitas Lampung",
+  "cohort": "2022 cohort",
+  "process": [
+    { "n": "01", "label": "Observe", "note": "Watch how the work is actually done, not how the SOP says it is." },
+    { "n": "02", "label": "Analyse", "note": "Name the actors, the handoffs and where the process leaks." },
+    { "n": "03", "label": "Define", "note": "Write requirements, states and rules a team can build against." },
+    { "n": "04", "label": "Verify", "note": "Turn expected behaviour into scenarios, then check them." }
+  ],
+  "contact": {
+    "email": "ferdinandlauren78@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/ferdinand-lauren-3853b5375/",
+    "github": "https://github.com/FerdinandLauren",
+    "cv": null
+  }
+}

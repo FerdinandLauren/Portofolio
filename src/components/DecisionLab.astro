@@ -1,0 +1,125 @@
+---
+import { SCENARIOS, runScenario } from '../lib/decision-lab.mjs';
+
+const scenarios = SCENARIOS.map((s) => ({ ...s, frames: runScenario(s.id) }));
+const repo = 'https://github.com/FerdinandLauren/GYM-QR/blob/main';
+---
+
+<section class="lab" id="lab">
+  <div class="wrap">
+    <p class="kicker">03 — The Decision Lab</p>
+    <h2>Pick a case. Watch the rule decide.</h2>
+    <p class="lab__lede">
+      Four situations taken from the gym system. Each one shows the precondition, the rule that
+      applies, the response the system gives, and how far the evidence actually goes. Nothing here
+      is a recording of a running app: it is the documented rule applied step by step.
+    </p>
+
+    <div class="lab__grid">
+      <div class="scen" role="group" aria-label="Scenarios">
+        {scenarios.map((s, i) => (
+          <button class="scen__btn" type="button" data-scenario={s.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+            <span class="scen__n">{String(i + 1).padStart(2, '0')}</span>
+            <span>{s.title}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="trace">
+        {scenarios.map((s, i) => (
+          <div class="panel" data-panel={s.id} data-active={i === 0 ? 'true' : 'false'}>
+            <h3 class="trace__title">{s.title}</h3>
+            <p class="trace__q">{s.question}</p>
+
+            <div class="trace__block">
+              <h4>Preconditions</h4>
+              <ul class="trace__list">
+                {s.preconditions.map((p) => <li>{p}</li>)}
+              </ul>
+            </div>
+
+            <div class="trace__block">
+              <h4>Rule applied</h4>
+              <ul class="trace__list">
+                {s.rules.map((r) => <li>{r}</li>)}
+              </ul>
+            </div>
+
+            <div class="trace__block">
+              <h4>Decision trace</h4>
+              {s.frames.map((frame) => (
+                <div>
+                  <p class="request__who">{frame.label}</p>
+                  {frame.requests.map((r) => (
+                    <div class="request">
+                      <span class="request__who">{r.who}</span>
+                      <span class={`request__code ${r.status === 200 ? 'request__code--ok' : 'request__code--warn'}`}>
+                        {r.status}{r.code ? ` ${r.code}` : ''}
+                      </span>
+                      <span class="request__note">{r.note}</span>
+                    </div>
+                  ))}
+                  <div class="trace__state">
+                    <span class="statechip">session <b>{frame.state.session}</b></span>
+                    <span class="statechip">locker <b>{frame.state.locker}</b></span>
+                    {frame.state.owner && <span class="statechip">key held by <b>{frame.state.owner}</b></span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div class="trace__foot">
+              <span>requirement {s.requirement}</span>
+              <span>uat {s.uat}</span>
+              <a href={`${repo}/${s.test.replace('tests/', 'tests/')}`} target="_blank" rel="noopener">{s.test.replace('tests/Feature/', '')}</a>
+              <span class={`badge badge--${s.evidence}`}>{s.evidence === 'verified' ? 'verified in code + test' : 'documented only'}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <p class="lab__note">
+      How to read the labels: <b>verified</b> means the rule exists in the Laravel service and the
+      error code appears in an automated test. <b>Documented only</b> means the PRD or the UAT plan
+      describes it and nothing in the repository confirms the behaviour yet. The lab re-implements the
+      rules so you can walk them; the implementation in the repository is the source of truth.
+    </p>
+  </div>
+</section>
+
+<style>
+  /* Without JavaScript every panel stays visible, so the cases can still be read. */
+  :global(html.js) .panel[data-active='false'] { display: none; }
+  .panel + .panel { margin-top: 1.6rem; }
+</style>
+
+<script>
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.scen__btn'));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('.panel'));
+
+  function select(id: string) {
+    for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.scenario === id));
+    for (const p of panels) p.dataset.active = String(p.dataset.panel === id);
+  }
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => select(button.dataset.scenario!));
+    // Arrow keys move between scenarios, as a radio group would.
+    button.addEventListener('keydown', (event) => {
+      const i = buttons.indexOf(button);
+      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        const next = buttons[(i + 1) % buttons.length];
+        next.focus();
+        select(next.dataset.scenario!);
+      }
+      if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+        event.preventDefault();
+        const prev = buttons[(i - 1 + buttons.length) % buttons.length];
+        prev.focus();
+        select(prev.dataset.scenario!);
+      }
+    });
+  }
+</script>

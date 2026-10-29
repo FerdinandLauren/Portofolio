@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import CaseStudy from '../../components/CaseStudy.astro';
+import DecisionLab from '../../components/DecisionLab.astro';
+
+// Every JSON file in src/data/projects/ (except the supporting list) becomes a case study
+// at /work/<slug>. Adding a project is one new file, no design change.
+export async function getStaticPaths() {
+  const files = import.meta.glob('../../data/projects/*.json', { eager: true });
+  return Object.entries(files)
+    .filter(([path]) => !path.endsWith('supporting.json'))
+    .map(([, mod]) => {
+      const project = (mod as { default: any }).default;
+      return { params: { slug: project.slug }, props: { project } };
+    });
+}
+
+const { project } = Astro.props;
+---
+
+<Base
+  title={`${project.title} — case study by Ferdinand Lauren`}
+  description={project.subtitle}
+>
+  <CaseStudy project={project} heading="h1" kicker="Case study" />
+  <DecisionLab />
+</Base>

@@ -1,0 +1,144 @@
+---
+import '../styles/global.css';
+import '../styles/opening.css';
+import site from '../data/site.json';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = `${site.name} — ERP functional consultant / IT business analyst`,
+  description = 'Portfolio of Ferdinand Lauren: how I observe business processes, write requirements, design system behaviour and verify it.',
+} = Astro.props;
+const base = import.meta.env.BASE_URL;
+// On a case-study page the section anchors live on the home page.
+const path = Astro.url.pathname.replace(/index\.html$/, '');
+const hashBase = path === base || path === base.replace(/\/$/, '') ? '' : base;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="light" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: site.name,
+        jobTitle: 'ERP functional consultant / IT business analyst (entry level)',
+        description: site.positioning,
+        address: { '@type': 'PostalAddress', addressLocality: 'Bandar Lampung', addressCountry: 'ID' },
+        alumniOf: { '@type': 'CollegeOrUniversity', name: 'Universitas Lampung' },
+        email: `mailto:${site.contact.email}`,
+        sameAs: [site.contact.linkedin, site.contact.github],
+      })}
+    />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <div class="progress" aria-hidden="true"></div>
+    <header class="nav">
+      <div class="wrap nav__inner">
+        <a class="nav__mark" href={base}><b>{site.name}</b> — systems notebook</a>
+        <nav class="nav__links" aria-label="Sections">
+          <a href={`${hashBase}#work`}>01 Work</a>
+          <a href={`${hashBase}#about`}>02 About</a>
+          <a href={`${hashBase}#method`}>03 Method</a>
+          <a href={`${hashBase}#skills`}>04 Skills</a>
+          <a href={`${hashBase}#contact`}>05 Contact</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="footer">
+      <div class="wrap footer__inner">
+        <span>{site.name} · {site.location}</span>
+        <span>
+          <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a> ·
+          <a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a> ·
+          <a href={site.contact.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+        </span>
+      </div>
+    </footer>
+    <script>
+      // Reveal-on-scroll, purely decorative: content is readable without it.
+      const items = document.querySelectorAll('.reveal');
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-in');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px' }
+        );
+        items.forEach((el) => io.observe(el));
+      } else {
+        items.forEach((el) => el.classList.add('is-in'));
+      }
+
+      // Reading progress line.
+      const bar = document.querySelector('.progress');
+      if (bar) {
+        const paint = () => {
+          const h = document.documentElement;
+          const max = h.scrollHeight - h.clientHeight;
+          bar.style.transform = `scaleX(${max > 0 ? Math.min(1, h.scrollTop / max) : 0})`;
+        };
+        addEventListener('scroll', paint, { passive: true });
+        addEventListener('resize', paint);
+        paint();
+      }
+
+      // Gentle parallax on the opening name.
+      const bigName = document.querySelector('.hero__name');
+      if (bigName && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        addEventListener('scroll', () => {
+          const y = Math.min(window.scrollY, 600);
+          bigName.style.transform = `translateY(${y * -0.06}px)`;
+        }, { passive: true });
+      }
+
+      // Active section marker in the nav.
+      const links = Array.from(document.querySelectorAll('.nav__links a'));
+      const sections = links
+        .map((a) => document.querySelector(a.getAttribute('href')!))
+        .filter((el): el is Element => Boolean(el));
+      if ('IntersectionObserver' in window) {
+        const navIo = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              links.forEach((a) => {
+                const on = a.getAttribute('href') === `#${entry.target.id}`;
+                if (on) a.setAttribute('aria-current', 'true');
+                else a.removeAttribute('aria-current');
+              });
+            }
+          },
+          { rootMargin: '-45% 0px -50% 0px' }
+        );
+        sections.forEach((s) => navIo.observe(s));
+      }
+    </script>
+  </body>
+</html>

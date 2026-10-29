@@ -1,0 +1,132 @@
+{
+  "slug": "gym-qr",
+  "featured": true,
+  "title": "GYM-QR",
+  "subtitle": "Attendance and locker management for a single gym",
+  "thesis": "One session per member. One key per locker.",
+  "role": "System analysis, requirements, system design, implementation",
+  "period": "2026",
+  "type": "concept",
+  "typeLabel": "Independent concept, not client work",
+  "status": "Backend milestones M0–M5 complete; member, cashier and admin interfaces still provisional",
+  "repository": "https://github.com/FerdinandLauren/GYM-QR",
+  "stack": ["PHP 8.3", "Laravel 11", "MySQL 8.4", "Redis", "Laravel Reverb", "PHPUnit"],
+  "boundary": "This is a self-initiated system concept built from my own observation of how gyms run their front desk. No gym owner commissioned it, no gym owner approved the requirements, and it has not been deployed or used by real members. Everything below is either implemented behaviour, a documented requirement, or a stated assumption — never a measured business result.",
+
+  "observe": {
+    "context": "A mid-sized gym records daily attendance in a paper book at the front desk. Membership status is checked by eye, and locker keys are handed out with no record of who holds which key. The same person works the desk during the busiest hour, so the queue is a side effect of the recording method, not of the number of members.",
+    "hypotheses": [
+      { "text": "The front desk is the bottleneck at peak hours because every member stops there, including members who do not need a locker.", "status": "assumption" },
+      { "text": "Locker keys go missing because nothing links a key to a session.", "status": "assumption" },
+      { "text": "Expired memberships are hard to enforce at the desk under time pressure.", "status": "assumption" }
+    ],
+    "note": "These are hypotheses drawn from observation, not findings from interviews. Validating them would require time at a real gym with the owner and the staff — that is the first thing I would do next."
+  },
+
+  "analyse": {
+    "actors": [
+      { "role": "Monthly member", "need": "Check in quickly, see package status and locker number" },
+      { "role": "Day-pass visitor", "need": "Be activated by the cashier without an account first" },
+      { "role": "Cashier / receptionist", "need": "See arrivals as they happen, verify identity, allocate keys" },
+      { "role": "Owner / admin", "need": "Visit and peak-hour reports, manage packages and lockers" }
+    ],
+    "frictions": [
+      { "step": "Member arrives", "asIs": "Queue at the desk, name written by hand", "toBe": "Member states locker need in the app, scans a static QR, walks in", "leak": "Every member waits, including those who need nothing from the desk" },
+      { "step": "Membership check", "asIs": "Cashier reads a card or remembers the face", "toBe": "Server evaluates effective_status on every scan", "leak": "Expired members can pass at peak time" },
+      { "step": "Locker handover", "asIs": "Key handed out, no record", "toBe": "Atomic assignment to one open session, with audit entry", "leak": "Two people can hold the same key; no trace of who holds it" },
+      { "step": "Closing time", "asIs": "Book is closed, keys are counted by hand", "toBe": "Batch reset closes sessions and frees lockers", "leak": "Reconciliation depends on memory" }
+    ],
+    "insight": "The queue is not solved by making the scan faster. It is solved by moving the locker question out of the queue: a member who needs no locker should never stop at the desk. That single decision (D3) removed the mandatory stop for most arrivals, and it also created the constraint that made the session model necessary."
+  },
+
+  "define": {
+    "scope": {
+      "in": ["Member web app (PWA) with OTP login, QR scan, GPS validation, digital card, locker status", "Cashier dashboard with real-time feed, locker assignment, manual check-in, package sales", "Admin panel for packages, locker assets, reports and gym settings", "One gym location"],
+      "out": ["Payment gateway", "Smart locker hardware, turnstiles", "Multi-branch", "Native mobile apps", "Accounting or payment reconciliation"]
+    },
+    "modules": [
+      { "id": "FR-MEM", "name": "Member app", "count": 10, "sample": "FR-MEM-03 geofence validation with accuracy tolerance; FR-MEM-04 one open session per member" },
+      { "id": "FR-CAS", "name": "Cashier dashboard", "count": 12, "sample": "FR-CAS-02 atomic locker assignment; FR-CAS-05 manual check-in with audit reason" },
+      { "id": "FR-ADM", "name": "Admin and data", "count": 7, "sample": "FR-ADM-04 gym settings and QR regeneration; FR-ADM-06 audit log" },
+      { "id": "NFR", "name": "Non-functional", "count": 7, "sample": "Response p95 ≤ 1.5 s; UTC storage with Asia/Jakarta display; data retention" }
+    ],
+    "decisions": [
+      { "id": "D2", "decision": "Expired members are rejected by the server, and the cashier gets a renewal alert", "reason": "Keeps the rule out of the hands of a cashier working a queue", "rejected": "Allow entry with a red warning in the feed" },
+      { "id": "D3", "decision": "The member states locker need in the app before scanning", "reason": "Removes the mandatory desk stop for members without a locker", "rejected": "Cashier always asks manually" },
+      { "id": "D4", "decision": "One open session per member, plus a 5-minute rescan guard", "reason": "A longer cooldown did not prevent duplicates and blocked legitimate re-entry", "rejected": "Fixed 60-minute cooldown" },
+      { "id": "D5", "decision": "Locker assignment is atomic: transaction with a row lock", "reason": "Two cashiers can pick the same number at the same moment", "rejected": "Check-then-update without a lock" },
+      { "id": "D6", "decision": "Geofence radius is configurable, with GPS accuracy tolerance and a manual fallback", "reason": "Indoor GPS accuracy cannot be guaranteed to 30 m", "rejected": "Hard-coded 30 m radius" }
+    ],
+    "states": {
+      "session": [
+        { "from": "none", "event": "scan accepted", "to": "open" },
+        { "from": "open", "event": "key returned", "to": "closed (locker_returned)" },
+        { "from": "open", "event": "cashier checkout", "to": "closed (staff_checkout)" },
+        { "from": "open", "event": "closing-time job", "to": "closed (auto_close)" },
+        { "from": "open", "event": "scan again", "to": "rejected 409 SESSION_ACTIVE" },
+        { "from": "closed", "event": "scan within 5 minutes", "to": "rejected 429 RESCAN_GUARD" }
+      ],
+      "locker": [
+        { "from": "available", "event": "assign", "to": "occupied" },
+        { "from": "occupied", "event": "return", "to": "available" },
+        { "from": "occupied", "event": "key lost", "to": "out_of_service (audit required)" },
+        { "from": "available", "event": "admin marks damaged", "to": "out_of_service" },
+        { "from": "out_of_service", "event": "admin marks repaired", "to": "available" }
+      ]
+    }
+  },
+
+  "verify": {
+    "summary": "Every expected behaviour was written as a numbered acceptance scenario before it was implemented. Fifteen scenarios exist (AT-01 to AT-15). The repository records no manual UAT run: the evidence column in docs/UAT.md is empty. What can be checked today is the automated suite.",
+    "metrics": [
+      { "label": "PRD length", "value": "1,166 lines", "detail": "Personas, journeys, state machines, FR/NFR, DDL, API spec, decision log", "evidence": "verified" },
+      { "label": "Acceptance scenarios", "value": "15", "detail": "AT-01 to AT-15 in docs/UAT.md, with an empty evidence column", "evidence": "verified" },
+      { "label": "Automated tests", "value": "130 passing", "detail": "849 assertions, run locally on 29 Oct 2026 with PHP 8.3.16, MySQL 8.4.3, Redis 5.0.14", "evidence": "verified" },
+      { "label": "Code style", "value": "Pint clean", "detail": "vendor/bin/pint --test passes", "evidence": "verified" },
+      { "label": "Static analysis", "value": "1 error at level 6", "detail": "larastan.noEnvCallsOutsideOfConfig in AppServiceProvider.php:67 — the reason CI is red at HEAD", "evidence": "verified" },
+      { "label": "Business outcome", "value": "Not measured", "detail": "No deployment, no baseline queue time, no user feedback", "evidence": "none" }
+    ],
+    "uat": [
+      { "id": "AT-01", "step": "Active member scans the QR at the desk", "expected": "200, one attendance row, card appears on the dashboard in under 500 ms", "automated": true },
+      { "id": "AT-02", "step": "Scan using a photo of the QR from inside the gym", "expected": "Accepted (known risk), still one session", "automated": false },
+      { "id": "AT-03", "step": "Scan from 500 m away", "expected": "403 GEO_OUT_OF_RANGE, no new row", "automated": true },
+      { "id": "AT-04", "step": "Scan reporting 300 m GPS accuracy", "expected": "422 GPS_ACCURACY_LOW", "automated": true },
+      { "id": "AT-05", "step": "Scan a random QR", "expected": "400 INVALID_QR", "automated": true },
+      { "id": "AT-06", "step": "Scan while a session is still open", "expected": "409 SESSION_ACTIVE with session details", "automated": true },
+      { "id": "AT-07", "step": "Two requests with the same Idempotency-Key", "expected": "One row, identical response", "automated": true },
+      { "id": "AT-08", "step": "Two cashiers assign locker #05 at the same time", "expected": "One 200, one 409 LOCKER_TAKEN, one owner", "automated": true },
+      { "id": "AT-09", "step": "Return the key", "expected": "Locker available, checkout_time filled, member sees the change", "automated": true },
+      { "id": "AT-10", "step": "Expired member scans", "expected": "403, no attendance row, appears in rejected scans with an audit entry", "automated": true },
+      { "id": "AT-11", "step": "Manual check-in by the cashier", "expected": "Coordinates NULL, manual_reason filled, audit entry present", "automated": true },
+      { "id": "AT-12", "step": "Day pass used on two consecutive days", "expected": "Day 1 200, day 2 403 MEMBERSHIP_EXPIRED", "automated": true },
+      { "id": "AT-13", "step": "Cashier offline for 10 minutes while members keep scanning", "expected": "Check-ins stored, sessions appear after reconnect", "automated": false },
+      { "id": "AT-14", "step": "Batch reset with the wrong count", "expected": "400, data unchanged", "automated": false },
+      { "id": "AT-15", "step": "Regenerate the gym QR", "expected": "Old payload 400 INVALID_QR, new payload 200", "automated": false }
+    ],
+    "errors": [
+      { "http": "400", "code": "INVALID_QR", "condition": "Payload does not match gym_settings.qr_payload" },
+      { "http": "403", "code": "GEO_OUT_OF_RANGE", "condition": "Distance greater than radius plus reported accuracy" },
+      { "http": "403", "code": "MEMBERSHIP_EXPIRED", "condition": "Package ended" },
+      { "http": "409", "code": "SESSION_ACTIVE", "condition": "Member already has an open session" },
+      { "http": "409", "code": "LOCKER_TAKEN", "condition": "Another cashier holds the locker row" },
+      { "http": "422", "code": "GPS_ACCURACY_LOW", "condition": "Reported accuracy above geofence_accuracy_max_m" },
+      { "http": "429", "code": "RESCAN_GUARD", "condition": "Scan within rescan_guard_seconds of a closed session" }
+    ]
+  },
+
+  "reflect": {
+    "demonstrates": "That I can take a process I only observed, decide what the system should and should not do, write it down so another person could build it, and define how to check the result.",
+    "limits": [
+      "The process analysis is not validated with a gym owner or staff; the frictions above are hypotheses.",
+      "No business result exists: no deployment, no measured queue time, no member feedback.",
+      "The interfaces are provisional, so the workflow has not been tested with a real cashier under pressure.",
+      "The geofence radius is uncalibrated at a real location, and GPS accuracy indoors is a known weak point (PRD §8.1)."
+    ],
+    "next": [
+      "Spend time at a gym with the owner and staff, and replace the hypotheses with observations.",
+      "Fix the one static-analysis error and keep CI green so the suite result is visible to anyone.",
+      "Run the 15 acceptance scenarios by hand and fill the evidence column with real output.",
+      "Calibrate the geofence radius on site, and test the scan flow with a cashier during peak hours."
+    ]
+  }
+}

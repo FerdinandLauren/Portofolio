@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Prak_WebLanjut",
+    "year": "2024",
+    "kind": "Coursework",
+    "purpose": "Practical work for the Web Lanjut course: a Laravel application with routes, Blade views and a form flow.",
+    "contribution": "Built the routing, views and form handling in my own commits.",
+    "stack": ["PHP", "Laravel"],
+    "learning": "First time structuring an application around routes and views instead of single files.",
+    "url": "https://github.com/FerdinandLauren/Prak_WebLanjut"
+  },
+  {
+    "name": "wuish",
+    "year": "2024",
+    "kind": "Coursework",
+    "purpose": "Second Web Lanjut course project, kept as a small Laravel application.",
+    "contribution": "Course assignment work.",
+    "stack": ["PHP", "Laravel"],
+    "learning": "Working inside an existing Laravel structure rather than starting from an empty folder.",
+    "url": "https://github.com/FerdinandLauren/wuish"
+  },
+  {
+    "name": "UAS-DSP",
+    "year": "2025",
+    "kind": "Coursework",
+    "purpose": "Final exam notebook for digital signal processing: analysis of consumer price data with a written interpretation.",
+    "contribution": "Analysis notebook and the resulting tables.",
+    "stack": ["Python", "Jupyter"],
+    "learning": "Reading a dataset carefully enough to say what it does not prove.",
+    "url": "https://github.com/FerdinandLauren/UAS-DSP"
+  },
+  {
+    "name": "DSP",
+    "year": "2025",
+    "kind": "Coursework",
+    "purpose": "Small Flask application for digital signal processing coursework.",
+    "contribution": "Application code for the assignment.",
+    "stack": ["Python", "Flask"],
+    "learning": "Wrapping analysis code in an interface someone else can actually use.",
+    "url": "https://github.com/FerdinandLauren/DSP"
+  },
+  {
+    "name": "BMI Calculator",
+    "year": "2024",
+    "kind": "Coursework",
+    "purpose": "Android application that computes body mass index from height and weight.",
+    "contribution": "Application and interface.",
+    "stack": ["Kotlin", "Android"],
+    "learning": "Input validation matters more than the formula; the formula is the easy part.",
+    "url": "https://github.com/FerdinandLauren/BMI_Calculator"
+  },
+  {
+    "name": "pastebin",
+    "year": "2024",
+    "kind": "Coursework",
+    "purpose": "A paste service clone: SQL schema, server routes and a Tailwind interface.",
+    "contribution": "Schema and interface work.",
+    "stack": ["CSS", "Tailwind", "SQL"],
+    "learning": "Designing the schema first made the interface decisions obvious.",
+    "url": "https://github.com/FerdinandLauren/pastebin"
+  }
+]

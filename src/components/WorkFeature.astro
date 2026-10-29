@@ -1,0 +1,111 @@
+---
+interface Props {
+  item: any;
+  ink?: boolean;
+}
+const { item, ink = false } = Astro.props;
+---
+
+<section class:list={['feature', ink && 'feature--ink']} id={`work-${item.n}`}>
+  <div class="wrap feature__inner">
+    <div class="feature__body reveal">
+      <div class="feature__top">
+        <span class="feature__num">{item.n}</span>
+        <span class="feature__type">{item.type}</span>
+      </div>
+
+      <h2 class="feature__title">{item.title}</h2>
+      <p class="feature__thesis">{item.thesis}</p>
+      <p class="feature__context">{item.context}</p>
+
+      <dl class="feature__facts">
+        {item.facts.map(([k, v]) => (
+          <div class="feature__fact">
+            <dt>{k}</dt>
+            <dd>{v}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div class="feature__foot">
+        <ul class="feature__meta">
+          {item.meta.map((m) => <li>{m}</li>)}
+        </ul>
+        <a class="feature__cta" href={item.href} {...(item.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+          {item.cta} <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+
+    <figure class="specimen reveal" aria-label={`${item.title} — evidence from the repository`}>
+      <div class="specimen__bar">
+        <span>specimen</span>
+        <span>{item.title}</span>
+      </div>
+
+      {item.visual === 'states' && (
+        <svg class="specimen__svg" viewBox="0 0 340 260" role="img" aria-label="Attendance session state machine: none, open, closed">
+          <defs>
+            <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+            </marker>
+          </defs>
+          <g class="sm">
+            <rect x="14" y="18" width="96" height="34" rx="2" />
+            <text x="62" y="40" text-anchor="middle">none</text>
+            <rect x="122" y="18" width="96" height="34" rx="2" class="sm--open" />
+            <text x="170" y="40" text-anchor="middle">open</text>
+            <rect x="230" y="18" width="96" height="34" rx="2" />
+            <text x="278" y="40" text-anchor="middle">closed</text>
+            <line x1="110" y1="35" x2="120" y2="35" marker-end="url(#arw)" />
+            <line x1="218" y1="35" x2="228" y2="35" marker-end="url(#arw)" />
+            <text x="170" y="72" text-anchor="middle" class="sm__lbl">scan accepted</text>
+            <text x="278" y="72" text-anchor="middle" class="sm__lbl">key returned</text>
+
+            <rect x="14" y="112" width="96" height="34" rx="2" />
+            <text x="62" y="134" text-anchor="middle">available</text>
+            <rect x="122" y="112" width="96" height="34" rx="2" class="sm--open" />
+            <text x="170" y="134" text-anchor="middle">occupied</text>
+            <rect x="230" y="112" width="96" height="34" rx="2" class="sm--warn" />
+            <text x="278" y="134" text-anchor="middle">out_of_service</text>
+            <line x1="110" y1="129" x2="120" y2="129" marker-end="url(#arw)" />
+            <line x1="218" y1="129" x2="228" y2="129" marker-end="url(#arw)" />
+            <text x="165" y="166" text-anchor="middle" class="sm__lbl">assign / return</text>
+
+            <line x1="170" y1="146" x2="170" y2="196" marker-end="url(#arw)" />
+            <rect x="60" y="200" width="220" height="34" rx="2" />
+            <text x="170" y="222" text-anchor="middle" class="sm__lbl">409 SESSION_ACTIVE · 409 LOCKER_TAKEN</text>
+          </g>
+        </svg>
+      )}
+
+      {item.visual === 'flow' && (
+        <ol class="specimen__flow">
+          <li><span>01</span> landing-page</li>
+          <li><span>02</span> routes-view</li>
+          <li><span>03</span> form</li>
+        </ol>
+      )}
+
+      {item.visual === 'table' && (
+        <ul class="specimen__files">
+          <li><span>notebook</span> analisis_consumer_prices.ipynb</li>
+          <li><span>output</span> consumer_prices_predictions.csv</li>
+          <li><span>output</span> model_summary.csv</li>
+          <li><span>input</span> human_capital_project.csv</li>
+        </ul>
+      )}
+
+      {item.visual === 'schema' && (
+        <ul class="specimen__files">
+          <li><span>schema</span> pastebin.sql</li>
+          <li><span>style</span> src/assets/css/index.css</li>
+          <li><span>build</span> package.json</li>
+          <li><span>assets</span> src/assets/img/</li>
+        </ul>
+      )}
+
+      <figcaption class="specimen__cap">Taken from the repository, not redrawn for effect.</figcaption>
+    </figure>
+  </div>
+</section>
