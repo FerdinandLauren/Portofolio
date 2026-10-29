@@ -12,7 +12,7 @@ const linkAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : 
   <div class="wrap">
     <div class="feature__head">
       <p class="feature__meta">
-        <span>{item.n}</span>
+        <span>{external ? item.n : `CASE-00${item.n}`}</span>
         <span>{item.type}</span>
         <span>{item.meta[item.meta.length - 1]}</span>
       </p>

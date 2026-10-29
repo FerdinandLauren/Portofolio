@@ -70,7 +70,7 @@ html.js .signature span:nth-child(2) i { animation-delay: 0.09s; }
 
 /* ── project sections ─────────────────────────────────────── */
 .feature { position: relative; border-top: 1px solid var(--line); padding-block: clamp(3.4rem, 7vw, 6rem); }
-.feature--ink { background: var(--ink); color: var(--on-ink); border-top-color: transparent; }
+.feature--ink { background: #122b1a; color: var(--on-ink); border-top-color: transparent; }
 .feature--ink .feature__thesis { color: var(--on-ink); }
 .feature--ink .feature__context,
 .feature--ink .feature__fact dd { color: var(--on-ink-2); }
@@ -81,6 +81,7 @@ html.js .signature span:nth-child(2) i { animation-delay: 0.09s; }
 .feature--ink .feature__fact,
 .feature--ink .tag { color: var(--on-ink-3); border-color: var(--line-ink); }
 .feature--ink .link-arrow { border-bottom-color: var(--line-ink-2); }
+.feature--ink .link-arrow:hover { border-color: var(--lime); color: var(--lime); }
 .feature--ink .feature__fact,
 .feature--ink .feature__facts { border-color: var(--line-ink); }
 .feature--ink .plate { border-color: var(--line-ink-2); }
@@ -121,10 +122,10 @@ html.js .signature span:nth-child(2) i { animation-delay: 0.09s; }
 .plate__svg { width: 100%; height: auto; display: block; color: var(--ink-2); }
 .feature--ink .plate__svg { color: var(--on-ink-2); }
 .plate__svg rect { fill: none; stroke: currentColor; stroke-width: 1; }
-.plate__svg .sm--open { stroke: currentColor; }
+.feature--ink .plate__svg .sm--open { stroke: var(--lime); }
 .plate__svg .sm--warn { stroke: #e0a077; }
 .plate__svg text { fill: currentColor; font-family: var(--mono); font-size: 12px; }
-.plate__svg .sm__lbl { opacity: 0.72; }
+.plate__svg .sm__lbl { opacity: 1; }
 
 .plate__flow, .plate__files { list-style: none; margin: 0; padding: 0; display: grid; }
 .plate__flow li, .plate__files li {
