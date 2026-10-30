@@ -1,5 +1,5 @@
 /* ============================================================
-   Desk mode — document default (no JS), immersive overlay (is-ready)
+   Desk mode, document default (no JS), immersive overlay (is-ready)
    ============================================================ */
 
 /* ---- body ---- */
@@ -61,7 +61,7 @@ body.is-desk { background: #0d120f; color: #e3e0d8; }
 .dpanel--lab .shell { padding-inline: var(--gutter); max-width: none; }
 .dpanel__back { display: none; }
 
-/* editorial title — stands on its own, no eyebrow above it */
+/* editorial title, stands on its own, no eyebrow above it */
 .dpanel__title {
   font-family: var(--display); font-weight: 400;
   font-size: clamp(2.1rem, 3.4vw, 2.9rem);
@@ -130,7 +130,7 @@ body.is-desk { background: #0d120f; color: #e3e0d8; }
 .dproject__links a:hover { color: var(--forest-2); border-color: var(--forest-2); }
 .dproject__link { display: inline-flex; gap: 0.35rem; font-weight: 500; font-size: 0.83rem; text-decoration: none; border-bottom: 1px solid var(--line-2); padding-bottom: 0.1rem; margin-top: 0.5rem; }
 
-/* approach steps — a ledger, not cards */
+/* approach steps, a ledger, not cards */
 .dstep {
   display: grid; grid-template-columns: 6rem minmax(0, 1fr);
   gap: 0.1rem 1rem; padding: 1.15rem 0;
@@ -142,10 +142,10 @@ body.is-desk { background: #0d120f; color: #e3e0d8; }
 .dstep__note { grid-column: 2; color: var(--ink-2); margin: 0 0 0.45rem; font-size: 0.87rem; line-height: 1.55; max-width: 56ch; }
 .dstep__list { grid-column: 2; list-style: none; margin: 0; padding: 0; }
 .dstep__list li { position: relative; padding: 0.26rem 0 0.26rem 0.95rem; font-size: 0.82rem; line-height: 1.5; color: var(--ink-2); }
-.dstep__list li::before { content: '—'; position: absolute; left: 0; color: var(--forest-3); font-family: var(--mono); font-size: 0.6rem; }
+.dstep__list li::before { content: '-'; position: absolute; left: 0; color: var(--forest-3); font-family: var(--mono); font-size: 0.6rem; }
 .dstep__artifact { grid-column: 2; font-family: var(--mono); font-size: 0.58rem; color: var(--ink-3); margin-top: 0.45rem; }
 
-/* AI flow — ledger rows */
+/* AI flow, ledger rows */
 .dflow { list-style: none; margin: 1.1rem 0; padding: 0; border-top: 1px solid var(--line-2); display: grid; grid-template-columns: minmax(0, 1fr); }
 .dflow li {
   display: grid; grid-template-columns: 1.6rem 6.4rem minmax(0, 1fr); gap: 0.55rem;
@@ -165,7 +165,7 @@ body.is-desk { background: #0d120f; color: #e3e0d8; }
 }
 
 /* ============================================================
-   Immersive mode — html.js .desk.is-ready
+   Immersive mode, html.js .desk.is-ready
    ============================================================ */
 html.js .desk.is-ready {
   position: fixed; inset: 0; overflow: hidden; max-width: none; margin: 0; padding: 0;
@@ -181,7 +181,7 @@ html.js .desk.is-ready .desk__hint { display: block; }
   position: fixed; inset: 0; pointer-events: none; z-index: 2;
   background: radial-gradient(50% 50% at 50% 40%, transparent 60%, rgba(0,0,0,0.35) 100%);
 }
-/* sorry — the class is actually fixed, not scoped to a desktop pseudo */
+/* sorry, the class is actually fixed, not scoped to a desktop pseudo */
 html.js .desk.is-ready .desk__vignette {
   pointer-events: none;
   position: fixed; inset: 0; z-index: 2;
@@ -240,7 +240,7 @@ html.js .desk.is-ready .desk__hint {
   pointer-events: none;
 }
 
-/* panels overlay — under half the viewport, opposite the selected label */
+/* panels overlay, under half the viewport, opposite the selected label */
 html.js .desk.is-ready .dpanel {
   position: fixed; top: 0; bottom: 0; z-index: 40;
   width: min(560px, 42vw);

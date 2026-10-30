@@ -1,5 +1,5 @@
 /**
- * Systems Analyst Desk — Three.js scene module.
+ * Systems Analyst Desk, Three.js scene module.
  * Exports createDesk({ canvas, reduceMotion }) → desk controller API.
  * Builds procedural desk geometry, lights, camera, raycasting, parallax,
  * object focus, and lamp toggle.  No DOM coupling beyond the canvas.

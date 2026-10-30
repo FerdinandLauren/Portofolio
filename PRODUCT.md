@@ -40,7 +40,7 @@ The site is sent as a link in job applications and on the CV. It must work when 
 
 ## Evidence on Hand
 
-- GYM-QR repository: PRD v1.2 (1,166 lines), UAT with 15 scenarios AT-01..AT-15 (execution evidence column empty — must not be presented as executed), 130 passing tests / 849 assertions verified locally, PHPStan level 6 with 1 known error, CI red on static analysis.
+- GYM-QR repository: PRD v1.2 (1,166 lines), UAT with 15 scenarios AT-01..AT-15 (execution evidence column empty, must not be presented as executed), 130 passing tests / 849 assertions verified locally, PHPStan level 6 with 1 known error, CI red on static analysis.
 - Supporting repos (coursework): Prak_WebLanjut, wuish, UAS-DSP, DSP, BMI_Calculator, pastebin.
 - No CV PDF yet. No photography of the subject. No testimonials.
 

@@ -1,4 +1,4 @@
-# Ferdinand Lauren — The Systems Workbench
+# Ferdinand Lauren, The Systems Workbench
 
 A static portfolio for entry-level IT business analyst / ERP functional consultant roles.
 Built around two honest case studies (GYM-QR and a Procure-to-Pay learning case), a four-stage
@@ -98,7 +98,7 @@ If the repository is named `<user>.github.io`, build without `BASE_PATH` (base s
 Filled: `email`, `linkedin`, `github`. Rendered in the contact section and the footer, and emitted
 as Person structured data.
 
-Still optional: `cv` — currently `null`, so no CV link is rendered at all (no dead button). Put the
+Still optional: `cv`, currently `null`, so no CV link is rendered at all (no dead button). Put the
 PDF in `public/` and set `cv` to `"/cv-ferdinand-lauren.pdf"` when it exists.
 
 Also check: `location` ("Bandar Lampung, Indonesia"), `education`, `cohort` ("2022 cohort"),
@@ -114,11 +114,11 @@ Open Graph and Twitter card metadata.
 
 ## Verification performed (29 Oct 2026)
 
-- `npm run build` — 2 pages built, no errors.
-- `npm test` — 11 tests pass (rules checked against `docs/UAT.md` of GYM-QR).
+- `npm run build`: 3 pages built, no errors.
+- `npm test`: 11 tests pass (rules checked against `docs/UAT.md` of GYM-QR).
 - Rendered at 1440, 1280, 1024, 768, 390 and 360 px in Chromium: `scrollWidth === viewport` at
-  every width on both routes, no horizontal overflow.
-- Every same-page and cross-page anchor on both routes resolves; no console messages or uncaught
+  every width on all three routes, no horizontal overflow.
+- Every same-page and cross-page anchor on all three routes resolves; no console messages or uncaught
   page errors.
 - Keyboard: Arrow keys move between Decision Lab cases and approach stages; focus stays on the
   selected control and the panel updates.

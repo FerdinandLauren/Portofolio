@@ -10,7 +10,7 @@ interface Props {
   desk?: boolean;
 }
 const {
-  title = `${site.name} — IT business analyst / ERP functional consultant`,
+  title = `${site.name}, IT business analyst / ERP functional consultant`,
   description = 'The Systems Workbench: how I observe business processes, define requirements, design system behaviour and verify it.',
   bodyClass = '',
   desk = false,
@@ -34,7 +34,7 @@ const hashBase = onHome ? '' : base;
     <link rel="preload" href={`${base}fonts/schibsted-var.woff2`} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={`${base}fonts/instrumentserif-400.woff2`} as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content="profile" />
-    <meta property="og:site_name" content={`${site.name} — Systems Workbench`} />
+    <meta property="og:site_name" content={`${site.name}, Systems Workbench`} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta name="twitter:card" content="summary" />
@@ -61,7 +61,7 @@ const hashBase = onHome ? '' : base;
     {!desk && (
       <header class="masthead">
         <div class="shell masthead__inner">
-          <a class="brand" href={base} aria-label={`${site.name} — home`}>
+          <a class="brand" href={base} aria-label={`${site.name}, home`}>
             <span class="brand__mark" aria-hidden="true">FL</span>
             <span class="brand__text">
               <span class="brand__name">{site.name}</span>
@@ -102,8 +102,8 @@ const hashBase = onHome ? '' : base;
             </nav>
             <div class="foot__contact">
               <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
-              <a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
-              <a href={site.contact.github} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+              <a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">�-</span></a>
+              <a href={site.contact.github} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">�-</span></a>
               {site.contact.cv && <a href={site.contact.cv}>CV (PDF) <span aria-hidden="true">↓</span></a>}
             </div>
           </div>

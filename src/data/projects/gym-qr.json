@@ -11,7 +11,7 @@
   "status": "Backend milestones M0–M5 complete; member, cashier and admin interfaces still provisional",
   "repository": "https://github.com/FerdinandLauren/GYM-QR",
   "stack": ["PHP 8.3", "Laravel 11", "MySQL 8.4", "Redis", "Laravel Reverb", "PHPUnit"],
-  "boundary": "This is a self-initiated system concept built from my own observation of how gyms run their front desk. No gym owner commissioned it, no gym owner approved the requirements, and it has not been deployed or used by real members. Everything below is either implemented behaviour, a documented requirement, or a stated assumption — never a measured business result.",
+  "boundary": "This is a self-initiated system concept built from my own observation of how gyms run their front desk. No gym owner commissioned it, no gym owner approved the requirements, and it has not been deployed or used by real members. Everything below is either implemented behaviour, a documented requirement, or a stated assumption, never a measured business result.",
 
   "observe": {
     "context": "A mid-sized gym records daily attendance in a paper book at the front desk. Membership status is checked by eye, and locker keys are handed out with no record of who holds which key. The same person works the desk during the busiest hour, so the queue is a side effect of the recording method, not of the number of members.",
@@ -20,7 +20,7 @@
       { "text": "Locker keys go missing because nothing links a key to a session.", "status": "assumption" },
       { "text": "Expired memberships are hard to enforce at the desk under time pressure.", "status": "assumption" }
     ],
-    "note": "These are hypotheses drawn from observation, not findings from interviews. Validating them would require time at a real gym with the owner and the staff — that is the first thing I would do next."
+    "note": "These are hypotheses drawn from observation, not findings from interviews. Validating them would require time at a real gym with the owner and the staff, that is the first thing I would do next."
   },
 
   "analyse": {
@@ -83,7 +83,7 @@
       { "label": "Acceptance scenarios", "value": "15", "detail": "AT-01 to AT-15 in docs/UAT.md, with an empty evidence column", "evidence": "verified" },
       { "label": "Automated tests", "value": "130 passing", "detail": "849 assertions, run locally on 29 Oct 2026 with PHP 8.3.16, MySQL 8.4.3, Redis 5.0.14", "evidence": "verified" },
       { "label": "Code style", "value": "Pint clean", "detail": "vendor/bin/pint --test passes", "evidence": "verified" },
-      { "label": "Static analysis", "value": "1 error at level 6", "detail": "larastan.noEnvCallsOutsideOfConfig in AppServiceProvider.php:67 — the reason CI is red at HEAD", "evidence": "verified" },
+      { "label": "Static analysis", "value": "1 error at level 6", "detail": "larastan.noEnvCallsOutsideOfConfig in AppServiceProvider.php:67, the reason CI is red at HEAD", "evidence": "verified" },
       { "label": "Business outcome", "value": "Not measured", "detail": "No deployment, no baseline queue time, no user feedback", "evidence": "none" }
     ],
     "uat": [

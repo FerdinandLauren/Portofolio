@@ -39,7 +39,7 @@ const stages = [
             <dt>Repository</dt>
             <dd>
               <a href={p.repository} target="_blank" rel="noopener noreferrer">
-                {p.repository.replace('https://', '')} <span aria-hidden="true">↗</span>
+                {p.repository.replace('https://', '')} <span aria-hidden="true">�-</span>
               </a>
             </dd>
           </div>
@@ -53,7 +53,7 @@ const stages = [
 
       <div class="cf-head__foot">
         <p>
-          One case study, taken all the way through — from a process I only observed to a
+          One case study, taken all the way through, from a process I only observed to a
           requirement, a designed behaviour, and a test plan. It is the clearest evidence I have of
           how I work.
         </p>
@@ -94,7 +94,7 @@ const stages = [
           <h3>The process as it runs today</h3>
           <p>{p.observe.context}</p>
 
-          <h3>What I took from it — and what I only suspect</h3>
+          <h3>What I took from it, and what I only suspect</h3>
           <ul class="notes">
             {p.observe.hypotheses.map((h) => (
               <li>
@@ -121,7 +121,7 @@ const stages = [
           <h3>Actors and what each one needs</h3>
           <div class="table-wrap">
             <table>
-              <caption>Stakeholder map — PRD §2.1</caption>
+              <caption>Stakeholder map, PRD §2.1</caption>
               <thead>
                 <tr><th scope="col">Actor</th><th scope="col">Primary need</th></tr>
               </thead>
@@ -185,7 +185,7 @@ const stages = [
           <h3>Requirements by module</h3>
           <div class="table-wrap">
             <table>
-              <caption>PRD §4 — the full document has 1,166 lines</caption>
+              <caption>PRD §4, the full document has 1,166 lines</caption>
               <thead>
                 <tr><th scope="col">Module</th><th scope="col">Items</th><th scope="col">Example</th></tr>
               </thead>
@@ -204,7 +204,7 @@ const stages = [
           <h3>Decisions, with the alternative I rejected</h3>
           <div class="table-wrap">
             <table>
-              <caption>PRD §0.2 decision log — each entry needs owner sign-off before build</caption>
+              <caption>PRD §0.2 decision log, each entry needs owner sign-off before build</caption>
               <thead>
                 <tr><th scope="col">ID</th><th scope="col">Decision</th><th scope="col">Why</th><th scope="col">Rejected</th></tr>
               </thead>
@@ -224,7 +224,7 @@ const stages = [
           <h3>Behaviour, drawn as states</h3>
           <div class="states">
             <div class="states__card">
-              <p class="label">Attendance session — PRD §3.3</p>
+              <p class="label">Attendance session, PRD §3.3</p>
               <ul>
                 {p.define.states.session.map((s) => (
                   <li>
@@ -236,7 +236,7 @@ const stages = [
               </ul>
             </div>
             <div class="states__card">
-              <p class="label">Locker — PRD §3.4</p>
+              <p class="label">Locker, PRD §3.4</p>
               <ul>
                 {p.define.states.locker.map((s) => (
                   <li>
@@ -286,7 +286,7 @@ const stages = [
             <div class="artifact__body">
               <div class="table-wrap">
                 <table>
-                  <caption>docs/UAT.md — “automated” means an automated test in the repo covers the same rule</caption>
+                  <caption>docs/UAT.md: “automated” means an automated test in the repo covers the same rule</caption>
                   <thead>
                     <tr><th scope="col">ID</th><th scope="col">Scenario</th><th scope="col">Expected</th><th scope="col">Automated</th></tr>
                   </thead>
@@ -296,7 +296,7 @@ const stages = [
                         <td class="num">{u.id}</td>
                         <td>{u.step}</td>
                         <td>{u.expected}</td>
-                        <td class="num">{u.automated ? 'yes' : '—'}</td>
+                        <td class="num">{u.automated ? 'yes' : 'no'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -313,7 +313,7 @@ const stages = [
           <details class="artifact">
             <summary>
               <span class="artifact__id">§7.3</span>
-              <span>Failure catalogue — what the member sees when the rule says no</span>
+              <span>Failure catalogue: what the member sees when the rule says no</span>
             </summary>
             <div class="artifact__body">
               <div class="table-wrap">
@@ -366,7 +366,7 @@ CI on main              → failing at static analysis, tests skipped</code></pr
           <h3>What this project shows</h3>
           <p>{p.reflect.demonstrates}</p>
 
-          <h3>What it does not show — yet</h3>
+          <h3>What it does not show, yet</h3>
           <ul class="notes">
             {p.reflect.limits.map((l) => <li><span>{l}</span></li>)}
           </ul>

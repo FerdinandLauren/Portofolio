@@ -3,16 +3,16 @@
     "n": "01",
     "title": "GYM-QR",
     "thesis": "One session per member. One key per locker.",
-    "context": "A gym records attendance in a paper book and hands out locker keys with no record of who holds them. I designed the system that replaces both — then wrote the requirements, the state rules and the acceptance tests before the code.",
+    "context": "A gym records attendance in a paper book and hands out locker keys with no record of who holds them. I designed the system that replaces both, then wrote the requirements, the state rules and the acceptance tests before the code.",
     "meta": ["System analysis", "Requirements", "Implementation", "2026"],
     "type": "Independent concept",
     "href": "/work/gym-qr",
     "cta": "Read the case study",
     "facts": [
-      ["PRD", "1,166 lines — personas, journeys, FR/NFR, DDL, API contract, decision log"],
+      ["PRD", "1,166 lines, personas, journeys, FR/NFR, DDL, API contract, decision log"],
       ["Acceptance tests", "15 scenarios written before the build"],
       ["Automated tests", "130 passing, 849 assertions"],
-      ["Boundary", "Concept only — no gym owner, no deployment, no measured result"]
+      ["Boundary", "Concept only, no gym owner, no deployment, no measured result"]
     ],
     "visual": "states"
   },
@@ -20,7 +20,7 @@
     "n": "02",
     "title": "Prak_WebLanjut",
     "thesis": "The first time a request had to travel through a whole system.",
-    "context": "Coursework for Web Lanjut: a Laravel application built commit by commit — a landing page, routes and views, then a form that posts and validates.",
+    "context": "Coursework for Web Lanjut: a Laravel application built commit by commit, a landing page, routes and views, then a form that posts and validates.",
     "meta": ["Coursework", "Laravel", "2024"],
     "type": "Coursework",
     "href": "https://github.com/FerdinandLauren/Prak_WebLanjut",

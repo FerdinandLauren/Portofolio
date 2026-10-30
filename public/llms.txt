@@ -1,4 +1,4 @@
-# Ferdinand Lauren — The Systems Workbench
+# Ferdinand Lauren, The Systems Workbench
 
 Computer Science undergraduate at Universitas Lampung (2022 cohort), based in Bandar Lampung,
 Indonesia. Building towards IT business analysis and ERP functional consulting.
@@ -6,7 +6,7 @@ Indonesia. Building towards IT business analysis and ERP functional consulting.
 Positioning: entry-level. No industry experience claimed.
 
 Working sequence: observe → define → design → verify. It is a personal working approach,
-practised on one independent concept project and on coursework — not a methodology validated in
+practised on one independent concept project and on coursework, not a methodology validated in
 client engagements.
 
 ## What this site contains
@@ -27,10 +27,10 @@ client engagements.
 
 ## Pages
 
-- / — the desk, working approach, featured case file, Decision Lab, AI Workbench, selected work,
+- /: the desk, working approach, featured case file, Decision Lab, AI Workbench, selected work,
   about and contact
-- /work/gym-qr — the GYM-QR case study as a document: observe, analyse, define, verify, reflect
-- /work/p2p-procurement — the Procure-to-Pay learning case study: context, process, actors, rules,
+- /work/gym-qr: the GYM-QR case study as a document: observe, analyse, define, verify, reflect
+- /work/p2p-procurement: the Procure-to-Pay learning case study: context, process, actors, rules,
   requirements, acceptance criteria, exceptions, ERP concepts, scope
 
 ## Contact

@@ -6,12 +6,12 @@
   "thesis": "One approved request. One traceable order. One payment that can be checked.",
   "role": "Process analysis, business rules, functional requirements, acceptance criteria",
   "period": "2026",
-  "status": "Analysis document only — no ERP configured, no supplier engaged",
+  "status": "Analysis document only, no ERP configured, no supplier engaged",
   "type": "Learning case study",
-  "typeLabel": "Independent learning case study — fictional scenario",
+  "typeLabel": "Independent learning case study, fictional scenario",
   "boundary": "Northline Industrial Supply is a fictional company created for this exercise. The process, rules and requirements are designed to demonstrate analysis, not to describe a real client. No ERP product was configured, no supplier was contacted, and no business outcome is claimed.",
   "context": {
-    "company": "Northline Industrial Supply (fictional) — a 120-person distributor of maintenance and repair supplies.",
+    "company": "Northline Industrial Supply (fictional), a 120-person distributor of maintenance and repair supplies.",
     "situation": "Purchasing grew out of email and spreadsheets. Requests arrive by chat, email and paper. Managers approve by replying “OK”. Procurement raises orders in a spreadsheet, and the warehouse records receipts on a clipboard.",
     "problem": "The same purchase can exist in three versions: what was asked for, what was ordered, and what arrived. Finance reconciles them by hand before paying, so the payment is only as reliable as the folder it came from.",
     "why": "A structured procure-to-pay process makes the commitment traceable from request to payment. It also gives each actor one place to see what they own."

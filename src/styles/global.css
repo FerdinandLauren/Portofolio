@@ -296,7 +296,7 @@ body.is-scrolled .masthead {
 }
 
 /* ============================================================
-   Case study — document layout
+   Case study, document layout
    ============================================================ */
 .cf-head {
   padding-top: calc(var(--nav-h) + clamp(2rem, 5vw, 3.5rem));
@@ -486,7 +486,7 @@ td strong { color: var(--ink); font-weight: 500; }
 .cf-thread:hover { background: var(--paper-2); }
 
 /* ============================================================
-   Decision Lab — dark instrument
+   Decision Lab, dark instrument
    ============================================================ */
 .lab { background: var(--board); color: var(--on-board); padding-block: clamp(4rem, 8vw, 7rem); }
 .lab__head {
