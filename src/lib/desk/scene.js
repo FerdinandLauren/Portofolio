@@ -55,11 +55,11 @@ export function createDesk({ canvas, reduceMotion = false }) {
   scene.add(rim);
 
   const lampLight = new THREE.SpotLight(0xffc98a, 0, 8, 0.7, 0.72, 0);
-  lampLight.position.set(1.76, 1.80, -0.65);
+  lampLight.position.set(0.70, 1.78, -0.44);
   lampLight.castShadow = true;
   lampLight.shadow.mapSize.set(1024, 1024);
   lampLight.shadow.bias = -0.0005;
-  lampLight.target.position.set(0.15, 0.96, -0.1);
+  lampLight.target.position.set(0.05, 1.15, -0.5);
   scene.add(lampLight);
   scene.add(lampLight.target);
 
@@ -202,19 +202,19 @@ export function createDesk({ canvas, reduceMotion = false }) {
   lBase.castShadow = true; lBase.receiveShadow = true;
   lamp.add(lBase);
   const lArm = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.95, 16), matMetal2);
-  lArm.position.set(0.1, 0.5, 0); lArm.rotation.z = -0.25;
+  lArm.position.set(-0.18, 0.5, 0); lArm.rotation.z = 0.4;
   lamp.add(lArm);
-  const lNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.35, 16), matMetal2);
-  lNeck.position.set(0.3, 0.92, -0.03); lNeck.rotation.x = 1.2;
+  const lNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.3, 16), matMetal2);
+  lNeck.position.set(-0.5, 0.92, -0.03); lNeck.rotation.z = Math.PI / 2;
   lamp.add(lNeck);
 
-  // lamp head + bulb
-  const lHead = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.22, 24), matMetal2);
-  lHead.position.set(0.34, 0.92, -0.17);
-  lHead.rotation.x = -1.6;
+  // lamp head + bulb, reaching left over the desk toward the monitor
+  const lHead = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.24, 24), matMetal2);
+  lHead.position.set(-0.72, 0.9, -0.04);
+  lHead.rotation.z = -0.6; lHead.rotation.x = 0.25;
   lamp.add(lHead);
-  const bulbMesh = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 8), matBulb);
-  bulbMesh.position.set(0.34, 0.84, -0.25);
+  const bulbMesh = new THREE.Mesh(new THREE.SphereGeometry(0.042, 12, 8), matBulb);
+  bulbMesh.position.set(-0.72, 0.82, -0.04);
   lamp.add(bulbMesh);
   group.add(lamp);
 
@@ -280,7 +280,7 @@ export function createDesk({ canvas, reduceMotion = false }) {
     notebook:  { pos: new THREE.Vector3(-2.8, 1.85, 2.9), look: new THREE.Vector3(-1.15, 0.99, -0.08) },
     folder:    { pos: new THREE.Vector3(2.8, 1.85, 3.2),  look: new THREE.Vector3(1.05, 0.99, 0.08) },
     clipboard: { pos: new THREE.Vector3(-2.8, 1.9, 3.0),  look: new THREE.Vector3(-1.15, 0.98, 0.55) },
-    lamp:      { pos: new THREE.Vector3(2.5, 2.2, 3.3),   look: new THREE.Vector3(1.42, 1.4, -0.4) },
+    lamp:      { pos: new THREE.Vector3(2.4, 2.2, 3.2),   look: new THREE.Vector3(0.7, 1.3, -0.4) },
     card:      { pos: new THREE.Vector3(2.4, 1.7, 3.6),   look: new THREE.Vector3(1.05, 0.97, 0.62) },
   };
   const curPos = overview.pos.clone();
