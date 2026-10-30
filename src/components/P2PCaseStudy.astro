@@ -1,0 +1,354 @@
+---
+const { project } = Astro.props;
+const p = project;
+const base = import.meta.env.BASE_URL;
+const root = base.endsWith('/') ? base : `${base}/`;
+const contents = [
+  ['01', 'Context', 'context'],
+  ['02', 'Process', 'process'],
+  ['03', 'Actors', 'actors'],
+  ['04', 'Business rules', 'rules'],
+  ['05', 'Requirements', 'requirements'],
+  ['06', 'Acceptance', 'acceptance'],
+  ['07', 'Exceptions', 'exceptions'],
+  ['08', 'ERP concepts', 'erp'],
+  ['09', 'Scope', 'scope'],
+];
+---
+
+<article class="cf">
+  <header class="cf-head">
+    <div class="shell">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href={root}>Workbench</a>
+        <span aria-hidden="true">/</span>
+        <span>Case file 002</span>
+      </nav>
+
+      <div class="cf-head__grid">
+        <div class="cf-head__main">
+          <p class="label">Case file 002 · {p.typeLabel}</p>
+          <h1 class="cf-title">{p.title}</h1>
+          <p class="cf-sub">{p.subtitle}</p>
+          <p class="cf-thesis">{p.thesis}</p>
+        </div>
+
+        <dl class="cf-facts">
+          <div><dt>Role</dt><dd>{p.role}</dd></div>
+          <div><dt>Period</dt><dd>{p.period}</dd></div>
+          <div><dt>Status</dt><dd>{p.status}</dd></div>
+          <div><dt>Scenario</dt><dd>{p.context.company}</dd></div>
+        </dl>
+      </div>
+
+      <p class="cf-boundary">
+        <span class="label">Scope boundary</span>
+        {p.boundary}
+      </p>
+
+      <div class="cf-head__foot">
+        <p>
+          An independent learning case study: one process, taken from a request through approval,
+          ordering, receiving, invoice verification and payment — documented as rules, requirements
+          and testable acceptance criteria.
+        </p>
+        <a class="cf-head__link" href={root}>← Back to the workbench</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell cf-body">
+    <aside class="cf-nav" aria-label="Contents of the case study">
+      <p class="label">Contents</p>
+      <ol>
+        {contents.map(([n, name, id]) => (
+          <li><a href={`#p2p-${id}`}><span class="mono">{n}</span><span>{name}</span></a></li>
+        ))}
+      </ol>
+      <p class="cf-nav__meta mono">6 process steps · 9 rules · 12 requirements · 10 scenarios</p>
+    </aside>
+
+    <div class="cf-main">
+      <!-- CONTEXT -->
+      <section class="cf-stage" id="p2p-context">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">01</span>
+          <div><p class="label">Business context</p><h2>Why this process needs structure</h2></div>
+        </header>
+        <div class="cf-stage__body">
+          <dl class="cf-facts p2p-inline-facts">
+            <div><dt>Company</dt><dd>{p.context.company}</dd></div>
+            <div><dt>Situation</dt><dd>{p.context.situation}</dd></div>
+            <div><dt>Problem</dt><dd>{p.context.problem}</dd></div>
+            <div><dt>Why it matters</dt><dd>{p.context.why}</dd></div>
+          </dl>
+          <p class="fine">
+            The company and its problems are fictional. They exist to give the requirements a
+            concrete process to describe, not to report findings from a real business.
+          </p>
+        </div>
+      </section>
+
+      <!-- PROCESS -->
+      <section class="cf-stage" id="p2p-process">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">02</span>
+          <div><p class="label">Process overview</p><h2>Request to payment, in six steps</h2></div>
+        </header>
+        <div class="cf-stage__body">
+          <ol class="p2p-rail" aria-label="Procure-to-pay steps">
+            {p.process.flow.map((name, i) => (
+              <li>
+                <span class="mono">{String(i + 1).padStart(2, '0')}</span>
+                <span>{name}</span>
+                {i < p.process.flow.length - 1 && <span class="p2p-rail__arrow" aria-hidden="true">→</span>}
+              </li>
+            ))}
+          </ol>
+
+          <div class="table-wrap">
+            <table>
+              <caption>Activities, owners, outputs and the decision at each step</caption>
+              <thead>
+                <tr><th scope="col">Step</th><th scope="col">Activity</th><th scope="col">Actor</th><th scope="col">Output</th><th scope="col">Decision</th></tr>
+              </thead>
+              <tbody>
+                {p.process.steps.map((s) => (
+                  <tr>
+                    <td class="num">{s.n}</td>
+                    <td><strong>{s.name}</strong></td>
+                    <td>{s.actor}</td>
+                    <td>{s.output}</td>
+                    <td class="p2p-decision">{s.decision}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <h3>When the normal path breaks</h3>
+          <ul class="notes">
+            {p.process.exceptions.map((e) => <li><span>{e}</span></li>)}
+          </ul>
+        </div>
+      </section>
+
+      <!-- ACTORS -->
+      <section class="cf-stage" id="p2p-actors">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">03</span>
+          <div><p class="label">Stakeholders</p><h2>Who owns which decision</h2></div>
+        </header>
+        <div class="cf-stage__body">
+          <div class="table-wrap">
+            <table>
+              <caption>Each actor has one responsibility and one place in the process</caption>
+              <thead>
+                <tr><th scope="col">Actor</th><th scope="col">Responsibility</th><th scope="col">Interaction</th></tr>
+              </thead>
+              <tbody>
+                {p.stakeholders.map((s) => (
+                  <tr><td><strong>{s.role}</strong></td><td>{s.responsibility}</td><td>{s.interaction}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- RULES -->
+      <section class="cf-stage" id="p2p-rules">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">04</span>
+          <div><p class="label">Business rules</p><h2>The constraints the system must hold</h2></div>
+        </header>
+        <div class="cf-stage__body">
+          <p>
+            These rules are written for this scenario. They describe what must be true before the
+            next step is allowed, and who is allowed to make the decision.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">ID</th><th scope="col">Rule</th><th scope="col">Owner</th></tr></thead>
+              <tbody>
+                {p.rules.map((r) => (
+                  <tr><td class="num">{r.id}</td><td>{r.rule}</td><td>{r.actor}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- REQUIREMENTS -->
+      <section class="cf-stage" id="p2p-requirements">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">05</span>
+          <div><p class="label">Functional requirements</p><h2>What the system must do</h2></div>
+        </header>
+        <div class="cf-stage__body">
+          <p>
+            Each requirement names the actor, the expected behaviour and its priority. Requirements
+            are written so a developer and a reviewer can disagree about them precisely.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">ID</th><th scope="col">Requirement</th><th scope="col">Actor</th><th scope="col">Expected behaviour</th><th scope="col">Priority</th></tr>
+              </thead>
+              <tbody>
+                {p.requirements.map((r) => (
+                  <tr>
+                    <td class="num">{r.id}</td>
+                    <td><strong>{r.title}</strong><span class="cell-sub">{r.description}</span></td>
+                    <td>{r.actor}</td>
+                    <td>{r.behavior}</td>
+                    <td class="num">{r.priority}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACCEPTANCE -->
+      <section class="cf-stage" id="p2p-acceptance">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">06</span>
+          <div><p class="label">Acceptance criteria</p><h2>How the behaviour is checked</h2></div>
+        </header>
+        <div class="cf-stage__body">
+          <p>
+            These are proposed acceptance criteria for the scenario. They have not been executed
+            against an ERP product, because no product was configured.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">ID</th><th scope="col">Requirement</th><th scope="col">Given</th><th scope="col">When</th><th scope="col">Then</th><th scope="col">Type</th></tr>
+              </thead>
+              <tbody>
+                {p.acceptance.map((a) => (
+                  <tr>
+                    <td class="num">{a.id}</td>
+                    <td class="num">{a.requirement}</td>
+                    <td>{a.given}</td>
+                    <td>{a.when}</td>
+                    <td>{a.then}</td>
+                    <td class="num">{a.type}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXCEPTIONS -->
+      <section class="cf-stage" id="p2p-exceptions">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">07</span>
+          <div><p class="label">Exceptions and decision points</p><h2>What happens when the rule says no</h2></div>
+        </header>
+        <div class="cf-stage__body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">ID</th><th scope="col">Scenario</th><th scope="col">Expected behaviour</th><th scope="col">Who acts next</th></tr></thead>
+              <tbody>
+                {p.exceptions.map((e) => (
+                  <tr><td class="num">{e.id}</td><td><strong>{e.scenario}</strong></td><td>{e.expected}</td><td>{e.actor}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ERP -->
+      <section class="cf-stage" id="p2p-erp">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">08</span>
+          <div><p class="label">ERP concepts</p><h2>Where this sits in an ERP system</h2></div>
+        </header>
+        <div class="cf-stage__body">
+          <p>
+            The case study uses general ERP concepts, not the configuration of a named product.
+            Each concept below is a place where an ERP system would hold or enforce part of the
+            process.
+          </p>
+          <dl class="p2p-erp">
+            {p.erp.map((e) => (
+              <div><dt>{e.concept}</dt><dd>{e.note}</dd></div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      <!-- SCOPE -->
+      <section class="cf-stage" id="p2p-scope">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">09</span>
+          <div><p class="label">Scope and limitations</p><h2>What this document is, and is not</h2></div>
+        </header>
+        <div class="cf-stage__body">
+          <div class="scope">
+            <div class="scope__col">
+              <p class="label label--in">In scope</p>
+              <ul>{p.scope.in.map((s) => <li>{s}</li>)}</ul>
+            </div>
+            <div class="scope__col scope__col--out">
+              <p class="label">Explicitly out of scope</p>
+              <ul>{p.scope.out.map((s) => <li>{s}</li>)}</ul>
+            </div>
+          </div>
+
+          <div class="cf-boundary">
+            <span class="label">Limitations</span>
+            <ul class="notes">{p.scope.limits.map((l) => <li><span>{l}</span></li>)}</ul>
+          </div>
+
+          <a class="cf-thread" href={`${root}#lab`}>
+            <span class="label">Continue</span>
+            <span>See how decision rules are walked step by step in the Decision Lab</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </section>
+    </div>
+  </div>
+</article>
+
+<style>
+  .p2p-inline-facts { margin-top: 0; }
+  .p2p-decision { color: var(--forest-2); }
+
+  .p2p-rail {
+    list-style: none; margin: 0.4rem 0 1.6rem; padding: 0;
+    display: flex; flex-wrap: wrap; gap: 0.4rem 0;
+    border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line);
+  }
+  .p2p-rail li {
+    display: flex; align-items: baseline; gap: 0.45rem;
+    padding: 0.6rem 0.9rem 0.6rem 0;
+    font-size: 0.84rem;
+  }
+  .p2p-rail .mono { font-size: 0.58rem; color: var(--ink-4); }
+  .p2p-rail__arrow { color: var(--forest-3); margin-left: 0.45rem; }
+
+  .p2p-erp { margin: 0.6rem 0 0; border-top: 1px solid var(--line-2); }
+  .p2p-erp > div {
+    display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 1rem;
+    padding: 0.7rem 0; border-bottom: 1px solid var(--line);
+  }
+  .p2p-erp dt { font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--forest-2); }
+  .p2p-erp dd { margin: 0; font-size: 0.88rem; color: var(--ink-2); }
+
+  .cf-boundary ul.notes { margin: 0.3rem 0 0; }
+  .cf-boundary ul.notes li { border-bottom-color: var(--line); }
+
+  @media (max-width: 720px) {
+    .p2p-rail li { font-size: 0.78rem; padding-right: 0.6rem; }
+    .p2p-erp > div { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+  }
+</style>

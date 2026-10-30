@@ -11,11 +11,16 @@ client engagements.
 
 ## What this site contains
 
-- One in-depth case study, GYM-QR: a self-initiated gym attendance and locker management concept.
-  It is documented as a concept, not client work. Includes a 1,166-line PRD, two state machines,
-  15 acceptance scenarios, and 130 passing automated tests in the source repository.
-- The Decision Lab: four documented decision cases from that system, with the initial conditions,
-  the rules, the response, the resulting state, edge cases, and the evidence level for each.
+- Two in-depth case studies.
+- GYM-QR: a self-initiated gym attendance and locker management concept. It is documented as a
+  concept, not client work. Includes a 1,166-line PRD, two state machines, 15 acceptance scenarios,
+  and 130 passing automated tests in the source repository.
+- Procure-to-Pay: an independent learning case study set in a fictional distributor. It documents
+  a purchase request → approval → order → goods receipt → invoice verification → payment process,
+  with 9 business rules, 12 functional requirements and 10 acceptance criteria. No ERP product was
+  configured and no business outcome is claimed.
+- The Decision Lab: four documented decision cases from the GYM-QR system, with the initial conditions,
+  the rules, the decision trace, the expected result, edge cases, and the evidence level for each.
 - The AI Workbench: AI positioned as a drafting tool inside a reviewed workflow. It claims no
   time saving, no productivity metric, and no specific requirement written by a model.
 - Coursework: Prak_WebLanjut, wuish, UAS-DSP, DSP, BMI_Calculator, pastebin. Labelled as coursework.
@@ -24,7 +29,9 @@ client engagements.
 
 - / — the desk, working approach, featured case file, Decision Lab, AI Workbench, selected work,
   about and contact
-- /work/gym-qr — the case study as a document: observe, analyse, define, verify, reflect
+- /work/gym-qr — the GYM-QR case study as a document: observe, analyse, define, verify, reflect
+- /work/p2p-procurement — the Procure-to-Pay learning case study: context, process, actors, rules,
+  requirements, acceptance criteria, exceptions, ERP concepts, scope
 
 ## Contact
 

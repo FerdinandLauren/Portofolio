@@ -6,12 +6,14 @@ import site from '../data/site.json';
 import work from '../data/work.json';
 import supporting from '../data/projects/supporting.json';
 import gym from '../data/projects/gym-qr.json';
+import p2p from '../data/projects/p2p-procurement.json';
 
 const featured = work[0];
 const rest = work.slice(1);
 const alsoDone = supporting.filter(p => !work.some(w => w.title === p.name));
 const root = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const caseHref = `${root}work/gym-qr/`;
+const p2pHref = `${root}work/p2p-procurement/`;
 ---
 
 <Base desk bodyClass="is-desk">
@@ -62,7 +64,7 @@ const caseHref = `${root}work/gym-qr/`;
       <div class="dpanel__inner">
         <h2 class="dpanel__title" id="about-title">{site.name}</h2>
         <div class="dpanel__body">
-          <p class="dpanel__lede">{site.positioning}</p>
+          <p class="dpanel__lede">Computer Science undergraduate at Universitas Lampung, working towards IT business analysis and ERP functional consulting.</p>
           <dl class="dpanel__facts">
             <div><dt>Based in</dt><dd>{site.location}</dd></div>
             <div><dt>Studying</dt><dd>{site.education}</dd></div>
@@ -70,9 +72,9 @@ const caseHref = `${root}work/gym-qr/`;
             <div><dt>Working towards</dt><dd>ERP functional consultant · IT business analyst</dd></div>
             <div><dt>Open to</dt><dd>Internship, trainee programme, junior position</dd></div>
           </dl>
-          <p>I have no industry experience yet, and I do not pretend otherwise. What I can offer is someone who reads the process before touching the system, writes the requirement down instead of carrying it in his head, and says plainly when something has not been verified.</p>
-          <p>So I practise the parts I can practise alone: reading how an operation runs, mapping the actors and handoffs, naming where it leaks, turning that into requirements with IDs and acceptance criteria, defining expected behaviour as states and rules, then checking the result against scenarios written before the build.</p>
-          <p>Two companies can run the same process and get different results, and the difference is rarely the software. It is whether anyone wrote down what the process is supposed to do, who it serves, and what should happen when it goes wrong. That writing is the work I want to do.</p>
+          <p>The problems I enjoy are operational: a request that arrives through three channels, an approval nobody owns, a goods receipt that does not match the order. Before software can help, someone has to describe the process, separate what was observed from what was assumed, and write the rule down.</p>
+          <p>My degree gives me the technical vocabulary — data models, state, APIs, tests — but the work I want sits earlier: process mapping, requirements, and acceptance criteria. That is why every case study here starts with a process, not a screen.</p>
+          <p>I have no industry experience yet. What I can show is how I practise: documented requirements, traceable decisions, and an honest note on what remains unverified.</p>
         </div>
       </div>
     </section>
@@ -82,6 +84,22 @@ const caseHref = `${root}work/gym-qr/`;
       <div class="dpanel__inner">
         <h2 class="dpanel__title" id="projects-title">Selected work</h2>
         <div class="dpanel__body">
+          <!-- ERP case study -->
+          <article class="dproject">
+            <h3 class="dproject__title"><a href={p2pHref}>{p2p.title}</a></h3>
+            <p class="dproject__thesis">{p2p.thesis}</p>
+            <p class="dpanel__flag">{p2p.typeLabel}</p>
+            <p class="dproject__ctx">{p2p.context.problem}</p>
+            <dl class="dpanel__facts dpanel__facts--tight">
+              <div><dt>Focus</dt><dd>Process mapping, business rules, requirements, acceptance criteria</dd></div>
+              <div><dt>Process</dt><dd>Request → approval → order → receipt → invoice → payment</dd></div>
+              <div><dt>Boundary</dt><dd>Fictional company; no ERP configured, no measured outcome</dd></div>
+            </dl>
+            <p class="dproject__links">
+              <a href={p2pHref}>Read the case study →</a>
+            </p>
+          </article>
+
           <!-- featured -->
           <article class="dproject">
             <h3 class="dproject__title"><a href={caseHref}>{featured.title}</a></h3>
@@ -153,15 +171,48 @@ const caseHref = `${root}work/gym-qr/`;
       <div class="dpanel__inner">
         <h2 class="dpanel__title" id="ai-title">AI sits on the bench. It never gives the verdict.</h2>
         <div class="dpanel__body">
-          <p>Agents draft, constrain and check faster than I can alone. Nothing they produce reaches a deliverable until I have tested it against the requirement — so the review, not the model, is the part I am claiming.</p>
+          <p>AI is a drafting tool on this desk, not the analyst. It turns raw notes into candidate structure; every line is tested against the process, the rules and the evidence before it becomes a requirement.</p>
           <ol class="dflow">
-            <li><span class="mono">01</span><span>Input</span><span>Raw notes, PRD sections, the rules committed in the repository.</span></li>
-            <li><span class="mono">02</span><span>AI-assisted analysis</span><span>Candidate requirements, edge cases, consistency checks.</span></li>
-            <li><span class="mono">03</span><span>Human review</span><span>Each line measured against the PRD, the state model and the tests — or dropped.</span></li>
-            <li><span class="mono">04</span><span>Verified output</span><span>Only what the repository can show is presented as output. The rest stays labelled.</span></li>
+            <li><span class="mono">01</span><span>Input</span><span>A raw operational note, a requirement or a PRD section.</span></li>
+            <li><span class="mono">02</span><span>AI-assisted analysis</span><span>Actors, activities, candidate rules, missing information.</span></li>
+            <li><span class="mono">03</span><span>Human review</span><span>Authority, exceptions and scope checked against the process.</span></li>
+            <li><span class="mono">04</span><span>Verified output</span><span>A requirement with an ID, a rule and acceptance criteria — or nothing.</span></li>
           </ol>
-          <p>In the GYM-QR repository the rules the agents work under are committed: <code>AGENTS.md</code> and <code>.clinerules</code>. They fix scope, stack and tone before a draft exists. How many lines came from an agent and how many from me is not separable by commit, so I am not claiming a ratio.</p>
-          <p class="dpanel__caveat">This is a working practice, not a measured result.</p>
+
+          <div class="ai-example">
+            <p class="label">Illustrative example — purchase request approval</p>
+            <div class="ai-example__row">
+              <p class="ai-example__k">Raw note</p>
+              <p>“Staff can submit purchase requests, but the manager needs to approve them before procurement creates an order.”</p>
+            </div>
+            <div class="ai-example__row">
+              <p class="ai-example__k">AI-assisted draft</p>
+              <ul>
+                <li>Actor: department staff</li>
+                <li>Action: submit purchase request</li>
+                <li>Approval authority: department manager</li>
+                <li>Next activity: procurement creates purchase order</li>
+                <li>Candidate rule: an order cannot be created from an unapproved request</li>
+              </ul>
+            </div>
+            <div class="ai-example__row">
+              <p class="ai-example__k">Human review</p>
+              <ul>
+                <li>Is the manager always the approver, or only below an amount limit?</li>
+                <li>What happens when the request is rejected?</li>
+                <li>Is partial approval or delegation supported?</li>
+              </ul>
+            </div>
+            <div class="ai-example__row">
+              <p class="ai-example__k">Verified output</p>
+              <p>BR-004 and FR-006, checked by AC-005 and AC-006. The rule is labelled as scenario-specific, not as a universal ERP rule.</p>
+            </div>
+          </div>
+
+          <p class="dpanel__caveat">This example demonstrates the workflow; it is not a log of a real AI session. No time saving, model performance or productivity gain is claimed.</p>
+
+          <p>In the GYM-QR repository the agent rules are committed as <code>AGENTS.md</code> and <code>.clinerules</code>. How many lines came from an agent and how many from me is not separable by commit, so no ratio is claimed.</p>
+
           <div class="dpanel__claimbox">
             <p class="mono">Not claimed</p>
             <ul>
@@ -177,15 +228,18 @@ const caseHref = `${root}work/gym-qr/`;
     <!-- CONTACT -->
     <section class="dpanel" id="panel-contact" data-panel="contact" data-side="right" data-label="Contact" aria-labelledby="contact-title" hidden>
       <div class="dpanel__inner">
-        <h2 class="dpanel__title" id="contact-title">Talk to me</h2>
+        <h2 class="dpanel__title" id="contact-title">Hiring a junior analyst?</h2>
         <div class="dpanel__body">
-          <p class="dpanel__lede">If you are hiring for a trainee or junior analyst role, I would like to talk.</p>
+          <p class="dpanel__lede">I am looking for an internship, trainee programme or junior position in IT business analysis, ERP functional consulting or digital transformation. If your team needs someone who reads the process before proposing the system, I would like to hear from you.</p>
           <dl class="dpanel__links">
             <div><dt>Email</dt><dd><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></dd></div>
             <div><dt>LinkedIn</dt><dd><a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">{site.contact.linkedin.replace('https://','')}</a></dd></div>
             <div><dt>GitHub</dt><dd><a href={site.contact.github} target="_blank" rel="noopener noreferrer">{site.contact.github.replace('https://','')}</a></dd></div>
           </dl>
-          <p class="dpanel__note mono">{site.location} · {site.cohort}</p>
+          <p class="dproject__links" style="margin-top:1.2rem">
+            <a href={`mailto:${site.contact.email}?subject=Junior%20analyst%20role%20—%20Ferdinand%20Lauren`}>Email me about a role →</a>
+          </p>
+          <p class="dpanel__note mono">{site.location} · {site.cohort} · internship / trainee / junior</p>
         </div>
       </div>
     </section>

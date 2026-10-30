@@ -598,6 +598,29 @@ td strong { color: var(--ink); font-weight: 500; }
 .lab__note b { color: var(--on-board-2); font-weight: 500; }
 .lab__note b.is-lime { color: var(--lime); }
 
+/* decision flow + expected result */
+.dflowline {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.55rem;
+  margin: 1rem 0 1.6rem; padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line-board); background: var(--board-2);
+  font-family: var(--mono); font-size: 0.57rem; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--on-board-3);
+}
+.dflowline i { font-style: normal; color: var(--on-board-3); }
+.dflowline span:last-child { color: var(--lime); }
+.expect { list-style: none; margin: 0.3rem 0 0.6rem; padding: 0; display: grid; gap: 0.32rem; }
+.expect li { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: baseline; font-size: 0.84rem; color: var(--on-board-2); }
+.expect b { font-weight: 500; color: var(--on-board); }
+.expect__out {
+  font-family: var(--mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 0.12rem 0.3rem; border: 1px solid var(--line-board);
+}
+.expect__out--ok { color: var(--lime); border-color: var(--lime); }
+.expect__out--stop { color: var(--amber-2); border-color: var(--amber-2); }
+.expect__code { font-size: 0.64rem; color: var(--amber-2); }
+.block--expect, .block--evidence { border-top: 1px solid var(--line-board); padding-top: 1.1rem; }
+.block--evidence .panel__foot { border-top: 0; margin-top: 0.4rem; padding-top: 0; }
+
 /* ── generic page-level responsive (case study + lab) ────── */
 @media (max-width: 1080px) {
   .cf-body { grid-template-columns: 11rem minmax(0, 1fr); gap: 2.5rem; }

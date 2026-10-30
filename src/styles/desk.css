@@ -408,3 +408,24 @@ html.js .desk.is-ready .dpanel--lab::-webkit-scrollbar-thumb {
   background: rgba(216, 242, 106, 0.35); border-color: var(--board-2);
 }
 html.js .desk.is-ready .dpanel--lab::-webkit-scrollbar-thumb:hover { background: rgba(216, 242, 106, 0.6); }
+
+/* ---- AI example: raw note → draft → review → output ---- */
+.ai-example { margin: 1.2rem 0 0.4rem; border-top: 1px solid var(--line-2); }
+.ai-example > .label { margin: 0.8rem 0 0.4rem; }
+.ai-example__row {
+  display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: 0.8rem;
+  padding: 0.7rem 0; border-bottom: 1px solid var(--line);
+}
+.ai-example__row:last-child { border-bottom: 0; }
+.ai-example__k {
+  font-family: var(--mono); font-size: 0.57rem; line-height: 1.5; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--ink-3); margin: 0; padding-top: 0.15rem;
+}
+.ai-example__row p, .ai-example__row ul {
+  margin: 0; font-size: 0.84rem; line-height: 1.55; color: var(--ink-2);
+}
+.ai-example__row ul { padding-left: 1rem; }
+.ai-example__row li { margin-bottom: 0.2rem; }
+@media (max-width: 520px) {
+  .ai-example__row { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+}

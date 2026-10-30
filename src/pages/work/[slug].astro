@@ -1,9 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
 import CaseStudy from '../../components/CaseStudy.astro';
+import P2PCaseStudy from '../../components/P2PCaseStudy.astro';
 
 // Every JSON file in src/data/projects/ (except the supporting list) becomes a case study
-// at /work/<slug>. Adding a project is one new file, no design change.
+// at /work/<slug>. A project with schema "p2p" uses the procure-to-pay document layout.
 export async function getStaticPaths() {
   const files = import.meta.glob('../../data/projects/*.json', { eager: true });
   return Object.entries(files)
@@ -15,6 +16,7 @@ export async function getStaticPaths() {
 }
 
 const { project } = Astro.props;
+const Body = project.schema === 'p2p' ? P2PCaseStudy : CaseStudy;
 ---
 
 <Base
@@ -22,5 +24,5 @@ const { project } = Astro.props;
   description={`${project.subtitle}. ${project.typeLabel}.`}
   bodyClass="is-casefile"
 >
-  <CaseStudy project={project} heading="h1" />
+  <Body project={project} heading="h1" />
 </Base>

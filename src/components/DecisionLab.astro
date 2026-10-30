@@ -66,6 +66,14 @@ const total = String(scenarios.length).padStart(2, '0');
 
             <p class="panel__q">{s.question}</p>
 
+            <div class="dflowline" aria-hidden="true">
+              <span>Input</span><i>→</i>
+              <span>Condition check</span><i>→</i>
+              <span>Rule evaluation</span><i>→</i>
+              <span>Decision</span><i>→</i>
+              <span>Output</span>
+            </div>
+
             <div class="panel__cols">
               <section class="block">
                 <h4>Initial conditions</h4>
@@ -75,7 +83,7 @@ const total = String(scenarios.length).padStart(2, '0');
               </section>
 
               <section class="block">
-                <h4>Rules in play</h4>
+                <h4>Business rules</h4>
                 <ol class="rules">
                   {s.rules.map((r) => <li>{r}</li>)}
                 </ol>
@@ -114,6 +122,28 @@ const total = String(scenarios.length).padStart(2, '0');
               </ol>
             </section>
 
+            <section class="block block--expect">
+              <h4>Expected result</h4>
+              <ul class="expect">
+                {s.frames[s.frames.length - 1].requests.map((r) => (
+                  <li>
+                    <b>{r.who}</b>
+                    <span class:list={['expect__out', r.status === 200 ? 'expect__out--ok' : 'expect__out--stop']}>
+                      {r.status === 200 ? 'accepted' : 'blocked'}
+                    </span>
+                    {r.code && <span class="mono expect__code">{r.code}</span>}
+                  </li>
+                ))}
+              </ul>
+              <div class="step__state">
+                <span class="statechip">session <b>{s.frames[s.frames.length - 1].state.session}</b></span>
+                <span class="statechip">locker <b>{s.frames[s.frames.length - 1].state.locker}</b></span>
+                {s.frames[s.frames.length - 1].state.owner && (
+                  <span class="statechip">key held by <b>{s.frames[s.frames.length - 1].state.owner}</b></span>
+                )}
+              </div>
+            </section>
+
             <section class="block">
               <h4>Edge cases in the same rule</h4>
               <ul class="edges">
@@ -121,13 +151,16 @@ const total = String(scenarios.length).padStart(2, '0');
               </ul>
             </section>
 
-            <footer class="panel__foot">
-              <span class="panel__ref"><span class="label">Requirement</span> {s.requirement}</span>
-              <span class="panel__ref"><span class="label">Acceptance</span> {s.uat}</span>
-              <a class="panel__ref panel__ref--link" href={`${repo}/${s.test}`} target="_blank" rel="noopener noreferrer">
-                <span class="label">Test</span> {s.test.replace('tests/Feature/', '')} <span aria-hidden="true">↗</span>
-              </a>
-            </footer>
+            <section class="block block--evidence">
+              <h4>Verification evidence</h4>
+              <div class="panel__foot">
+                <span class="panel__ref"><span class="label">Requirement</span> {s.requirement}</span>
+                <span class="panel__ref"><span class="label">Acceptance</span> {s.uat}</span>
+                <a class="panel__ref panel__ref--link" href={`${repo}/${s.test}`} target="_blank" rel="noopener noreferrer">
+                  <span class="label">Test</span> {s.test.replace('tests/Feature/', '')} <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </section>
           </article>
         ))}
       </div>

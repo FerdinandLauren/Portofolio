@@ -1,0 +1,120 @@
+{
+  "slug": "p2p-procurement",
+  "schema": "p2p",
+  "title": "Procure-to-Pay",
+  "subtitle": "From purchase request to supplier payment, documented as a functional analysis",
+  "thesis": "One approved request. One traceable order. One payment that can be checked.",
+  "role": "Process analysis, business rules, functional requirements, acceptance criteria",
+  "period": "2026",
+  "status": "Analysis document only — no ERP configured, no supplier engaged",
+  "type": "Learning case study",
+  "typeLabel": "Independent learning case study — fictional scenario",
+  "boundary": "Northline Industrial Supply is a fictional company created for this exercise. The process, rules and requirements are designed to demonstrate analysis, not to describe a real client. No ERP product was configured, no supplier was contacted, and no business outcome is claimed.",
+  "context": {
+    "company": "Northline Industrial Supply (fictional) — a 120-person distributor of maintenance and repair supplies.",
+    "situation": "Purchasing grew out of email and spreadsheets. Requests arrive by chat, email and paper. Managers approve by replying “OK”. Procurement raises orders in a spreadsheet, and the warehouse records receipts on a clipboard.",
+    "problem": "The same purchase can exist in three versions: what was asked for, what was ordered, and what arrived. Finance reconciles them by hand before paying, so the payment is only as reliable as the folder it came from.",
+    "why": "A structured procure-to-pay process makes the commitment traceable from request to payment. It also gives each actor one place to see what they own."
+  },
+  "stakeholders": [
+    { "role": "Requester / department staff", "responsibility": "Raises a purchase request with a business reason, quantity and required date.", "interaction": "Creates and tracks the request, and answers questions from procurement." },
+    { "role": "Department manager", "responsibility": "Approves or rejects requests within an authority limit.", "interaction": "Reviews the request; a rejection returns it to the requester with a reason." },
+    { "role": "Procurement officer", "responsibility": "Turns approved requests into purchase orders and selects the supplier.", "interaction": "Cannot order without an approved request; maintains supplier and item master data." },
+    { "role": "Warehouse / receiving", "responsibility": "Records what actually arrived against the order.", "interaction": "Creates a goods receipt that references a valid purchase order." },
+    { "role": "Finance / accounts payable", "responsibility": "Verifies the invoice against the order and receipt, then schedules payment.", "interaction": "Holds payment when quantities or prices do not match, and records why." },
+    { "role": "Supplier", "responsibility": "Delivers goods and issues an invoice.", "interaction": "Outside the system boundary; receives the order and sends the invoice." }
+  ],
+  "process": {
+    "flow": ["Purchase request", "Approval", "Purchase order", "Goods receipt", "Invoice verification", "Payment"],
+    "steps": [
+      { "n": "01", "name": "Purchase request", "actor": "Requester", "output": "Request with items, quantity, reason and required date.", "decision": "Complete enough to submit?" },
+      { "n": "02", "name": "Approval", "actor": "Department manager", "output": "Approved or rejected request, with a reason.", "decision": "Within the authority limit?" },
+      { "n": "03", "name": "Purchase order", "actor": "Procurement", "output": "Order linked to one approved request and one supplier.", "decision": "Supplier and price agreed?" },
+      { "n": "04", "name": "Goods receipt", "actor": "Warehouse", "output": "Receipt linked to the order, with accepted and rejected quantities.", "decision": "Quantity matches the order?" },
+      { "n": "05", "name": "Invoice verification", "actor": "Finance / AP", "output": "Matched invoice, or a documented exception.", "decision": "Order, receipt and invoice agree?" },
+      { "n": "06", "name": "Payment", "actor": "Finance / AP", "output": "Payment scheduled and an audit entry written.", "decision": "Approval and verification complete?" }
+    ],
+    "exceptions": [
+      "A rejected request returns to the requester; no order can be created.",
+      "A receipt with a different quantity creates a partial receipt and keeps the difference open.",
+      "An invoice that does not match is held, not paid, until the mismatch is resolved."
+    ]
+  },
+  "rules": [
+    { "id": "BR-001", "rule": "A purchase request must include at least one item, a quantity, a business reason and a required date before it can be submitted.", "actor": "Requester" },
+    { "id": "BR-002", "rule": "Only a department manager with an active approval role may approve or reject a request.", "actor": "Department manager" },
+    { "id": "BR-003", "rule": "A request above the manager's authority limit requires the next approver in the hierarchy.", "actor": "Department manager / next approver" },
+    { "id": "BR-004", "rule": "A purchase order can only be created from a request whose status is Approved.", "actor": "Procurement" },
+    { "id": "BR-005", "rule": "A purchase order must reference exactly one approved request and one supplier.", "actor": "Procurement" },
+    { "id": "BR-006", "rule": "A goods receipt must reference a valid, open purchase order.", "actor": "Warehouse" },
+    { "id": "BR-007", "rule": "Invoice verification compares ordered, received and invoiced quantity and price; any difference holds payment.", "actor": "Finance / AP" },
+    { "id": "BR-008", "rule": "Payment can only be scheduled when the request is approved, the order exists, the receipt is recorded and the invoice is verified.", "actor": "Finance / AP" },
+    { "id": "BR-009", "rule": "Every state change writes an audit entry with actor, timestamp and previous state.", "actor": "System" }
+  ],
+  "requirements": [
+    { "id": "FR-001", "title": "Submit a purchase request", "actor": "Requester", "description": "The system shall let a requester create a request with one or more items, quantity, business reason and required date.", "behavior": "An incomplete request cannot be submitted; missing fields are named.", "priority": "Must" },
+    { "id": "FR-002", "title": "Validate request data", "actor": "Requester", "description": "The system shall validate required fields and reject a quantity of zero or less.", "behavior": "Validation messages appear next to the field and the request stays in Draft.", "priority": "Must" },
+    { "id": "FR-003", "title": "Approval queue", "actor": "Department manager", "description": "The system shall show each approver the requests waiting for their decision.", "behavior": "The queue shows requester, amount, reason and submitted date, oldest first.", "priority": "Must" },
+    { "id": "FR-004", "title": "Authority limit routing", "actor": "Department manager", "description": "The system shall route a request above the approver's limit to the next approver.", "behavior": "The request stays Pending and the next approver is notified.", "priority": "Must" },
+    { "id": "FR-005", "title": "Reject with a reason", "actor": "Department manager", "description": "The system shall require a reason when a request is rejected.", "behavior": "The request becomes Rejected and returns to the requester with the reason attached.", "priority": "Must" },
+    { "id": "FR-006", "title": "Create an order from an approved request", "actor": "Procurement", "description": "The system shall allow a purchase order to be created only from an approved request.", "behavior": "An unapproved request cannot be selected as the order source.", "priority": "Must" },
+    { "id": "FR-007", "title": "Link order to request and supplier", "actor": "Procurement", "description": "The system shall record one approved request and one supplier on each purchase order.", "behavior": "The order shows its source request and the agreed supplier price.", "priority": "Must" },
+    { "id": "FR-008", "title": "Goods receipt against an open order", "actor": "Warehouse", "description": "The system shall let receiving record a receipt against a valid, open purchase order.", "behavior": "A receipt cannot be saved without an open order reference.", "priority": "Must" },
+    { "id": "FR-009", "title": "Partial receipt", "actor": "Warehouse", "description": "The system shall record accepted and rejected quantities separately when the delivery differs from the order.", "behavior": "The order stays Partially received until the open quantity is resolved.", "priority": "Should" },
+    { "id": "FR-010", "title": "Three-way match", "actor": "Finance / AP", "description": "The system shall compare ordered, received and invoiced quantity and price before payment.", "behavior": "A difference moves the invoice to Held, with the mismatched field named.", "priority": "Must" },
+    { "id": "FR-011", "title": "Audit trail", "actor": "System", "description": "The system shall write an audit entry for every state change.", "behavior": "Each entry records actor, timestamp and the previous state.", "priority": "Must" },
+    { "id": "FR-012", "title": "Role-based visibility", "actor": "System", "description": "The system shall show each actor only the records their role owns.", "behavior": "A requester cannot open another department's requests.", "priority": "Should" }
+  ],
+  "acceptance": [
+    { "id": "AC-001", "requirement": "FR-001, FR-002", "given": "A requester is signed in", "when": "They submit a request with items, quantity, reason and required date", "then": "The request is saved with status Submitted", "type": "Normal" },
+    { "id": "AC-002", "requirement": "FR-002", "given": "A request is open", "when": "The requester submits without a business reason", "then": "Submission is blocked and the missing field is named", "type": "Edge" },
+    { "id": "AC-003", "requirement": "FR-003", "given": "A request is Submitted and within the manager's limit", "when": "The manager approves it", "then": "The status becomes Approved and the audit entry is written", "type": "Normal" },
+    { "id": "AC-004", "requirement": "FR-004", "given": "A request is above the manager's limit", "when": "The manager approves it", "then": "The request stays Pending and moves to the next approver", "type": "Edge" },
+    { "id": "AC-005", "requirement": "FR-005", "given": "A request is Pending", "when": "The manager rejects it with a reason", "then": "The status becomes Rejected and no order can be created", "type": "Edge" },
+    { "id": "AC-006", "requirement": "FR-006", "given": "A request is Draft or Rejected", "when": "Procurement tries to create an order", "then": "The request cannot be selected as an order source", "type": "Edge" },
+    { "id": "AC-007", "requirement": "FR-008", "given": "No open purchase order exists", "when": "Receiving tries to save a receipt", "then": "The receipt is rejected and no stock movement is written", "type": "Edge" },
+    { "id": "AC-008", "requirement": "FR-009", "given": "An order is open for 10 units", "when": "Receiving records 6 accepted and 1 rejected", "then": "The order becomes Partially received with 4 units still open", "type": "Edge" },
+    { "id": "AC-009", "requirement": "FR-010", "given": "An invoice states a higher price than the order", "when": "Finance verifies the invoice", "then": "The invoice is Held and payment is blocked with the price difference named", "type": "Edge" },
+    { "id": "AC-010", "requirement": "FR-010, FR-011", "given": "Order, receipt and invoice agree", "when": "Finance verifies the invoice", "then": "The invoice is Verified, payment is scheduled and an audit entry is written", "type": "Normal" }
+  ],
+  "exceptions": [
+    { "id": "EX-01", "scenario": "Purchase request rejected", "expected": "The request returns to the requester with the reason; no order can reference it.", "actor": "Manager → Requester" },
+    { "id": "EX-02", "scenario": "Incomplete request", "expected": "Submission is blocked, the missing fields are named, and the draft is kept.", "actor": "System → Requester" },
+    { "id": "EX-03", "scenario": "Approval above the authority limit", "expected": "The request is routed to the next approver and stays Pending until a decision is made.", "actor": "System → Next approver" },
+    { "id": "EX-04", "scenario": "Quantity received differs from the order", "expected": "Accepted and rejected quantities are recorded; the order stays Partially received.", "actor": "Warehouse → Procurement" },
+    { "id": "EX-05", "scenario": "Invoice price or quantity mismatch", "expected": "The invoice is Held, payment is blocked, and the mismatched field is named.", "actor": "Finance → Procurement / Supplier" },
+    { "id": "EX-06", "scenario": "Duplicate invoice", "expected": "The second invoice is rejected against the existing invoice reference; payment is not repeated.", "actor": "Finance" }
+  ],
+  "erp": [
+    { "concept": "Master data", "note": "Supplier, item and employee records exist before any transaction. An order cannot reference a supplier that is not master data." },
+    { "concept": "Transaction data", "note": "Request, order, receipt, invoice and payment are documents with their own status and history." },
+    { "concept": "Role-based access", "note": "Approval authority, receiving and payment are separate roles, not one administrator account." },
+    { "concept": "Approval workflow", "note": "The approval path depends on amount and role, and the decision is recorded with a reason." },
+    { "concept": "Purchasing", "note": "The purchase order is the commitment between the approved request and the supplier." },
+    { "concept": "Inventory integration", "note": "A goods receipt changes stock; receiving the same order twice would corrupt the quantity." },
+    { "concept": "Financial integration", "note": "The verified invoice becomes a payable; payment closes the loop and posts to the ledger." },
+    { "concept": "Audit trail", "note": "Every state change keeps actor, time and previous state so the payment can be explained later." },
+    { "concept": "Three-way match", "note": "Order, receipt and invoice must agree before money leaves the company." }
+  ],
+  "scope": {
+    "in": [
+      "One company, one warehouse and one currency.",
+      "Purchase request through payment, including approval and invoice verification.",
+      "Manual supplier selection and manual payment scheduling.",
+      "Audit trail for every state change."
+    ],
+    "out": [
+      "Multi-company, multi-currency and intercompany transactions.",
+      "Tax engine, e-invoicing and statutory reporting.",
+      "Supplier portal, contract management and budgeting.",
+      "Bank payment execution and reconciliation.",
+      "A specific ERP product configuration."
+    ],
+    "limits": [
+      "Northline Industrial Supply is fictional. The problems are illustrative, not field research.",
+      "The rules are written for this scenario, not as universal ERP rules.",
+      "No ERP product was configured and no supplier was contacted.",
+      "No measured outcome, time saving or cost reduction is claimed."
+    ]
+  }
+}
