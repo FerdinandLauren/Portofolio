@@ -93,6 +93,8 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--nav-h) + 16px);
   scrollbar-color: var(--ink-3) var(--paper-2);
+  /* The lime progress line is the scroll indicator; the page scrollbar stays hidden. */
+  scrollbar-width: none;
 }
 
 body {
@@ -114,6 +116,8 @@ body {
 ::-webkit-scrollbar-track { background: var(--paper-2); }
 ::-webkit-scrollbar-thumb { background: var(--ink-4); border: 3px solid var(--paper-2); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--ink); }
+/* Root only: internal scrollers (tables, code) keep their custom bar. */
+html::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 :where(a, button, summary, [tabindex]):focus-visible {
   outline: 2px solid var(--forest-2);
