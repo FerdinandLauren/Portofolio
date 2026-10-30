@@ -2,326 +2,387 @@
 const { project, heading = 'h2' } = Astro.props;
 const Heading = heading;
 const p = project;
+const base = import.meta.env.BASE_URL;
+const root = base.endsWith('/') ? base : `${base}/`;
 const stages = [
-  { n: '01', name: 'Observe' },
-  { n: '02', name: 'Analyse' },
-  { n: '03', name: 'Define' },
-  { n: '04', name: 'Verify' },
-  { n: '05', name: 'Reflect' },
+  { n: '01', name: 'Observe', note: 'The process as it runs today' },
+  { n: '02', name: 'Analyse', note: 'Actors, handoffs, friction' },
+  { n: '03', name: 'Define', note: 'Scope, requirements, behaviour' },
+  { n: '04', name: 'Verify', note: 'Metrics, scenarios, evidence' },
+  { n: '05', name: 'Reflect', note: 'Limits and next steps' },
 ];
 ---
 
-<section class="section" id="case">
-  <div class="wrap">
-    <div class="case-head">
-      <div class="case-head__title">
-        <Heading class="case-title">{p.title}</Heading>
-        <span class="badge badge--documented">{p.typeLabel}</span>
+<article class="cf">
+  <header class="cf-head">
+    <div class="shell">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href={root}>Workbench</a>
+        <span aria-hidden="true">/</span>
+        <span>Case file 001</span>
+      </nav>
+
+      <div class="cf-head__grid">
+        <div class="cf-head__main">
+          <p class="label">Case file 001 · {p.typeLabel}</p>
+          <Heading class="cf-title">{p.title}</Heading>
+          <p class="cf-sub">{p.subtitle}</p>
+          <p class="cf-thesis">{p.thesis}</p>
+        </div>
+
+        <dl class="cf-facts">
+          <div><dt>Role</dt><dd>{p.role}</dd></div>
+          <div><dt>Period</dt><dd>{p.period}</dd></div>
+          <div><dt>Status</dt><dd>{p.status}</dd></div>
+          <div><dt>Stack</dt><dd>{p.stack.join(' · ')}</dd></div>
+          <div>
+            <dt>Repository</dt>
+            <dd>
+              <a href={p.repository} target="_blank" rel="noopener noreferrer">
+                {p.repository.replace('https://', '')} <span aria-hidden="true">↗</span>
+              </a>
+            </dd>
+          </div>
+        </dl>
       </div>
-      <p class="case-head__sub">{p.subtitle}</p>
-      <p class="section__lede" style="margin-top:0">
-        One case study, taken all the way through — from a process I only observed to a requirement,
-        a designed behaviour, and a test plan. It is the clearest evidence I have of how I work.
-      </p>
 
-      <dl class="case-meta">
-        <div>
-          <dt>Role</dt>
-          <dd>{p.role}</dd>
-        </div>
-        <div>
-          <dt>Period</dt>
-          <dd>{p.period}</dd>
-        </div>
-        <div>
-          <dt>Status</dt>
-          <dd>{p.status}</dd>
-        </div>
-        <div>
-          <dt>Stack</dt>
-          <dd>{p.stack.join(' · ')}</dd>
-        </div>
-      </dl>
-
-      <p class="boundary">
-        <b>Scope boundary</b>
+      <p class="cf-boundary">
+        <span class="label">Scope boundary</span>
         {p.boundary}
       </p>
-      <p class="mono" style="color:var(--ink-3)">
-        Repository: <a href={p.repository} target="_blank" rel="noopener">{p.repository.replace('https://', '')}</a>
-      </p>
-    </div>
 
-    <!-- 01 OBSERVE -->
-    <div class="stage" id="stage-observe">
-      <div class="stage__label">
-        <span class="stage__n">{stages[0].n}</span>
-        <span class="stage__name">{stages[0].name}</span>
-      </div>
-      <div class="stage__body">
-        <h2>The process as it runs today</h2>
-        <p>{p.observe.context}</p>
-        <h2>What I took from it — and what I only suspect</h2>
-        <ul class="trace__list" style="color:inherit">
-          {p.observe.hypotheses.map((h) => (
-            <li style="padding-left:1.1rem">
-              {h.text} <span class="badge badge--assumption">hypothesis</span>
-            </li>
-          ))}
-        </ul>
-        <p style="margin-top:1rem;color:var(--ink-2);font-size:var(--step--1)">{p.observe.note}</p>
+      <div class="cf-head__foot">
+        <p>
+          One case study, taken all the way through — from a process I only observed to a
+          requirement, a designed behaviour, and a test plan. It is the clearest evidence I have of
+          how I work.
+        </p>
+        <a class="cf-head__link" href={root}>← Back to the workbench</a>
       </div>
     </div>
+  </header>
 
-    <!-- 02 ANALYSE -->
-    <div class="stage" id="stage-analyse">
-      <div class="stage__label">
-        <span class="stage__n">{stages[1].n}</span>
-        <span class="stage__name">{stages[1].name}</span>
-      </div>
-      <div class="stage__body">
-        <h2>Actors and what each one needs</h2>
-        <div class="table-wrap">
-          <table>
-            <caption>Stakeholder map — PRD §2.1</caption>
-            <thead>
-              <tr><th scope="col">Actor</th><th scope="col">Primary need</th></tr>
-            </thead>
-            <tbody>
-              {p.analyse.actors.map((a) => (
-                <tr><td><strong>{a.role}</strong></td><td>{a.need}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+  <div class="shell cf-body">
+    <aside class="cf-nav" aria-label="Contents of the case file">
+      <p class="label">Contents</p>
+      <ol>
+        {stages.map((s) => (
+          <li>
+            <a href={`#stage-${s.name.toLowerCase()}`}>
+              <span class="mono">{s.n}</span>
+              <span class="cf-nav__name">{s.name}</span>
+              <span class="cf-nav__note">{s.note}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+      <p class="cf-nav__meta mono">5 stages · 15 acceptance scenarios · 1,166-line PRD</p>
+    </aside>
 
-        <h2>Where the process leaks</h2>
-        <div class="flow">
-          <div class="flow__row flow__row--head">
-            <span>Step</span><span>As-is</span><span>To-be</span>
+    <div class="cf-main">
+      <!-- 01 OBSERVE -->
+      <section class="cf-stage" id="stage-observe">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">01</span>
+          <div>
+            <p class="label">Stage 01</p>
+            <h2>Observe</h2>
           </div>
-          {p.analyse.frictions.map((f) => (
-            <div class="flow__row">
-              <span class="flow__step">{f.step}</span>
-              <span>{f.asIs}</span>
-              <span>{f.toBe}<br /><span class="flow__leak">↳ {f.leak}</span></span>
+        </header>
+
+        <div class="cf-stage__body">
+          <h3>The process as it runs today</h3>
+          <p>{p.observe.context}</p>
+
+          <h3>What I took from it — and what I only suspect</h3>
+          <ul class="notes">
+            {p.observe.hypotheses.map((h) => (
+              <li>
+                <span>{h.text}</span>
+                <span class="badge badge--assumption">hypothesis</span>
+              </li>
+            ))}
+          </ul>
+          <p class="fine">{p.observe.note}</p>
+        </div>
+      </section>
+
+      <!-- 02 ANALYSE -->
+      <section class="cf-stage" id="stage-analyse">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">02</span>
+          <div>
+            <p class="label">Stage 02</p>
+            <h2>Analyse</h2>
+          </div>
+        </header>
+
+        <div class="cf-stage__body">
+          <h3>Actors and what each one needs</h3>
+          <div class="table-wrap">
+            <table>
+              <caption>Stakeholder map — PRD §2.1</caption>
+              <thead>
+                <tr><th scope="col">Actor</th><th scope="col">Primary need</th></tr>
+              </thead>
+              <tbody>
+                {p.analyse.actors.map((a) => (
+                  <tr><td><strong>{a.role}</strong></td><td>{a.need}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Where the process leaks</h3>
+          <div class="flow">
+            <div class="flow__row flow__row--head">
+              <span>Step</span><span>As-is</span><span>To-be</span>
             </div>
-          ))}
-        </div>
-
-        <h2>The decision that shaped the design</h2>
-        <p>{p.analyse.insight}</p>
-      </div>
-    </div>
-
-    <!-- 03 DEFINE -->
-    <div class="stage" id="stage-define">
-      <div class="stage__label">
-        <span class="stage__n">{stages[2].n}</span>
-        <span class="stage__name">{stages[2].name}</span>
-      </div>
-      <div class="stage__body">
-        <h2>Scope, written down before any code</h2>
-        <div class="states">
-          <div class="states__card">
-            <h3>In scope, phase 1</h3>
-            <ul>
-              {p.define.scope.in.map((s) => <li style="display:block">· {s}</li>)}
-            </ul>
+            {p.analyse.frictions.map((f) => (
+              <div class="flow__row">
+                <span class="flow__step">{f.step}</span>
+                <span>{f.asIs}</span>
+                <span>
+                  {f.toBe}
+                  <span class="flow__leak">↳ {f.leak}</span>
+                </span>
+              </div>
+            ))}
           </div>
-          <div class="states__card">
-            <h3>Explicitly out of scope</h3>
-            <ul>
-              {p.define.scope.out.map((s) => <li style="display:block">· {s}</li>)}
-            </ul>
+
+          <h3>The decision that shaped the design</h3>
+          <p>{p.analyse.insight}</p>
+        </div>
+      </section>
+
+      <!-- 03 DEFINE -->
+      <section class="cf-stage" id="stage-define">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">03</span>
+          <div>
+            <p class="label">Stage 03</p>
+            <h2>Define</h2>
           </div>
-        </div>
+        </header>
 
-        <h2>Requirements by module</h2>
-        <div class="table-wrap">
-          <table>
-            <caption>PRD §4 — the full document has 1,166 lines</caption>
-            <thead>
-              <tr><th scope="col">Module</th><th scope="col">Items</th><th scope="col">Example</th></tr>
-            </thead>
-            <tbody>
-              {p.define.modules.map((m) => (
-                <tr>
-                  <td class="num">{m.id}<br /><span style="color:var(--ink-3)">{m.name}</span></td>
-                  <td class="num">{m.count}</td>
-                  <td>{m.sample}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <h2>Decisions, with the alternative I rejected</h2>
-        <div class="table-wrap">
-          <table>
-            <caption>PRD §0.2 decision log — each entry needs owner sign-off before build</caption>
-            <thead>
-              <tr><th scope="col">ID</th><th scope="col">Decision</th><th scope="col">Why</th><th scope="col">Rejected</th></tr>
-            </thead>
-            <tbody>
-              {p.define.decisions.map((d) => (
-                <tr>
-                  <td class="num">{d.id}</td>
-                  <td>{d.decision}</td>
-                  <td>{d.reason}</td>
-                  <td style="color:var(--ink-3)">{d.rejected}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <h2>Behaviour, drawn as states</h2>
-        <div class="states">
-          <div class="states__card">
-            <h3>Attendance session — PRD §3.3</h3>
-            <ul>
-              {p.define.states.session.map((s) => (
-                <li>
-                  <span class="states__from">{s.from}</span>
-                  <span class="states__ev">{s.event}</span>
-                  <span class="states__to">{s.to}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div class="states__card">
-            <h3>Locker — PRD §3.4</h3>
-            <ul>
-              {p.define.states.locker.map((s) => (
-                <li>
-                  <span class="states__from">{s.from}</span>
-                  <span class="states__ev">{s.event}</span>
-                  <span class="states__to">{s.to}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 04 VERIFY -->
-    <div class="stage" id="stage-verify">
-      <div class="stage__label">
-        <span class="stage__n">{stages[3].n}</span>
-        <span class="stage__name">{stages[3].name}</span>
-      </div>
-      <div class="stage__body">
-        <p>{p.verify.summary}</p>
-
-        <div class="metrics">
-          {p.verify.metrics.map((m) => (
-            <div class="metric">
-              <span class="metric__label">{m.label}</span>
-              <span class="metric__value">{m.value}</span>
-              <span class="metric__detail">{m.detail}</span>
-              <span class={`badge badge--${m.evidence === 'verified' ? 'verified' : 'none'}`}>
-                {m.evidence === 'verified' ? 'checked' : 'not measured'}
-              </span>
+        <div class="cf-stage__body">
+          <h3>Scope, written down before any code</h3>
+          <div class="scope">
+            <div class="scope__col">
+              <p class="label label--in">In scope, phase 1</p>
+              <ul>
+                {p.define.scope.in.map((s) => <li>{s}</li>)}
+              </ul>
             </div>
-          ))}
-        </div>
-
-        <details class="artifact" open>
-          <summary>
-            <span class="artifact__id">AT-01 … AT-15</span>
-            <span>Acceptance scenarios</span>
-            <span class="badge badge--documented" style="margin-left:auto">documented</span>
-          </summary>
-          <div class="artifact__body">
-            <div class="table-wrap">
-              <table>
-                <caption>docs/UAT.md — “automated” means an automated test in the repo covers the same rule</caption>
-                <thead>
-                  <tr><th scope="col">ID</th><th scope="col">Scenario</th><th scope="col">Expected</th><th scope="col">Automated</th></tr>
-                </thead>
-                <tbody>
-                  {p.verify.uat.map((u) => (
-                    <tr>
-                      <td class="num">{u.id}</td>
-                      <td>{u.step}</td>
-                      <td>{u.expected}</td>
-                      <td class="num">{u.automated ? 'yes' : '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p class="mono" style="color:var(--ink-3);margin-top:0.6rem">
-              No manual run is recorded in the repository: the evidence column in docs/UAT.md is empty.
-              The statuses above describe what the repository contains, not what a gym validated.
-            </p>
-          </div>
-        </details>
-
-        <details class="artifact">
-          <summary>
-            <span class="artifact__id">§7.3</span>
-            <span>Failure catalogue — what the member sees when the rule says no</span>
-          </summary>
-          <div class="artifact__body">
-            <div class="table-wrap">
-              <table>
-                <caption>PRD §7.3 error codes, selected</caption>
-                <thead>
-                  <tr><th scope="col">HTTP</th><th scope="col">Code</th><th scope="col">Condition</th></tr>
-                </thead>
-                <tbody>
-                  {p.verify.errors.map((e) => (
-                    <tr><td class="num">{e.http}</td><td class="num">{e.code}</td><td>{e.condition}</td></tr>
-                  ))}
-                </tbody>
-              </table>
+            <div class="scope__col scope__col--out">
+              <p class="label">Explicitly out of scope</p>
+              <ul>
+                {p.define.scope.out.map((s) => <li>{s}</li>)}
+              </ul>
             </div>
           </div>
-        </details>
 
-        <details class="artifact">
-          <summary>
-            <span class="artifact__id">CI</span>
-            <span>What a reader can reproduce today</span>
-          </summary>
-          <div class="artifact__body">
-            <p class="mono" style="font-size:var(--step--1);line-height:1.7">
-              php artisan test → 130 passed, 849 assertions<br />
-              vendor/bin/pint --test → passed<br />
-              vendor/bin/phpstan analyse → 1 error, level 6 (AppServiceProvider.php:67)<br />
-              CI on main → failing at static analysis, tests skipped
-            </p>
-            <p style="font-size:var(--step--1);color:var(--ink-2);margin-top:0.6rem">
-              Run on 29 October 2026 against the repository at its current commit, with PHP 8.3.16,
-              MySQL 8.4.3 and Redis 5.0.14. The one static-analysis error is why the pipeline is red;
-              it is the first item on my own fix list.
-            </p>
+          <h3>Requirements by module</h3>
+          <div class="table-wrap">
+            <table>
+              <caption>PRD §4 — the full document has 1,166 lines</caption>
+              <thead>
+                <tr><th scope="col">Module</th><th scope="col">Items</th><th scope="col">Example</th></tr>
+              </thead>
+              <tbody>
+                {p.define.modules.map((m) => (
+                  <tr>
+                    <td class="num"><strong>{m.id}</strong><span class="cell-sub">{m.name}</span></td>
+                    <td class="num">{m.count}</td>
+                    <td>{m.sample}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </details>
-      </div>
-    </div>
 
-    <!-- 05 REFLECT -->
-    <div class="stage" id="stage-reflect">
-      <div class="stage__label">
-        <span class="stage__n">{stages[4].n}</span>
-        <span class="stage__name">{stages[4].name}</span>
-      </div>
-      <div class="stage__body">
-        <h2>What this project shows</h2>
-        <p>{p.reflect.demonstrates}</p>
-        <h2>What it does not show — yet</h2>
-        <ul class="trace__list" style="color:inherit">
-          {p.reflect.limits.map((l) => <li style="padding-left:1.1rem">{l}</li>)}
-        </ul>
-        <h2>What I would do next</h2>
-        <ol style="display:grid;gap:0.45rem;padding-left:1.2rem;margin:0;font-size:var(--step-0)">
-          {p.reflect.next.map((n) => <li>{n}</li>)}
-        </ol>
-      </div>
+          <h3>Decisions, with the alternative I rejected</h3>
+          <div class="table-wrap">
+            <table>
+              <caption>PRD §0.2 decision log — each entry needs owner sign-off before build</caption>
+              <thead>
+                <tr><th scope="col">ID</th><th scope="col">Decision</th><th scope="col">Why</th><th scope="col">Rejected</th></tr>
+              </thead>
+              <tbody>
+                {p.define.decisions.map((d) => (
+                  <tr>
+                    <td class="num">{d.id}</td>
+                    <td>{d.decision}</td>
+                    <td>{d.reason}</td>
+                    <td class="cell-muted">{d.rejected}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Behaviour, drawn as states</h3>
+          <div class="states">
+            <div class="states__card">
+              <p class="label">Attendance session — PRD §3.3</p>
+              <ul>
+                {p.define.states.session.map((s) => (
+                  <li>
+                    <span class="states__from">{s.from}</span>
+                    <span class="states__ev">{s.event}</span>
+                    <span class="states__to">{s.to}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="states__card">
+              <p class="label">Locker — PRD §3.4</p>
+              <ul>
+                {p.define.states.locker.map((s) => (
+                  <li>
+                    <span class="states__from">{s.from}</span>
+                    <span class="states__ev">{s.event}</span>
+                    <span class="states__to">{s.to}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 04 VERIFY -->
+      <section class="cf-stage" id="stage-verify">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">04</span>
+          <div>
+            <p class="label">Stage 04</p>
+            <h2>Verify</h2>
+          </div>
+        </header>
+
+        <div class="cf-stage__body">
+          <p>{p.verify.summary}</p>
+
+          <div class="metrics">
+            {p.verify.metrics.map((m) => (
+              <div class="metric">
+                <span class="metric__label">{m.label}</span>
+                <span class="metric__value">{m.value}</span>
+                <span class="metric__detail">{m.detail}</span>
+                <span class={`badge badge--${m.evidence === 'verified' ? 'verified' : 'none'}`}>
+                  {m.evidence === 'verified' ? 'checked' : 'not measured'}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <details class="artifact" open>
+            <summary>
+              <span class="artifact__id">AT-01 … AT-15</span>
+              <span>Acceptance scenarios</span>
+              <span class="badge badge--documented">documented</span>
+            </summary>
+            <div class="artifact__body">
+              <div class="table-wrap">
+                <table>
+                  <caption>docs/UAT.md — “automated” means an automated test in the repo covers the same rule</caption>
+                  <thead>
+                    <tr><th scope="col">ID</th><th scope="col">Scenario</th><th scope="col">Expected</th><th scope="col">Automated</th></tr>
+                  </thead>
+                  <tbody>
+                    {p.verify.uat.map((u) => (
+                      <tr>
+                        <td class="num">{u.id}</td>
+                        <td>{u.step}</td>
+                        <td>{u.expected}</td>
+                        <td class="num">{u.automated ? 'yes' : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p class="fine">
+                No manual run is recorded in the repository: the evidence column in docs/UAT.md is
+                empty. The statuses above describe what the repository contains, not what a gym
+                validated.
+              </p>
+            </div>
+          </details>
+
+          <details class="artifact">
+            <summary>
+              <span class="artifact__id">§7.3</span>
+              <span>Failure catalogue — what the member sees when the rule says no</span>
+            </summary>
+            <div class="artifact__body">
+              <div class="table-wrap">
+                <table>
+                  <caption>PRD §7.3 error codes, selected</caption>
+                  <thead>
+                    <tr><th scope="col">HTTP</th><th scope="col">Code</th><th scope="col">Condition</th></tr>
+                  </thead>
+                  <tbody>
+                    {p.verify.errors.map((e) => (
+                      <tr><td class="num">{e.http}</td><td class="num">{e.code}</td><td>{e.condition}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+
+          <details class="artifact">
+            <summary>
+              <span class="artifact__id">CI</span>
+              <span>What a reader can reproduce today</span>
+            </summary>
+            <div class="artifact__body">
+              <pre class="codeblock"><code>php artisan test        → 130 passed, 849 assertions
+vendor/bin/pint --test  → passed
+vendor/bin/phpstan analyse → 1 error, level 6 (AppServiceProvider.php:67)
+CI on main              → failing at static analysis, tests skipped</code></pre>
+              <p class="fine">
+                Run on 29 October 2026 against the repository at its current commit, with PHP 8.3.16,
+                MySQL 8.4.3 and Redis 5.0.14. The one static-analysis error is why the pipeline is
+                red; it is the first item on my own fix list.
+              </p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- 05 REFLECT -->
+      <section class="cf-stage" id="stage-reflect">
+        <header class="cf-stage__head">
+          <span class="cf-stage__n">05</span>
+          <div>
+            <p class="label">Stage 05</p>
+            <h2>Reflect</h2>
+          </div>
+        </header>
+
+        <div class="cf-stage__body">
+          <h3>What this project shows</h3>
+          <p>{p.reflect.demonstrates}</p>
+
+          <h3>What it does not show — yet</h3>
+          <ul class="notes">
+            {p.reflect.limits.map((l) => <li><span>{l}</span></li>)}
+          </ul>
+
+          <h3>What I would do next</h3>
+          <ol class="nextsteps">
+            {p.reflect.next.map((n) => <li>{n}</li>)}
+          </ol>
+
+          <a class="cf-thread" href={`${root}#lab`}>
+            <span class="label">Continue</span>
+            <span>Walk the rules yourself in the Decision Lab</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </section>
     </div>
   </div>
-</section>
+</article>

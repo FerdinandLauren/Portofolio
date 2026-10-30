@@ -3,97 +3,157 @@ import { SCENARIOS, runScenario } from '../lib/decision-lab.mjs';
 
 const scenarios = SCENARIOS.map((s) => ({ ...s, frames: runScenario(s.id) }));
 const repo = 'https://github.com/FerdinandLauren/GYM-QR/blob/main';
+const total = String(scenarios.length).padStart(2, '0');
 ---
 
 <section class="lab" id="lab">
-  <div class="wrap">
-    <h2>Pick a case. Watch the rule decide.</h2>
-    <p class="lab__lede">
-      Four situations taken from the gym system. Each one shows the precondition, the rule that
-      applies, the response the system gives, and how far the evidence actually goes. Nothing here
-      is a recording of a running app: it is the documented rule applied step by step.
-    </p>
+  <div class="shell">
+    <div class="lab__head">
+      <div>
+        <p class="label label--lime">04 / Instrument — Decision Lab</p>
+        <h2 class="lab__title">Pick a case.<br />Watch the rule decide.</h2>
+      </div>
+      <div class="lab__intro">
+        <p>
+          Four situations taken from the gym system. Each one shows the precondition, the rules that
+          apply, the response the system gives, and the resulting state.
+        </p>
+        <p class="lab__disclaimer">
+          <span class="stamp stamp--ghost">Not a live backend</span>
+          The rules are re-implemented from the PRD and the Laravel services so you can walk them.
+          The repository is the source of truth.
+        </p>
+      </div>
+    </div>
 
     <div class="lab__grid">
-      <div class="scen" role="group" aria-label="Scenarios">
+      <div class="scen" role="group" aria-label="Decision Lab cases">
         {scenarios.map((s, i) => (
-          <button class="scen__btn" type="button" data-scenario={s.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+          <button
+            class="scen__btn"
+            type="button"
+            data-scenario={s.id}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+            aria-controls={`lab-panel-${s.id}`}
+          >
             <span class="scen__n">{String(i + 1).padStart(2, '0')}</span>
-            <span>{s.title}</span>
+            <span class="scen__title">{s.title}</span>
+            <span class="scen__arrow" aria-hidden="true">→</span>
           </button>
         ))}
+        <p class="scen__hint">
+          <span class="mono">KEYS</span> Click a case, or use ↑ ↓ to move between cases.
+        </p>
       </div>
 
       <div class="trace">
         {scenarios.map((s, i) => (
-          <div class="panel" data-panel={s.id} data-active={i === 0 ? 'true' : 'false'}>
-            <h3 class="trace__title">{s.title}</h3>
-            <p class="trace__q">{s.question}</p>
+          <article
+            class="panel"
+            id={`lab-panel-${s.id}`}
+            data-panel={s.id}
+            data-active={i === 0 ? 'true' : 'false'}
+          >
+            <header class="panel__head">
+              <div>
+                <p class="label">Case {String(i + 1).padStart(2, '0')} / {total}</p>
+                <h3 class="panel__title">{s.title}</h3>
+              </div>
+              <span class:list={['stamp', s.evidence === 'verified' ? 'stamp--verified' : 'stamp--documented']}>
+                {s.evidence === 'verified' ? 'Verified in code + test' : 'Documented only'}
+              </span>
+            </header>
 
-            <div class="trace__block">
-              <h4>Preconditions</h4>
-              <ul class="trace__list">
-                {s.preconditions.map((p) => <li>{p}</li>)}
-              </ul>
+            <p class="panel__q">{s.question}</p>
+
+            <div class="panel__cols">
+              <section class="block">
+                <h4>Initial conditions</h4>
+                <ul class="cond">
+                  {s.preconditions.map((p) => <li>{p}</li>)}
+                </ul>
+              </section>
+
+              <section class="block">
+                <h4>Rules in play</h4>
+                <ol class="rules">
+                  {s.rules.map((r) => <li>{r}</li>)}
+                </ol>
+              </section>
             </div>
 
-            <div class="trace__block">
-              <h4>Rule applied</h4>
-              <ul class="trace__list">
-                {s.rules.map((r) => <li>{r}</li>)}
-              </ul>
-            </div>
-
-            <div class="trace__block">
+            <section class="block block--trace">
               <h4>Decision trace</h4>
-              {s.frames.map((frame) => (
-                <div>
-                  <p class="request__who">{frame.label}</p>
-                  {frame.requests.map((r) => (
-                    <div class="request">
-                      <span class="request__who">{r.who}</span>
-                      <span class={`request__code ${r.status === 200 ? 'request__code--ok' : 'request__code--warn'}`}>
-                        {r.status}{r.code ? ` ${r.code}` : ''}
-                      </span>
-                      <span class="request__note">{r.note}</span>
+              <ol class="steps">
+                {s.frames.map((frame, fi) => (
+                  <li class="step">
+                    <div class="step__head">
+                      <span class="step__n">{String(fi + 1).padStart(2, '0')}</span>
+                      <span class="step__label">{frame.label}</span>
                     </div>
-                  ))}
-                  <div class="trace__state">
-                    <span class="statechip">session <b>{frame.state.session}</b></span>
-                    <span class="statechip">locker <b>{frame.state.locker}</b></span>
-                    {frame.state.owner && <span class="statechip">key held by <b>{frame.state.owner}</b></span>}
-                  </div>
-                </div>
-              ))}
-            </div>
 
-            <div class="trace__foot">
-              <span>requirement {s.requirement}</span>
-              <span>uat {s.uat}</span>
-              <a href={`${repo}/${s.test.replace('tests/', 'tests/')}`} target="_blank" rel="noopener">{s.test.replace('tests/Feature/', '')}</a>
-              <span class={`badge badge--${s.evidence}`}>{s.evidence === 'verified' ? 'verified in code + test' : 'documented only'}</span>
-            </div>
-          </div>
+                    <div class="step__requests">
+                      {frame.requests.map((r) => (
+                        <div class:list={['req', r.status === 200 ? 'req--ok' : 'req--stop']}>
+                          <span class="req__who">{r.who}</span>
+                          <span class="req__status">
+                            {r.status === 200 ? '200 OK' : `${r.status} ${r.code}`}
+                          </span>
+                          <p class="req__note">{r.note}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div class="step__state">
+                      <span class="statechip">session <b>{frame.state.session}</b></span>
+                      <span class="statechip">locker <b>{frame.state.locker}</b></span>
+                      {frame.state.owner && <span class="statechip">key held by <b>{frame.state.owner}</b></span>}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            <section class="block">
+              <h4>Edge cases in the same rule</h4>
+              <ul class="edges">
+                {s.edges.map((e) => <li>{e}</li>)}
+              </ul>
+            </section>
+
+            <footer class="panel__foot">
+              <span class="panel__ref"><span class="label">Requirement</span> {s.requirement}</span>
+              <span class="panel__ref"><span class="label">Acceptance</span> {s.uat}</span>
+              <a class="panel__ref panel__ref--link" href={`${repo}/${s.test}`} target="_blank" rel="noopener noreferrer">
+                <span class="label">Test</span> {s.test.replace('tests/Feature/', '')} <span aria-hidden="true">↗</span>
+              </a>
+            </footer>
+          </article>
         ))}
       </div>
     </div>
 
     <p class="lab__note">
-      How to read the labels: <b>verified</b> means the rule exists in the Laravel service and the
-      error code appears in an automated test. <b>Documented only</b> means the PRD or the UAT plan
-      describes it and nothing in the repository confirms the behaviour yet. The lab re-implements the
-      rules so you can walk them; the implementation in the repository is the source of truth.
+      <b>How to read the labels.</b> <b class="is-lime">Verified</b> means the rule exists in the
+      Laravel service and the error code appears in an automated test. <b>Documented only</b> means
+      the PRD or the UAT plan describes it and nothing in the repository confirms the behaviour yet.
+      The lab applies those rules in the browser; it does not run the application and does not claim
+      a real request was made.
     </p>
   </div>
 </section>
 
 <style>
-  /* Without JavaScript every panel stays visible, so the cases can still be read. */
-  :global(html.js) .panel[data-active='false'] { display: none; }
-  .panel + .panel { margin-top: 1.6rem; }
+  /* Content stays readable if the module fails; the switcher only takes over once it is ready. */
+  :global(html.js) .lab.is-ready .panel[data-active='false'] { display: none; }
+  :global(html:not(.js)) .scen,
+  :global(html.js) .lab:not(.is-ready) .scen { display: none; }
+  :global(html:not(.js)) .panel + .panel,
+  :global(html.js) .lab:not(.is-ready) .panel + .panel { margin-top: 2.4rem; }
 </style>
 
 <script>
+  const labRoot = document.querySelector<HTMLElement>('.lab');
   const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.scen__btn'));
   const panels = Array.from(document.querySelectorAll<HTMLElement>('.panel'));
 
@@ -104,21 +164,19 @@ const repo = 'https://github.com/FerdinandLauren/GYM-QR/blob/main';
 
   for (const button of buttons) {
     button.addEventListener('click', () => select(button.dataset.scenario!));
-    // Arrow keys move between scenarios, as a radio group would.
     button.addEventListener('keydown', (event) => {
       const i = buttons.indexOf(button);
-      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-        event.preventDefault();
-        const next = buttons[(i + 1) % buttons.length];
-        next.focus();
-        select(next.dataset.scenario!);
-      }
-      if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-        event.preventDefault();
-        const prev = buttons[(i - 1 + buttons.length) % buttons.length];
-        prev.focus();
-        select(prev.dataset.scenario!);
-      }
+      let next = -1;
+      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = (i + 1) % buttons.length;
+      if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = (i - 1 + buttons.length) % buttons.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = buttons.length - 1;
+      if (next === -1) return;
+      event.preventDefault();
+      buttons[next].focus();
+      select(buttons[next].dataset.scenario!);
     });
   }
+
+  labRoot?.classList.add('is-ready');
 </script>

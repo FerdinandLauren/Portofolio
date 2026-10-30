@@ -1,23 +1,30 @@
-# Ferdinand Lauren
+# Ferdinand Lauren — The Systems Workbench
 
 Computer Science undergraduate at Universitas Lampung (2022 cohort), based in Bandar Lampung,
-Indonesia. Building towards ERP functional consulting and IT business analysis.
+Indonesia. Building towards IT business analysis and ERP functional consulting.
 
 Positioning: entry-level. No industry experience claimed.
+
+Working sequence: observe → define → design → verify. It is a personal working approach,
+practised on one independent concept project and on coursework — not a methodology validated in
+client engagements.
 
 ## What this site contains
 
 - One in-depth case study, GYM-QR: a self-initiated gym attendance and locker management concept.
   It is documented as a concept, not client work. Includes a 1,166-line PRD, two state machines,
   15 acceptance scenarios, and 130 passing automated tests in the source repository.
-- The Decision Lab: four documented decision cases from that system, with the rule, the response,
-  the resulting state, and the evidence level for each.
+- The Decision Lab: four documented decision cases from that system, with the initial conditions,
+  the rules, the response, the resulting state, edge cases, and the evidence level for each.
+- The AI Workbench: AI positioned as a drafting tool inside a reviewed workflow. It claims no
+  time saving, no productivity metric, and no specific requirement written by a model.
 - Coursework: Prak_WebLanjut, wuish, UAS-DSP, DSP, BMI_Calculator, pastebin. Labelled as coursework.
 
 ## Pages
 
-- / — overview, about, case study, Decision Lab, other work, contact
-- /work/gym-qr — the case study on its own page
+- / — the desk, working approach, featured case file, Decision Lab, AI Workbench, selected work,
+  about and contact
+- /work/gym-qr — the case study as a document: observe, analyse, define, verify, reflect
 
 ## Contact
 

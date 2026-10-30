@@ -1,0 +1,130 @@
+---
+interface Props {
+  project: any;
+  item: any;
+  base: string;
+}
+const { project, item, base } = Astro.props;
+const root = base.endsWith('/') ? base : `${base}/`;
+const href = `${root}work/${project.slug}/`;
+
+const contents = [
+  ['01', 'Observe', 'The process as it runs today, and what I only suspect', 'stage-observe'],
+  ['02', 'Analyse', 'Actors, handoffs and where the process leaks', 'stage-analyse'],
+  ['03', 'Define', 'Scope, requirements, decisions and states', 'stage-define'],
+  ['04', 'Verify', 'Metrics, acceptance scenarios and the error catalogue', 'stage-verify'],
+  ['05', 'Reflect', 'What this shows, what it does not, and what comes next', 'stage-reflect'],
+];
+---
+
+<section class="file" id="case">
+  <div class="shell">
+    <div class="file__top">
+      <p class="label label--onfile">03 / Case file 001</p>
+      <span class="file__flag">{project.typeLabel}</span>
+    </div>
+
+    <div class="file__grid">
+      <div class="file__main">
+        <p class="file__kicker">Featured case study</p>
+        <h2 class="file__title">{project.title}</h2>
+        <p class="file__sub">{project.subtitle}</p>
+        <p class="file__thesis">{project.thesis}</p>
+        <p class="file__context">{item.context}</p>
+
+        <a class="file__cta" href={href}>
+          Open the case file <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <aside class="file__side" aria-label="Case file summary">
+        <dl class="file__meta">
+          <div><dt>Role</dt><dd>{project.role}</dd></div>
+          <div><dt>Period</dt><dd>{project.period}</dd></div>
+          <div><dt>Status</dt><dd>{project.status}</dd></div>
+          <div><dt>Stack</dt><dd>{project.stack.join(' · ')}</dd></div>
+        </dl>
+
+        <figure class="diagram">
+          <figcaption class="diagram__cap">
+            <span>Behaviour, as states</span>
+            <span>PRD §3.3–3.4</span>
+          </figcaption>
+          <svg viewBox="0 0 420 188" role="img" aria-labelledby="file-diagram-title">
+            <title id="file-diagram-title">
+              Attendance session moves from none to open to closed. Locker moves from available to
+              occupied to out of service.
+            </title>
+            <defs>
+              <marker id="file-arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+              </marker>
+            </defs>
+
+            <text x="0" y="10" class="diagram__lbl">ATTENDANCE SESSION</text>
+            <rect x="0" y="24" width="108" height="40" rx="2" />
+            <text x="54" y="49" text-anchor="middle">none</text>
+            <rect x="152" y="24" width="108" height="40" rx="2" class="is-live" />
+            <text x="206" y="49" text-anchor="middle">open</text>
+            <rect x="304" y="24" width="116" height="40" rx="2" />
+            <text x="362" y="49" text-anchor="middle">closed</text>
+            <line x1="112" y1="44" x2="146" y2="44" marker-end="url(#file-arw)" />
+            <line x1="264" y1="44" x2="298" y2="44" marker-end="url(#file-arw)" />
+            <text x="206" y="82" text-anchor="middle" class="diagram__lbl">scan accepted</text>
+            <text x="362" y="82" text-anchor="middle" class="diagram__lbl">key returned</text>
+
+            <text x="0" y="116" class="diagram__lbl">LOCKER</text>
+            <rect x="0" y="130" width="108" height="40" rx="2" />
+            <text x="54" y="155" text-anchor="middle">available</text>
+            <rect x="152" y="130" width="108" height="40" rx="2" class="is-live" />
+            <text x="206" y="155" text-anchor="middle">occupied</text>
+            <rect x="304" y="130" width="116" height="40" rx="2" />
+            <text x="362" y="155" text-anchor="middle">out of service</text>
+            <line x1="112" y1="150" x2="146" y2="150" marker-end="url(#file-arw)" />
+            <line x1="264" y1="150" x2="298" y2="150" marker-end="url(#file-arw)" />
+          </svg>
+          <p class="diagram__foot">
+            One open session per member, enforced with 409 SESSION_ACTIVE. One owner per locker,
+            enforced with a row lock.
+          </p>
+        </figure>
+      </aside>
+    </div>
+
+    <div class="file__boundary">
+      <p class="label">Scope boundary</p>
+      <p>{project.boundary}</p>
+    </div>
+
+    <div class="file__foot">
+      <dl class="file__facts">
+        {item.facts.slice(0, 3).map(([k, v]: [string, string]) => (
+          <div>
+            <dt>{k}</dt>
+            <dd>{v}</dd>
+          </div>
+        ))}
+        <div>
+          <dt>Business outcome</dt>
+          <dd>Not measured. No deployment, no baseline, no member feedback.</dd>
+        </div>
+      </dl>
+
+      <nav class="file__toc" aria-label="Contents of the case file">
+        <p class="label">Inside the file</p>
+        <ol>
+          {contents.map(([n, name, desc, anchor]) => (
+            <li>
+              <a href={`${href}#${anchor}`}>
+                <span class="mono">{n}</span>
+                <span class="file__toc-name">{name}</span>
+                <span class="file__toc-desc">{desc}</span>
+                <span class="file__toc-arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </div>
+  </div>
+</section>

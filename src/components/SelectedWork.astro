@@ -1,0 +1,108 @@
+---
+interface Props {
+  items: any[];
+  also: { name: string; year: string; kind: string; url: string }[];
+}
+const { items, also } = Astro.props;
+---
+
+<section class="section work" id="work">
+  <div class="shell">
+    <div class="section-head section-head--split">
+      <div>
+        <p class="label">06 / Selected work</p>
+        <h2>The rest of the drawer.</h2>
+      </div>
+      <p class="section-head__lede">
+        Coursework, kept honest and small. Each row states what I actually did, what the artefact is,
+        and what it taught me. Nothing here is dressed up as client work.
+      </p>
+    </div>
+
+    <div class="entries">
+      {items.map((item, i) => {
+        const external = item.href.startsWith('http');
+        const attrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+        return (
+          <article class:list={['entry', { 'entry--flip': i % 2 === 1 }]}>
+            <header class="entry__head">
+              <p class="entry__meta">
+                <span class="mono">{item.n}</span>
+                <span>{item.type}</span>
+                <span>{item.meta[item.meta.length - 1]}</span>
+              </p>
+              <h3 class="entry__title">
+                <a href={item.href} {...attrs}>{item.title}</a>
+              </h3>
+              <p class="entry__thesis">{item.thesis}</p>
+            </header>
+
+            <div class="entry__body">
+              <div class="entry__copy">
+                <p class="entry__context">{item.context}</p>
+                <dl class="entry__facts">
+                  {item.facts.map(([k, v]: [string, string]) => (
+                    <div>
+                      <dt>{k}</dt>
+                      <dd>{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <a class="entry__link" href={item.href} {...attrs}>
+                  {item.cta} <span class="arrow" aria-hidden="true">→</span>
+                </a>
+              </div>
+
+              <figure class="plate">
+                <figcaption class="plate__cap">
+                  <span>Artefact</span>
+                  <span>{item.title}</span>
+                </figcaption>
+
+                {item.visual === 'flow' && (
+                  <ol class="plate__flow">
+                    <li><span>01</span>landing page</li>
+                    <li><span>02</span>routes and views</li>
+                    <li><span>03</span>form posts, validates</li>
+                  </ol>
+                )}
+
+                {item.visual === 'table' && (
+                  <ul class="plate__files">
+                    <li><span>notebook</span>analisis_consumer_prices.ipynb</li>
+                    <li><span>output</span>consumer_prices_predictions.csv</li>
+                    <li><span>output</span>model_summary.csv</li>
+                    <li><span>input</span>human_capital_project.csv</li>
+                  </ul>
+                )}
+
+                {item.visual === 'schema' && (
+                  <ul class="plate__files">
+                    <li><span>schema</span>pastebin.sql</li>
+                    <li><span>style</span>src/assets/css/index.css</li>
+                    <li><span>build</span>package.json</li>
+                    <li><span>assets</span>src/assets/img/</li>
+                  </ul>
+                )}
+
+                <p class="plate__foot">Taken from the repository, not redrawn for effect.</p>
+              </figure>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+
+    <div class="also">
+      <p class="label">Also in the drawer</p>
+      <ul class="also__list">
+        {also.map((p) => (
+          <li>
+            <a href={p.url} target="_blank" rel="noopener noreferrer">{p.name}</a>
+            <span class="mono">{p.kind.toLowerCase()} · {p.year}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>

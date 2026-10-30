@@ -113,6 +113,10 @@ export const SCENARIOS = [
     requirement: 'FR-MEM-02, FR-MEM-04',
     test: 'tests/Feature/CheckInScanTest.php',
     uat: 'AT-01, AT-06',
+    edges: [
+      'A second scan while the session is open is refused with 409 SESSION_ACTIVE (AT-06).',
+      'Two requests carrying the same Idempotency-Key create one row, not two (AT-07).',
+    ],
     evidence: 'verified',
   },
   {
@@ -125,6 +129,10 @@ export const SCENARIOS = [
     requirement: 'FR-MEM-05, FR-CAS-11',
     test: 'tests/Feature/CheckInScanTest.php',
     uat: 'AT-10, AT-12',
+    edges: [
+      'No attendance row is written for a rejected scan, and an audit entry is created (AT-10).',
+      'A day pass works on its first day and returns MEMBERSHIP_EXPIRED on the next (AT-12).',
+    ],
     evidence: 'verified',
   },
   {
@@ -140,6 +148,10 @@ export const SCENARIOS = [
     requirement: 'FR-MEM-03',
     test: 'tests/Feature/CheckInScanTest.php',
     uat: 'AT-03, AT-04',
+    edges: [
+      'Reported accuracy above the configured maximum returns 422 GPS_ACCURACY_LOW before distance is judged (AT-04).',
+      'A payload that does not match the gym QR returns 400 INVALID_QR before location is judged (AT-05).',
+    ],
     evidence: 'verified',
   },
   {
@@ -152,6 +164,10 @@ export const SCENARIOS = [
     requirement: 'FR-CAS-02',
     test: 'tests/Feature/LockerAssignConcurrencyTest.php',
     uat: 'AT-08',
+    edges: [
+      'Returning the key sets the locker back to available and fills checkout_time (AT-09).',
+      'A third request while the locker stays occupied also receives 409 LOCKER_TAKEN.',
+    ],
     evidence: 'verified',
   },
 ];

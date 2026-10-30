@@ -5,3 +5,7 @@ dist/
 
 # audit shots
 .shots/
+
+# local agent/session data
+.agents/
+.opencode/

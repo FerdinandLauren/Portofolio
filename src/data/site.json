@@ -1,17 +1,58 @@
 {
   "name": "Ferdinand Lauren",
-  "headline": "I turn messy processes into clear requirements.",
-  "positioning": "Computer Science undergraduate at Universitas Lampung, working towards ERP functional consulting and IT business analysis.",
+  "headline": "I turn observations into systems people can rely on.",
+  "positioning": "Entry-level IT business analyst and ERP functional consultant. Computer Science undergraduate at Universitas Lampung, working on the layer before software: reading how an operation runs, writing what the system must do, and proving the result.",
   "availability": "Open to internship, trainee programme and junior positions in ERP, enterprise systems and digital transformation.",
   "location": "Bandar Lampung, Indonesia",
   "education": "S1 Ilmu Komputer, Universitas Lampung",
   "cohort": "2022 cohort",
   "process": [
-    { "n": "01", "label": "Observe", "note": "Watch how the work is actually done, not how the SOP says it is." },
-    { "n": "02", "label": "Analyse", "note": "Name the actors, the handoffs and where the process leaks." },
-    { "n": "03", "label": "Define", "note": "Write requirements, states and rules a team can build against." },
-    { "n": "04", "label": "Verify", "note": "Turn expected behaviour into scenarios, then check them." }
+    {
+      "n": "01",
+      "label": "Observe",
+      "note": "Read the operation as it actually runs, not as the SOP says it runs.",
+      "detail": [
+        "Watch where work changes hands, and where it waits.",
+        "Separate what I saw from what I only suspect.",
+        "Write every friction with the evidence beside it."
+      ],
+      "artifact": "Process map · actors · hypotheses"
+    },
+    {
+      "n": "02",
+      "label": "Define",
+      "note": "Turn friction into a problem statement and a scope boundary.",
+      "detail": [
+        "Name the actors and the handoffs between them.",
+        "Decide what is in scope, what is out, and why.",
+        "Give each requirement an ID so it can be traced."
+      ],
+      "artifact": "Scope · FR / NFR · decision log"
+    },
+    {
+      "n": "03",
+      "label": "Design",
+      "note": "Translate requirements into behaviour before thinking about screens.",
+      "detail": [
+        "Model the things that change as explicit states.",
+        "Describe data by what it means to the business.",
+        "Specify failure codes and the manual fallback."
+      ],
+      "artifact": "State machines · data model · error catalogue"
+    },
+    {
+      "n": "04",
+      "label": "Verify",
+      "note": "Write the expected behaviour first, then check it and record what is still unknown.",
+      "detail": [
+        "Turn each rule into a numbered acceptance scenario.",
+        "Automate what can be automated; report the rest honestly.",
+        "Mark every claim that no evidence supports."
+      ],
+      "artifact": "Acceptance scenarios · tests · evidence column"
+    }
   ],
+  "approachCaveat": "This is my working approach, practised on one independent concept project and on coursework. It is not a methodology validated in client engagements.",
   "contact": {
     "email": "ferdinandlauren78@gmail.com",
     "linkedin": "https://www.linkedin.com/in/ferdinand-lauren-3853b5375/",

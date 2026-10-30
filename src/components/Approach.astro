@@ -1,0 +1,107 @@
+---
+interface Props {
+  steps: {
+    n: string;
+    label: string;
+    note: string;
+    detail: string[];
+    artifact: string;
+  }[];
+  caveat: string;
+}
+const { steps, caveat } = Astro.props;
+---
+
+<section class="section approach" id="approach">
+  <div class="shell">
+    <div class="section-head">
+      <p class="label">02 / Working approach</p>
+      <h2>How I think, in four moves.</h2>
+      <p class="section-head__lede">
+        Every project here is read through the same sequence: observe the operation, define the
+        problem and its boundary, design the behaviour, then verify it against something written
+        down in advance.
+      </p>
+    </div>
+
+    <div class="approach__grid">
+      <div class="approach__rail" role="group" aria-label="Stages of my working approach">
+        {steps.map((step, i) => (
+          <button
+            class="stagebtn"
+            type="button"
+            data-stage={step.n}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+            aria-controls={`stage-panel-${step.n}`}
+          >
+            <span class="stagebtn__n">{step.n}</span>
+            <span class="stagebtn__label">{step.label}</span>
+            <span class="stagebtn__arrow" aria-hidden="true">→</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="approach__panels">
+        {steps.map((step, i) => (
+          <div
+            class="stagepanel"
+            id={`stage-panel-${step.n}`}
+            data-panel={step.n}
+            data-active={i === 0 ? 'true' : 'false'}
+          >
+            <p class="stagepanel__index">
+              <span class="mono">STEP {step.n} / {steps.length.toString().padStart(2, '0')}</span>
+              <span class="stagepanel__artifact">{step.artifact}</span>
+            </p>
+            <h3 class="stagepanel__title">{step.label}</h3>
+            <p class="stagepanel__note">{step.note}</p>
+            <ul class="stagepanel__detail">
+              {step.detail.map((d) => <li>{d}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <p class="approach__caveat">
+      <span class="label">Claim boundary</span>
+      {caveat}
+    </p>
+  </div>
+</section>
+
+<style>
+  /* Without JavaScript every stage is readable; the rail only takes over once the module is ready. */
+  :global(html.js) .approach.is-ready .stagepanel[data-active='false'] { display: none; }
+  :global(html:not(.js)) .approach__rail,
+  :global(html.js) .approach:not(.is-ready) .approach__rail { display: none; }
+</style>
+
+<script>
+  const approachRoot = document.querySelector<HTMLElement>('.approach');
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.stagebtn'));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('.stagepanel'));
+
+  function select(id: string) {
+    for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.stage === id));
+    for (const p of panels) p.dataset.active = String(p.dataset.panel === id);
+  }
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => select(button.dataset.stage!));
+    button.addEventListener('keydown', (event) => {
+      const i = buttons.indexOf(button);
+      let next = -1;
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (i + 1) % buttons.length;
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (i - 1 + buttons.length) % buttons.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = buttons.length - 1;
+      if (next === -1) return;
+      event.preventDefault();
+      buttons[next].focus();
+      select(buttons[next].dataset.stage!);
+    });
+  }
+
+  approachRoot?.classList.add('is-ready');
+</script>

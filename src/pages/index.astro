@@ -1,266 +1,276 @@
 ---
 import Base from '../layouts/Base.astro';
-import WorkFeature from '../components/WorkFeature.astro';
 import DecisionLab from '../components/DecisionLab.astro';
+import '../styles/desk.css';
 import site from '../data/site.json';
 import work from '../data/work.json';
 import supporting from '../data/projects/supporting.json';
+import gym from '../data/projects/gym-qr.json';
 
-const alsoDone = supporting.filter((p) => !work.some((w) => w.title === p.name));
-
-const skills = [
-  {
-    name: 'Business process analysis',
-    status: 'practised',
-    badge: 'documented',
-    text: 'Mapping an as-is process, naming the handoffs and stating where it leaks — with every friction labelled a hypothesis until someone validates it.',
-  },
-  {
-    name: 'Requirements & documentation',
-    status: 'demonstrated',
-    badge: 'verified',
-    text: 'A 1,166-line PRD: scope, personas, journeys, functional requirements with IDs, non-functional requirements, DDL, API contract, and a decision log that records the alternative rejected.',
-  },
-  {
-    name: 'System modelling & verification',
-    status: 'demonstrated',
-    badge: 'verified',
-    text: 'State machines, a data model with business meaning per entity, 15 acceptance scenarios written before implementation, and 130 automated tests I can tell you the coverage of.',
-  },
-  {
-    name: 'Enterprise systems',
-    status: 'learning',
-    badge: 'assumption',
-    text: 'No hands-on SAP, Dynamics or Odoo yet, and I do not claim any. What I am building is the layer underneath: process decomposition, master data, role design, cutover.',
-  },
-];
-
-const [first, ...rest] = site.name.split(' ');
+const featured = work[0];
+const rest = work.slice(1);
+const alsoDone = supporting.filter(p => !work.some(w => w.title === p.name));
+const root = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+const caseHref = `${root}work/gym-qr/`;
 ---
 
-<Base>
-  <!-- Opening -->
-  <section class="opening">
-    <div class="wrap">
-      <div class="opening__top">
-        <h1 class="signature">
-          <span><i>{first}</i></span>
-          <span><i>{rest.join(' ')}</i></span>
-        </h1>
+<Base desk bodyClass="is-desk">
+  <main class="desk" id="desk">
+    <canvas class="desk__canvas" id="desk-canvas" aria-hidden="true"></canvas>
+    <div class="desk__vignette" aria-hidden="true"></div>
 
-        <div class="opening__intro">
-          <p class="opening__claim">
-            I turn messy processes into clear requirements — and into systems whose behaviour can be tested.
-          </p>
-          <p class="opening__role">
-            <strong>ERP functional consultant / IT business analyst</strong>, entry level. Computer Science
-            undergraduate at Universitas Lampung, building towards the work that happens before software:
-            reading an operation, writing down what it must do, and proving the result.
-          </p>
+    <header class="desk__brand">
+      <span class="desk__brand-mark" aria-hidden="true">FL</span>
+      <span class="desk__brand-name">{site.name}</span>
+      <span class="desk__brand-sub">Systems Analyst</span>
+    </header>
+
+    <p class="desk__intro">I turn observations into <em>systems people can rely on</em>.</p>
+
+    <nav class="dlabels" aria-label="Sections">
+      <button class="dlabel" data-desk-target="about" data-desk-focus="monitor" data-depth="1.0" aria-controls="panel-about" aria-expanded="false">About</button>
+      <button class="dlabel" data-desk-target="projects" data-desk-focus="folder" data-depth="1.2" aria-controls="panel-projects" aria-expanded="false">Projects</button>
+      <button class="dlabel" data-desk-target="approach" data-desk-focus="notebook" data-depth="0.9" aria-controls="panel-approach" aria-expanded="false">How I think</button>
+      <button class="dlabel" data-desk-target="lab" data-desk-focus="clipboard" data-depth="1.1" aria-controls="panel-lab" aria-expanded="false">Decision Lab</button>
+      <button class="dlabel" data-desk-target="ai" data-depth="0.8" aria-controls="panel-ai" aria-expanded="false">AI workbench</button>
+      <button class="dlabel" data-desk-target="contact" data-desk-focus="card" data-depth="0.7" aria-controls="panel-contact" aria-expanded="false">Contact</button>
+    </nav>
+
+    <p class="desk__hint" id="desk-hint">Move the cursor. Click an object or a label.</p>
+
+    <div class="desk__fallback" hidden>
+      <p class="desk__fallback-msg">The 3D desk could not start here. The full portfolio is below.</p>
+      <nav aria-label="Fallback navigation">
+        <a href="#panel-about">About</a>
+        <a href="#panel-projects">Projects</a>
+        <a href="#panel-approach">How I think</a>
+        <a href="#panel-lab">Decision Lab</a>
+        <a href="#panel-ai">AI workbench</a>
+        <a href="#panel-contact">Contact</a>
+      </nav>
+    </div>
+
+    <div class="desk__bar" data-desk-bar hidden>
+      <button class="desk__back" data-desk-back type="button">← Back to desk</button>
+      <span class="desk__barlabel" data-desk-barlabel></span>
+    </div>
+
+    <!-- =================== panels =================== -->
+
+    <!-- ABOUT -->
+    <section class="dpanel" id="panel-about" data-panel="about" data-side="left" data-label="About" aria-labelledby="about-title" hidden>
+      <div class="dpanel__inner">
+        <h2 class="dpanel__title" id="about-title">{site.name}</h2>
+        <div class="dpanel__body">
+          <p class="dpanel__lede">{site.positioning}</p>
+          <dl class="dpanel__facts">
+            <div><dt>Based in</dt><dd>{site.location}</dd></div>
+            <div><dt>Studying</dt><dd>{site.education}</dd></div>
+            <div><dt>Cohort</dt><dd>{site.cohort}</dd></div>
+            <div><dt>Working towards</dt><dd>ERP functional consultant · IT business analyst</dd></div>
+            <div><dt>Open to</dt><dd>Internship, trainee programme, junior position</dd></div>
+          </dl>
+          <p>I have no industry experience yet, and I do not pretend otherwise. What I can offer is someone who reads the process before touching the system, writes the requirement down instead of carrying it in his head, and says plainly when something has not been verified.</p>
+          <p>So I practise the parts I can practise alone: reading how an operation runs, mapping the actors and handoffs, naming where it leaks, turning that into requirements with IDs and acceptance criteria, defining expected behaviour as states and rules, then checking the result against scenarios written before the build.</p>
+          <p>Two companies can run the same process and get different results, and the difference is rarely the software. It is whether anyone wrote down what the process is supposed to do, who it serves, and what should happen when it goes wrong. That writing is the work I want to do.</p>
         </div>
-
-        <div class="opening__foot">
-          <span class="avail">{site.availability}</span>
-          <a class="scroll-hint" href="#work"><span>See the work</span><span class="arrow" aria-hidden="true">↓</span></a>
-        </div>
       </div>
+    </section>
 
-      <div class="strip">
-        <span><b>Based in</b> {site.location}</span>
-        <span><b>Studying</b> {site.education}</span>
-        <span><b>Cohort</b> {site.cohort}</span>
-        <span><b>Open to</b> internship · trainee · junior</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- Work -->
-  <section class="section" id="work">
-    <div class="wrap">
-      <div class="section__head">
-        <h2>Four things I have made, and what each one actually taught me.</h2>
-        <p class="section__lede">
-          One is a system I designed end to end. Three are coursework, kept honest and small. The evidence
-          behind every line is in its repository, not in this page.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  {work.map((item, i) => <WorkFeature item={item} ink={i === 0} />)}
-
-  <section class="also">
-    <div class="wrap">
-      <p>
-        Also on GitHub, not promoted: {alsoDone.map((p, i) => (
-          <span>
-            {i > 0 && ' · '}
-            <a href={p.url} target="_blank" rel="noopener noreferrer">{p.name}</a>
-            <span> ({p.kind.toLowerCase()}, {p.year})</span>
-          </span>
-        ))}
-      </p>
-    </div>
-  </section>
-
-  <!-- About -->
-  <section class="section" id="about">
-    <div class="wrap">
-      <div class="section__head">
-        <h2>I am more interested in why a system exists than in how it is built.</h2>
-        <p class="section__lede">
-          Computer Science taught me to build. The part I keep coming back to is earlier: how a business
-          actually runs, where it breaks, and what has to be true before software can help.
-        </p>
-      </div>
-
-      <div class="about">
-        <div class="about__text">
-          <p>
-            I am Ferdinand Lauren, a Computer Science undergraduate at Universitas Lampung, in the 2022
-            cohort, based in Bandar Lampung. I am at the start of my career and I am deliberate about the
-            direction: ERP functional consulting, with IT business analysis as the second path.
-          </p>
-          <p>
-            What pulled me there was a simple observation. Two companies can run the same process and get
-            different results, and the difference is rarely the software. It is whether anyone wrote down
-            what the process is supposed to do, who it serves, and what should happen when it goes wrong.
-            That writing is the work I want to do.
-          </p>
-          <p>
-            So I practise the parts I can practise alone: reading how an operation runs, mapping the actors
-            and handoffs, naming where it leaks, turning that into requirements with IDs and acceptance
-            criteria, defining expected behaviour as states and rules, then checking the result against
-            scenarios written before the build.
-          </p>
-          <p>
-            I have no industry experience yet, and I do not pretend otherwise. What I can offer is someone
-            who reads the process before touching the system, writes the requirement down instead of
-            carrying it in his head, and says plainly when something has not been verified.
-          </p>
-        </div>
-
-        <dl class="about__facts">
-          <div><dt>Based in</dt><dd>{site.location}</dd></div>
-          <div><dt>Studying</dt><dd>{site.education}</dd></div>
-          <div><dt>Cohort</dt><dd>{site.cohort}</dd></div>
-          <div><dt>Working towards</dt><dd>ERP functional consultant · IT business analyst</dd></div>
-          <div><dt>Currently learning</dt><dd>Enterprise system foundations: process decomposition, master data, roles. No platform certification yet.</dd></div>
-          <div><dt>Open to</dt><dd>Internship, trainee programme, junior position</dd></div>
-        </dl>
-      </div>
-    </div>
-  </section>
-
-  <!-- Method -->
-  <section class="section" id="method">
-    <div class="wrap">
-      <div class="section__head">
-        <h2>Four steps, in this order, every time.</h2>
-        <p class="section__lede">
-          The order is the point. Most of the value is created before anyone writes code, and most of the
-          damage comes from skipping a step.
-        </p>
-      </div>
-
-      <ol class="method">
-        {site.process.map((step, i) => (
-          <li class="method__step">
-            <span class="method__n">{step.n}</span>
-            <div>
-              <h3>{step.label}</h3>
-              <p>{step.note}</p>
-            </div>
-            <p class="method__artifact">
-              {i === 0 && 'Output: process map, actors, friction list — every friction labelled a hypothesis.'}
-              {i === 1 && 'Output: scope boundary, in and out, with the reason for each exclusion.'}
-              {i === 2 && 'Output: requirements with IDs, state machines, error catalogue, decision log.'}
-              {i === 3 && 'Output: acceptance scenarios, then evidence — what passed, what did not, what is unverified.'}
+    <!-- PROJECTS -->
+    <section class="dpanel" id="panel-projects" data-panel="projects" data-side="left" data-label="Projects" aria-labelledby="projects-title" hidden>
+      <div class="dpanel__inner">
+        <h2 class="dpanel__title" id="projects-title">Selected work</h2>
+        <div class="dpanel__body">
+          <!-- featured -->
+          <article class="dproject">
+            <h3 class="dproject__title"><a href={caseHref}>{featured.title}</a></h3>
+            <p class="dproject__thesis">{featured.thesis}</p>
+            <p class="dpanel__flag">{featured.type}</p>
+            <p class="dproject__ctx">{featured.context}</p>
+            <dl class="dpanel__facts dpanel__facts--tight">
+              {featured.facts.map(([k,v]:[string,string]) => (<div><dt>{k}</dt><dd>{v}</dd></div>))}
+            </dl>
+            <p class="dproject__links">
+              <a href={caseHref}>Read the case study →</a>
+              <a href={gym.repository} target="_blank" rel="noopener noreferrer">Repository ↗</a>
             </p>
-          </li>
-        ))}
-      </ol>
-    </div>
-  </section>
+          </article>
 
-  <!-- AI Workbench -->
-  <section class="section" id="ai">
-    <div class="wrap">
-      <div class="section__head">
-        <h2>AI sits on the bench. It never gives the verdict.</h2>
-        <p class="section__lede">
-          Agents draft, constrain and check faster than I can alone. Nothing they produce reaches a
-          deliverable until I have tested it against the requirement — so the review, not the model, is
-          the part I am claiming.
-        </p>
-      </div>
+          <!-- rest -->
+          {rest.map(item => {
+            const ext = item.href.startsWith('http');
+            const attrs = ext ? { target:'_blank', rel:'noopener noreferrer' } : {};
+            return (
+              <article class="dproject dproject--sub">
+                <h4 class="dproject__title"><a href={item.href} {...attrs}>{item.title}</a></h4>
+                <p class="dproject__thesis">{item.thesis}</p>
+                <p class="dproject__ctx">{item.context}</p>
+                <dl class="dpanel__facts dpanel__facts--tight">
+                  {item.facts.map(([k,v]:[string,string]) => (<div><dt>{k}</dt><dd>{v}</dd></div>))}
+                </dl>
+                <a class="dproject__link" href={item.href} {...attrs}>{item.cta} →</a>
+              </article>
+            );
+          })}
 
-      <ol class="ai-flow">
-        <li><span>1</span>Raw information</li>
-        <li><span>2</span>AI-assisted analysis</li>
-        <li><span>3</span>Human review</li>
-        <li><span>4</span>Verified output</li>
-      </ol>
-
-      <div class="ai-notes">
-        <p>
-          In the GYM-QR repository the rules the agents work under are committed: <code>AGENTS.md</code>
-          and <code>.clinerules</code>. They fix scope, stack and tone before a draft exists, which is the
-          part I can show you. How many lines came from an agent and how many from me is not separable by
-          commit, so I am not claiming a ratio.
-        </p>
-        <p class="ai-caveat">
-          This is a working practice, not a measured result. I have no benchmark showing the time it saved.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Skills -->
-  <section class="section" id="skills">
-    <div class="wrap">
-      <div class="section__head">
-        <h2>Capabilities, tied to evidence or to an honest limit.</h2>
-        <p class="section__lede">
-          “Demonstrated” means you can open the artefact. “Practised” means I have done it once, carefully.
-          “Learning” means exactly that.
-        </p>
-      </div>
-
-      <div class="skills">
-        {skills.map((s) => (
-          <div class="skill">
-            <h3>{s.name}</h3>
-            <p>{s.text}</p>
-            <span class={`badge badge--${s.badge}`}>{s.status}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- The Decision Lab -->
-  <DecisionLab />
-
-  <!-- Contact -->
-  <section class="contact" id="contact">
-    <div class="wrap">
-      <h2>If you are hiring for a trainee or junior analyst role, I would like to talk.</h2>
-      <div class="contact__grid" style="margin-top:1.6rem">
-        <p class="contact__lede">
-          Ask me about any of the work above — including the decisions I would make differently now, and
-          the parts I still have not validated.
-        </p>
-        <div class="contact__links">
-          <a class="contact__link" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
-          <a class="contact__link" href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
-          <a class="contact__link" href={site.contact.github} target="_blank" rel="noopener noreferrer">github.com/FerdinandLauren <span aria-hidden="true">↗</span></a>
-          {site.contact.cv && <a class="contact__link" href={site.contact.cv}>Download CV (PDF)</a>}
-          <a class="btn" href={`mailto:${site.contact.email}?subject=Portfolio%20—%20internship%20or%20junior%20analyst%20role`}>
-            Email me
-          </a>
+          <p class="dpanel__also">
+            Also on GitHub: {alsoDone.map((p,i) => (<span>{i>0 && ' · '}<a href={p.url} target="_blank" rel="noopener noreferrer">{p.name}</a> <span class="mono">({p.kind.toLowerCase()}, {p.year})</span></span>))}
+          </p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- HOW I THINK -->
+    <section class="dpanel" id="panel-approach" data-panel="approach" data-side="left" data-label="How I think" aria-labelledby="approach-title" hidden>
+      <div class="dpanel__inner">
+        <h2 class="dpanel__title" id="approach-title">Observe → Define → Design → Verify</h2>
+        <div class="dpanel__body">
+          {site.process.map((step) => (
+            <div class="dstep">
+              <p class="dstep__head"><span class="mono">{step.n}</span> {step.label}</p>
+              <p class="dstep__note">{step.note}</p>
+              <ul class="dstep__list">
+                {step.detail.map((d:string) => <li>{d}</li>)}
+              </ul>
+              <p class="dstep__artifact mono">{step.artifact}</p>
+            </div>
+          ))}
+          <p class="dpanel__caveat">{site.approachCaveat}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DECISION LAB -->
+    <section class="dpanel dpanel--lab" id="panel-lab" data-panel="lab" data-side="right" data-label="Decision Lab" aria-labelledby="lab-title" hidden>
+      <div class="dpanel__inner dpanel__inner--lab">
+        <DecisionLab />
+      </div>
+    </section>
+
+    <!-- AI WORKBENCH -->
+    <section class="dpanel" id="panel-ai" data-panel="ai" data-side="right" data-label="AI Workbench" aria-labelledby="ai-title" hidden>
+      <div class="dpanel__inner">
+        <h2 class="dpanel__title" id="ai-title">AI sits on the bench. It never gives the verdict.</h2>
+        <div class="dpanel__body">
+          <p>Agents draft, constrain and check faster than I can alone. Nothing they produce reaches a deliverable until I have tested it against the requirement — so the review, not the model, is the part I am claiming.</p>
+          <ol class="dflow">
+            <li><span class="mono">01</span><span>Input</span><span>Raw notes, PRD sections, the rules committed in the repository.</span></li>
+            <li><span class="mono">02</span><span>AI-assisted analysis</span><span>Candidate requirements, edge cases, consistency checks.</span></li>
+            <li><span class="mono">03</span><span>Human review</span><span>Each line measured against the PRD, the state model and the tests — or dropped.</span></li>
+            <li><span class="mono">04</span><span>Verified output</span><span>Only what the repository can show is presented as output. The rest stays labelled.</span></li>
+          </ol>
+          <p>In the GYM-QR repository the rules the agents work under are committed: <code>AGENTS.md</code> and <code>.clinerules</code>. They fix scope, stack and tone before a draft exists. How many lines came from an agent and how many from me is not separable by commit, so I am not claiming a ratio.</p>
+          <p class="dpanel__caveat">This is a working practice, not a measured result.</p>
+          <div class="dpanel__claimbox">
+            <p class="mono">Not claimed</p>
+            <ul>
+              <li>No time saved, no productivity percentage.</li>
+              <li>No chat history presented as evidence.</li>
+              <li>No requirement attributed to a model without review.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="dpanel" id="panel-contact" data-panel="contact" data-side="right" data-label="Contact" aria-labelledby="contact-title" hidden>
+      <div class="dpanel__inner">
+        <h2 class="dpanel__title" id="contact-title">Talk to me</h2>
+        <div class="dpanel__body">
+          <p class="dpanel__lede">If you are hiring for a trainee or junior analyst role, I would like to talk.</p>
+          <dl class="dpanel__links">
+            <div><dt>Email</dt><dd><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></dd></div>
+            <div><dt>LinkedIn</dt><dd><a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">{site.contact.linkedin.replace('https://','')}</a></dd></div>
+            <div><dt>GitHub</dt><dd><a href={site.contact.github} target="_blank" rel="noopener noreferrer">{site.contact.github.replace('https://','')}</a></dd></div>
+          </dl>
+          <p class="dpanel__note mono">{site.location} · {site.cohort}</p>
+        </div>
+      </div>
+    </section>
+  </main>
 </Base>
+
+<script>
+  import { createDesk } from '../lib/desk/scene.js';
+
+  (function init() {
+    const root = document.querySelector('.desk');
+    const canvas = document.getElementById('desk-canvas');
+    const labels = Array.from(document.querySelectorAll('[data-desk-target]'));
+    const panels = Array.from(document.querySelectorAll('.dpanel'));
+    const hint = document.getElementById('desk-hint');
+    const fallback = document.querySelector('.desk__fallback');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const DEF = 'Move the cursor. Click an object or a label.';
+
+    let desk;
+    try {
+      desk = createDesk({ canvas, reduceMotion });
+    } catch (err) {
+      console.warn('Desk scene failed to start:', err);
+      root.classList.add('is-fallback');
+      fallback && (fallback.hidden = false);
+      return;
+    }
+
+    root.classList.add('is-ready');
+    desk.resize();
+    for (const p of panels) p.hidden = true;
+
+    function openPanel(id, objectId, sourceLabel) {
+      const open = id != null;
+      const panel = panels.find(p => p.dataset.panel === id);
+      const side = panel?.dataset.side || 'left';
+      root.dataset.panelSide = side;
+      root.dataset.panelTheme = panel?.classList.contains('dpanel--lab') ? 'dark' : 'light';
+      for (const p of panels) p.hidden = p.dataset.panel !== id;
+      for (const l of labels) {
+        l.classList.toggle('is-active', open && sourceLabel === l);
+        l.setAttribute('aria-expanded', String(l.dataset.deskTarget === id));
+      }
+      desk.focus(objectId || null);
+      root.classList.toggle('has-panel', open);
+      const bar = document.querySelector('[data-desk-bar]');
+      const barLabel = document.querySelector('[data-desk-barlabel]');
+      if (bar) bar.hidden = !open;
+      if (barLabel) barLabel.textContent = panel?.dataset.label || '';
+    }
+    function closePanel() {
+      openPanel(null, null);
+    }
+
+    for (const l of labels) {
+      l.addEventListener('click', () => openPanel(l.dataset.deskTarget, l.dataset.deskFocus || null, l));
+    }
+    const globalBack = document.querySelector('[data-desk-back]');
+    globalBack?.addEventListener('click', closePanel);
+
+    desk.onSelect(obj => { if (obj.userData.panelId) openPanel(obj.userData.panelId, obj.userData.id); });
+    desk.onHover(obj => {
+      if (obj) { hint.textContent = obj.userData.hint; root.classList.add('is-hovering'); }
+      else { hint.textContent = DEF; root.classList.remove('is-hovering'); }
+    });
+
+    if (!reduceMotion) {
+      const ld = labels.map(l => ({ el: l, depth: parseFloat(l.dataset.depth || '0.8') }));
+      desk.onPointer((nx, ny) => {
+        for (const { el, depth } of ld) {
+          el.style.transform = `translate3d(${(nx * 14 * depth).toFixed(1)}px, ${(ny * 9 * depth).toFixed(1)}px, 0)`;
+        }
+      });
+    }
+
+    addEventListener('keydown', e => {
+      if (e.key === 'Escape' && root.classList.contains('has-panel')) closePanel();
+    });
+    window.addEventListener('pagehide', () => desk.dispose());
+    window.__desk = desk;
+  })();
+</script>
+
+<style>
+  /* entry animation for panels when revealed */
+  @keyframes deskPanelIn { from { transform: translateX(14px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>

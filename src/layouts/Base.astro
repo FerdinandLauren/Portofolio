@@ -7,16 +7,18 @@ interface Props {
   title?: string;
   description?: string;
   bodyClass?: string;
+  desk?: boolean;
 }
 const {
-  title = `${site.name} — ERP functional consultant / IT business analyst`,
-  description = 'Portfolio of Ferdinand Lauren: how I observe business processes, write requirements, design system behaviour and verify it.',
+  title = `${site.name} — IT business analyst / ERP functional consultant`,
+  description = 'The Systems Workbench: how I observe business processes, define requirements, design system behaviour and verify it.',
   bodyClass = '',
+  desk = false,
 } = Astro.props;
 const base = import.meta.env.BASE_URL;
-// On a case-study page the section anchors live on the home page.
 const path = Astro.url.pathname.replace(/index\.html$/, '');
-const hashBase = path === base || path === base.replace(/\/$/, '') ? '' : base;
+const onHome = path === base || path === base.replace(/\/$/, '');
+const hashBase = onHome ? '' : base;
 ---
 
 <!doctype html>
@@ -27,65 +29,96 @@ const hashBase = path === base || path === base.replace(/\/$/, '') ? '' : base;
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="color-scheme" content="light" />
-    <meta name="theme-color" content="#eeede8" />
+    <meta name="theme-color" content="#0d120f" />
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
     <link rel="preload" href={`${base}fonts/schibsted-var.woff2`} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${base}fonts/instrumentserif-400.woff2`} as="font" type="font/woff2" crossorigin />
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content={`${site.name} — Systems Workbench`} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <script is:inline>document.documentElement.classList.add('js');</script>
-    <script
-      type="application/ld+json"
-      set:html={JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Person',
-        name: site.name,
-        jobTitle: 'ERP functional consultant / IT business analyst (entry level)',
-        description: site.positioning,
-        address: { '@type': 'PostalAddress', addressLocality: 'Bandar Lampung', addressCountry: 'ID' },
-        alumniOf: { '@type': 'CollegeOrUniversity', name: 'Universitas Lampung' },
-        email: `mailto:${site.contact.email}`,
-        sameAs: [site.contact.linkedin, site.contact.github],
-      })}
-    />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: site.name,
+      jobTitle: 'IT business analyst / ERP functional consultant (entry level)',
+      description: site.positioning,
+      address: { '@type': 'PostalAddress', addressLocality: 'Bandar Lampung', addressCountry: 'ID' },
+      alumniOf: { '@type': 'CollegeOrUniversity', name: 'Universitas Lampung' },
+      email: `mailto:${site.contact.email}`,
+      sameAs: [site.contact.linkedin, site.contact.github],
+    })} />
   </head>
   <body class={bodyClass || undefined}>
     <a class="skip" href="#main">Skip to content</a>
     <div class="progress" aria-hidden="true"></div>
-    <div class="grain" aria-hidden="true"></div>
+    {!desk && <div class="grain" aria-hidden="true"></div>}
 
-    <header class="nav">
-      <div class="wrap nav__inner">
-        <a class="nav__mark" href={base}>{site.name} <span>— systems workbench</span></a>
-        <nav class="nav__links" aria-label="Sections">
-          <a href={`${hashBase}#work`}>Work</a>
-          <a href={`${hashBase}#method`}>Method</a>
-          <a href={`${hashBase}#skills`}>Skills</a>
-          <a href={`${hashBase}#lab`}>Lab</a>
-          <a class="nav__talk" href={`mailto:${site.contact.email}`}>Let’s talk</a>
-        </nav>
-      </div>
-    </header>
+    {!desk && (
+      <header class="masthead">
+        <div class="shell masthead__inner">
+          <a class="brand" href={base} aria-label={`${site.name} — home`}>
+            <span class="brand__mark" aria-hidden="true">FL</span>
+            <span class="brand__text">
+              <span class="brand__name">{site.name}</span>
+              <span class="brand__sub">Systems Workbench</span>
+            </span>
+          </a>
+          <nav class="masthead__nav" aria-label="Sections">
+            <a href={`${hashBase}#case`}>Case file</a>
+            <a href={`${hashBase}#approach`}>Approach</a>
+            <a href={`${hashBase}#lab`}>Lab</a>
+            <a href={`${hashBase}#work`}>Work</a>
+            <a href={`${hashBase}#about`}>About</a>
+            <a class="masthead__cta" href={`mailto:${site.contact.email}`}>Email me</a>
+          </nav>
+        </div>
+      </header>
+    )}
 
     <main id="main">
       <slot />
     </main>
 
-    <footer class="footer">
-      <div class="wrap footer__inner">
-        <span>{site.name} · {site.location}</span>
-        <span>
-          <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a> ·
-          <a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a> ·
-          <a href={site.contact.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-        </span>
-      </div>
-    </footer>
+    {!desk && (
+      <footer class="foot">
+        <div class="shell">
+          <div class="foot__top">
+            <div class="foot__id">
+              <span class="label">WORKBENCH / 001</span>
+              <p class="foot__name">{site.name}</p>
+              <p class="foot__meta">{site.location} · {site.education}</p>
+            </div>
+            <nav class="foot__nav" aria-label="Footer">
+              <a href={`${hashBase}#case`}>Case file</a>
+              <a href={`${hashBase}#approach`}>Approach</a>
+              <a href={`${hashBase}#lab`}>Decision Lab</a>
+              <a href={`${hashBase}#work`}>Selected work</a>
+              <a href={`${hashBase}#about`}>About</a>
+            </nav>
+            <div class="foot__contact">
+              <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+              <a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
+              <a href={site.contact.github} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+              {site.contact.cv && <a href={site.contact.cv}>CV (PDF) <span aria-hidden="true">↓</span></a>}
+            </div>
+          </div>
+          <div class="foot__bottom">
+            <span class="mono">© 2026 {site.name}</span>
+            <span class="mono">Static Astro build · content held in JSON · no analytics</span>
+          </div>
+        </div>
+      </footer>
+    )}
 
     <script>
-      // Chrome state: the bar only gains a surface once the page has moved.
       const onScroll = () => document.body.classList.toggle('is-scrolled', window.scrollY > 12);
       addEventListener('scroll', onScroll, { passive: true });
       onScroll();
-
-      // Reading progress.
       const bar = document.querySelector('.progress');
       if (bar) {
         const paint = () => {
@@ -97,45 +130,18 @@ const hashBase = path === base || path === base.replace(/\/$/, '') ? '' : base;
         addEventListener('resize', paint);
         paint();
       }
-
-      // Reveal, decorative only: content is readable without it.
-      const items = document.querySelectorAll('.reveal');
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('is-in');
-                io.unobserve(entry.target);
-              }
-            }
-          },
-          { rootMargin: '0px 0px -10% 0px' }
-        );
-        items.forEach((el) => io.observe(el));
-      } else {
-        items.forEach((el) => el.classList.add('is-in'));
-      }
-
-      // Active section in the nav.
-      const links = Array.from(document.querySelectorAll('.nav__links a[href*="#"]'));
-      const sections = links
-        .map((a) => document.querySelector(a.getAttribute('href').replace(/^.*#/, '#')))
-        .filter(Boolean);
+      const links = Array.from(document.querySelectorAll('.masthead__nav a[href*="#"]'));
+      const sections = links.map(a => document.querySelector(a.getAttribute('href').replace(/^.*#/, '#'))).filter(Boolean);
       if ('IntersectionObserver' in window && sections.length) {
-        const navIo = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              if (!entry.isIntersecting) continue;
-              links.forEach((a) => {
-                if (a.getAttribute('href').endsWith(`#${entry.target.id}`)) a.setAttribute('aria-current', 'true');
-                else a.removeAttribute('aria-current');
-              });
-            }
-          },
-          { rootMargin: '-45% 0px -50% 0px' }
-        );
-        sections.forEach((s) => navIo.observe(s));
+        const navIo = new IntersectionObserver(entries => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            links.forEach(a => {
+              a.setAttribute('aria-current', String(a.getAttribute('href').endsWith(`#${entry.target.id}`)));
+            });
+          }
+        }, { rootMargin: '-42% 0px -52% 0px' });
+        sections.forEach(s => navIo.observe(s));
       }
     </script>
   </body>
