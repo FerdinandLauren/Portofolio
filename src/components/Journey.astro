@@ -1,0 +1,657 @@
+---
+import journey from '../data/journey.json';
+
+const items = journey.items;
+const closing = journey.closing;
+const marks = items.map((item, i) => ({ ...item, side: i % 2 === 0 ? 'right' : 'left' }));
+const runs = marks.length + 1; // six milestones plus the closing node
+---
+
+<section class="scene scene--journey" id="panel-journey" data-scene="journey" aria-labelledby="journey-title">
+  <article class="dpanel dpanel--journey" id="doc-journey">
+    <div class="jpanel">
+      <header class="jhead">
+        <h2 class="jhead__title" id="journey-title">Now I’m<br /><em>here</em></h2>
+        <div class="jhead__meta">
+          <p class="jhead__scene"><span class="jhead__n">06</span> Journey</p>
+          <p class="jhead__note">2025 → 2022 · newest first</p>
+        </div>
+      </header>
+
+      <div class="jmap" data-journey>
+        <svg class="jmap__wires" aria-hidden="true" focusable="false">
+          <defs>
+            <radialGradient id="jspark">
+              <stop offset="0" stop-color="#d8f26a" stop-opacity=".62" />
+              <stop offset="1" stop-color="#d8f26a" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <g class="jmap__guide">
+            {Array.from({ length: runs }, (_, i) => <path class="jwire jwire--guide" data-spine={i} />)}
+            {Array.from({ length: runs }, (_, i) => <path class="jwire jwire--guide" data-branch={i} />)}
+          </g>
+          <g class="jmap__bloom">
+            {Array.from({ length: runs }, (_, i) => <path class="jwire jwire--bloom" data-spine-bloom={i} />)}
+            {Array.from({ length: runs }, (_, i) => <path class="jwire jwire--bloom" data-branch-bloom={i} />)}
+          </g>
+          <g class="jmap__lit">
+            {Array.from({ length: runs }, (_, i) => <path class="jwire jwire--lit" data-spine-lit={i} />)}
+            {Array.from({ length: runs }, (_, i) => <path class="jwire jwire--lit" data-branch-lit={i} />)}
+          </g>
+          <g class="jmap__spark" aria-hidden="true">
+            <circle class="jmap__spark-glow" r="11" />
+            <circle class="jmap__spark-core" r="2.3" />
+          </g>
+        </svg>
+
+        <ol class="jmap__list">
+          {marks.map((mark) => (
+            <li class:list={['jitem', 'jnode', 'jnode--' + mark.side]} data-jnode>
+              <span class="jbubble" aria-hidden="true"><span class="jbubble__core"></span></span>
+              <div class="jnode__copy jitem__copy">
+                <p class="jnode__when">
+                  <span class="jnode__year">{mark.year}</span>
+                  <span class="jnode__org">{mark.org}</span>
+                </p>
+                <h3 class="jnode__role">{mark.role}</h3>
+                <p class="jnode__desc">{mark.desc}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div class="jitem jend jnode--right" data-jend>
+          <span class="jbubble jbubble--end" aria-hidden="true"><span class="jbubble__core"></span></span>
+          <div class="jend__copy jitem__copy">
+            <p class="jend__text">{closing.lead} <em>{closing.accent}</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<style>
+  /* ============================================================
+     NOW I'M HERE, a night map of the path that led to the desk
+     ============================================================ */
+  .scene--journey { justify-content: center; }
+
+  .scene .dpanel--journey {
+    width: min(1080px, 86vw);
+    border-color: rgba(255, 255, 255, 0.13);
+    background: var(--board);
+    color: var(--on-board);
+  }
+
+  .jpanel { padding: clamp(2rem, 4vw, 3.4rem); }
+
+  /* ---- header ---- */
+  .jhead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-bottom: clamp(1.6rem, 3vw, 2.4rem);
+    border-bottom: 1px solid rgba(241, 238, 228, 0.16);
+  }
+  .jhead__title {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(2.8rem, 5.6vw, 5rem);
+    line-height: 0.9;
+    letter-spacing: 0.012em;
+    text-transform: uppercase;
+    color: var(--on-board);
+  }
+  .jhead__title em { font-style: italic; color: var(--lime); }
+  .jhead__meta { display: grid; gap: 0.5rem; justify-items: end; margin: 0 0 0.35rem; text-align: right; }
+  .jhead__scene {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(241, 238, 228, 0.62);
+  }
+  .jhead__n {
+    padding: 0.08rem 0.3rem;
+    border: 1px solid rgba(241, 238, 228, 0.3);
+    font-size: 0.52rem;
+    color: var(--lime);
+  }
+  .jhead__note {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(241, 238, 228, 0.56);
+  }
+
+  /* ---- the map ---- */
+  .jmap {
+    position: relative;
+    padding-top: clamp(2rem, 3.6vw, 3rem);
+    --spine: 47%;
+    --reach: 94px;
+  }
+  .jmap__wires {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .jwire { fill: none; }
+  .jwire--guide { stroke: rgba(241, 238, 228, 0.085); stroke-width: 1; }
+  .jwire--bloom { stroke: rgba(216, 242, 106, 0.2); stroke-width: 6; stroke-linecap: round; }
+  .jwire--lit { stroke: rgba(216, 242, 106, 0.85); stroke-width: 1.5; stroke-linecap: round; }
+  @media (min-width: 1081px) {
+    .jnode:nth-child(3n + 1) { --reach: 86px; }
+    .jnode:nth-child(3n) { --reach: 102px; }
+  }
+  .jmap__spark { opacity: 0; transition: opacity 0.4s linear; }
+  .jmap__spark.is-on { opacity: 1; }
+  .jmap__spark-glow { fill: url(#jspark); }
+  .jmap__spark-core { fill: #f5ffd0; }
+
+  /* ---- rows ---- */
+  .jmap__list { position: relative; z-index: 2; margin: 0; padding: 0; list-style: none; }
+  .jitem {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--spine) 1fr;
+    --pad: clamp(1.8rem, 3vw, 2.4rem);
+  }
+  .jnode { padding: var(--pad) 0 clamp(2.4rem, 4.4vw, 3.6rem); min-height: 19rem; }
+
+  .jnode__copy { position: relative; z-index: 2; max-width: 26.5rem; }
+  .jnode--right .jnode__copy { grid-column: 2; padding-left: calc(var(--reach) + 2rem); }
+  .jnode--left .jnode__copy { grid-column: 1; margin-left: auto; padding-right: calc(var(--reach) + 2rem); }
+
+  .jnode__when {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.7rem;
+    margin: 0 0 0.6rem;
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    line-height: 1.45;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .jnode__year { font-size: 0.62rem; font-weight: 500; color: var(--lime); letter-spacing: 0.14em; }
+  .jnode__org { color: rgba(241, 238, 228, 0.62); }
+  .jnode__role {
+    margin: 0 0 0.55rem;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(1.35rem, 1.9vw, 1.75rem);
+    line-height: 1.07;
+    letter-spacing: -0.005em;
+    color: var(--on-board);
+    text-wrap: balance;
+  }
+  .jnode__desc {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.62;
+    color: rgba(241, 238, 228, 0.7);
+  }
+
+  /* ---- milestone bubbles ---- */
+  .jbubble {
+    position: absolute;
+    z-index: 3;
+    top: calc(var(--pad) + 0.42rem);
+    left: calc(var(--spine) + var(--reach));
+    display: grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border: 1px solid rgba(216, 242, 106, 0.72);
+    border-radius: 50%;
+    background: var(--board);
+    box-shadow: 0 0 0 4px rgba(216, 242, 106, 0.06), 0 0 20px rgba(216, 242, 106, 0.25);
+    transform: translate(-50%, -50%);
+    transition: border-color 0.6s var(--ease), box-shadow 0.8s var(--ease);
+  }
+  .jnode--left .jbubble { left: calc(var(--spine) - var(--reach)); }
+  .jbubble__core {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f5ffd0;
+    box-shadow: 0 0 10px rgba(216, 242, 106, 0.9);
+    transition: background 0.6s var(--ease), box-shadow 0.8s var(--ease);
+  }
+  .jbubble::after {
+    content: '';
+    position: absolute;
+    inset: -15px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(216, 242, 106, 0.3) 0%, rgba(216, 242, 106, 0.08) 46%, transparent 70%);
+    opacity: 0.85;
+    pointer-events: none;
+    transition: opacity 0.8s var(--ease);
+  }
+  .jbubble--end { width: 20px; height: 20px; top: calc(var(--pad) + 0.95rem); }
+  .jbubble--end .jbubble__core { width: 8px; height: 8px; }
+
+  .jmap.is-live .jitem:not(.is-lit) .jbubble {
+    border-color: rgba(241, 238, 228, 0.24);
+    box-shadow: 0 0 0 0 rgba(216, 242, 106, 0);
+  }
+  .jmap.is-live .jitem:not(.is-lit) .jbubble__core {
+    background: rgba(241, 238, 228, 0.28);
+    box-shadow: none;
+  }
+  .jmap.is-live .jitem:not(.is-lit) .jbubble::after { opacity: 0; }
+  .jmap.is-live .jitem.is-lit .jbubble::after { animation: jbreathe 4.6s ease-in-out infinite; }
+
+  /* ---- copy reveal ---- */
+  .jitem__copy > * { transition: opacity 0.6s var(--ease), transform 0.7s var(--ease); }
+  .jmap.is-live .jitem:not(.is-lit) .jitem__copy > * { opacity: 0; transform: translateY(14px); }
+  .jmap.is-live .jitem.is-lit .jitem__copy > * { opacity: 1; transform: none; }
+  .jmap.is-live .jitem.is-lit .jitem__copy > *:nth-child(2) { transition-delay: 0.08s; }
+  .jmap.is-live .jitem.is-lit .jitem__copy > *:nth-child(3) { transition-delay: 0.17s; }
+
+  /* ---- closing ---- */
+  .jend { padding: var(--pad) 0 clamp(1.6rem, 3vw, 2.4rem); }
+  .jend__copy { grid-column: 2; max-width: 30rem; padding-left: calc(var(--reach) + 2rem); }
+  .jend__text {
+    margin: 0;
+    max-width: 21ch;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(1.3rem, 2.1vw, 1.8rem);
+    line-height: 1.14;
+    letter-spacing: 0.015em;
+    text-transform: uppercase;
+    color: var(--on-board);
+    text-wrap: balance;
+  }
+  .jend__text em { font-style: italic; color: var(--lime); }
+
+  /* ---- no-script skeleton ---- */
+  :global(html:not(.js)) .jmap::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--spine);
+    width: 1px;
+    background: linear-gradient(rgba(216, 242, 106, 0.08), rgba(216, 242, 106, 0.32) 18%, rgba(216, 242, 106, 0.32) 82%, rgba(216, 242, 106, 0.08));
+  }
+  :global(html:not(.js)) .jnode::after,
+  :global(html:not(.js)) .jend::after {
+    content: '';
+    position: absolute;
+    top: calc(var(--pad) + 0.42rem);
+    left: var(--spine);
+    width: var(--reach);
+    height: 1px;
+    background: rgba(216, 242, 106, 0.3);
+  }
+  :global(html:not(.js)) .jnode--left::after { left: calc(var(--spine) - var(--reach)); }
+  :global(html:not(.js)) .jend::after { top: calc(var(--pad) + 0.95rem); }
+
+  /* ---- responsive: one spine on the left, every milestone to its right ---- */
+  @media (max-width: 1080px) {
+    .scene .dpanel--journey { width: min(720px, 100%); }
+    .jmap { --spine: 34px; --reach: 30px; }
+    .jnode--left .jnode__copy,
+    .jnode--right .jnode__copy {
+      grid-column: 2;
+      margin-left: 0;
+      padding-left: calc(var(--reach) + 2.1rem);
+      padding-right: 0;
+      max-width: 36rem;
+    }
+    .jnode--left .jbubble,
+    .jnode--right .jbubble { left: calc(var(--spine) + var(--reach)); }
+    .jend__copy { max-width: 36rem; padding-left: calc(var(--reach) + 2.1rem); }
+    .jhead__title { font-size: clamp(2.7rem, 6.4vw, 3.7rem); }
+  }
+
+  @media (max-width: 720px) {
+    .jpanel { padding: 1.4rem 1.15rem 1.6rem; }
+    .jhead { padding-bottom: 1.5rem; }
+    .jmap { --spine: 30px; --reach: 26px; padding-top: 1.9rem; }
+    .jnode { min-height: 0; padding: 1.6rem 0 2.6rem; }
+    .jnode__role { font-size: 1.5rem; }
+    .jnode__desc { font-size: 0.84rem; }
+    .jend__text { font-size: 1.3rem; }
+  }
+
+  @media (max-width: 620px) {
+    .jhead { display: block; }
+    .jhead__meta { justify-items: start; margin: 1.2rem 0 0; text-align: left; }
+  }
+
+  @media (max-width: 400px) {
+    .jpanel { padding: 1.25rem 1rem 1.4rem; }
+    .jmap { --spine: 26px; --reach: 24px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .jbubble, .jbubble__core, .jbubble::after, .jitem__copy > * { transition: none !important; }
+    .jmap.is-live .jitem.is-lit .jbubble::after { animation: none !important; }
+    .jmap__spark { transition: none !important; }
+  }
+
+  @keyframes jbreathe {
+    0%, 100% { opacity: 0.5; transform: scale(0.86); }
+    50% { opacity: 1; transform: scale(1.14); }
+  }
+</style>
+
+<script>
+  const map = document.querySelector<HTMLElement>('[data-journey]');
+
+  if (map) {
+    const svg = map.querySelector<SVGSVGElement>('.jmap__wires');
+    const spark = map.querySelector<SVGGElement>('.jmap__spark');
+    const sparkGlow = map.querySelector<SVGCircleElement>('.jmap__spark-glow');
+    const sparkCore = map.querySelector<SVGCircleElement>('.jmap__spark-core');
+    const marks = Array.from(map.querySelectorAll<HTMLElement>('[data-jnode]'));
+    const closing = map.querySelector<HTMLElement>('[data-jend]');
+    const items = closing ? [...marks, closing] : marks;
+    const pick = <T extends Element>(sel: string) => Array.from(map.querySelectorAll<T>(sel));
+
+    const guideSpines = pick<SVGPathElement>('[data-spine]');
+    const guideBranches = pick<SVGPathElement>('[data-branch]');
+    const bloomSpines = pick<SVGPathElement>('[data-spine-bloom]');
+    const bloomBranches = pick<SVGPathElement>('[data-branch-bloom]');
+    const litSpines = pick<SVGPathElement>('[data-spine-lit]');
+    const litBranches = pick<SVGPathElement>('[data-branch-lit]');
+
+    const wideQuery = window.matchMedia('(min-width: 1081px)');
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    type SpineRun = { y0: number; y1: number; len: number; p: number; lit: SVGPathElement; bloom: SVGPathElement };
+    type BranchRun = { jy: number; len: number; dur: number; p: number; on: boolean; node: HTMLElement; lit: SVGPathElement; bloom: SVGPathElement };
+
+    let spines: SpineRun[] = [];
+    let branches: BranchRun[] = [];
+    let mapWidth = 0;
+    let mapHeight = 0;
+    let mapTop = 0;
+    let focusMax = -1;
+    let live = false;
+    let frame = 0;
+    let resizeTimer = 0;
+
+    const round = (n: number) => Math.round(n * 100) / 100;
+    const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
+
+    /* Offset chain instead of bounding rects, so the panel's entrance
+       transform never shifts the scroll mapping. */
+    function docTop(el: HTMLElement) {
+      let y = 0;
+      let node: HTMLElement | null = el;
+      while (node) {
+        y += node.offsetTop;
+        node = node.offsetParent as HTMLElement | null;
+      }
+      return y;
+    }
+
+    function smooth(points: { x: number; y: number }[]) {
+      if (points.length < 2) return '';
+      let d = 'M' + round(points[0].x) + ',' + round(points[0].y);
+      for (let i = 0; i < points.length - 1; i++) {
+        const p0 = points[i - 1] || points[i];
+        const p1 = points[i];
+        const p2 = points[i + 1];
+        const p3 = points[i + 2] || p2;
+        const c1x = p1.x + (p2.x - p0.x) / 6;
+        const c1y = p1.y + (p2.y - p0.y) / 6;
+        const c2x = p2.x - (p3.x - p1.x) / 6;
+        const c2y = p2.y - (p3.y - p1.y) / 6;
+        d += 'C' + round(c1x) + ',' + round(c1y) + ' ' + round(c2x) + ',' + round(c2y) + ' ' + round(p2.x) + ',' + round(p2.y);
+      }
+      return d;
+    }
+
+    function measure() {
+      if (!svg) return;
+      const box = map.getBoundingClientRect();
+      mapWidth = box.width;
+      mapHeight = box.height;
+      mapTop = docTop(map);
+      svg.setAttribute('viewBox', '0 0 ' + mapWidth + ' ' + mapHeight);
+
+      const wide = wideQuery.matches;
+      const spineToken = getComputedStyle(map).getPropertyValue('--spine').trim();
+      const baseX = spineToken.endsWith('%')
+        ? (parseFloat(spineToken) / 100) * mapWidth
+        : parseFloat(spineToken) || 0;
+      const sway = wide ? 10.5 : 2.6;
+      const spineX = (y: number) =>
+        baseX + sway * Math.sin(y / 205 + 0.4) + (wide ? 3.2 * Math.sin(y / 73 + 1.6) : 0);
+
+      const bubblePoints = items.map((item) => {
+        const bubble = item.querySelector<HTMLElement>('.jbubble');
+        if (!bubble) return { x: baseX, y: 0 };
+        const r = bubble.getBoundingClientRect();
+        return {
+          x: r.left + r.width / 2 - box.left,
+          y: r.top + r.height / 2 - box.top,
+        };
+      });
+
+      const junctionY = bubblePoints.map((p) => Math.max(24, p.y - (wide ? 46 : 16)));
+      const cuts = [0, ...junctionY];
+
+      spines = [];
+      for (let i = 0; i < cuts.length - 1; i++) {
+        const y0 = cuts[i];
+        const y1 = cuts[i + 1];
+        const pts: { x: number; y: number }[] = [];
+        for (let y = y0; y < y1 - 2; y += 46) pts.push({ x: spineX(y), y });
+        pts.push({ x: spineX(y1), y: y1 });
+        const d = smooth(pts);
+        const guide = guideSpines[i];
+        const lit = litSpines[i];
+        const bloom = bloomSpines[i];
+        if (!guide || !lit || !bloom) continue;
+        guide.setAttribute('d', d);
+        lit.setAttribute('d', d);
+        bloom.setAttribute('d', d);
+        const len = lit.getTotalLength();
+        lit.style.strokeDasharray = String(len);
+        lit.style.strokeDashoffset = String(len);
+        bloom.style.strokeDasharray = String(len);
+        bloom.style.strokeDashoffset = String(len);
+        spines.push({ y0, y1, len, p: -1, lit, bloom });
+      }
+
+      branches = [];
+      for (let i = 0; i < bubblePoints.length; i++) {
+        const p = bubblePoints[i];
+        const jy = junctionY[i];
+        const jx = spineX(jy);
+        const dir = p.x >= jx ? 1 : -1;
+        let d: string;
+        if (wide) {
+          const lift = 6 + (i % 3) * 4;
+          d = 'M' + round(jx) + ',' + round(jy) + ' C' + round(jx + dir * 26) + ',' + round(jy + lift) + ' ' + round(p.x - dir * 46) + ',' + round(p.y - 12) + ' ' + round(p.x) + ',' + round(p.y);
+        } else {
+          d = 'M' + round(jx) + ',' + round(jy) + ' C' + round(jx + 7) + ',' + round(jy + 2) + ' ' + round(p.x - 9) + ',' + round(p.y) + ' ' + round(p.x) + ',' + round(p.y);
+        }
+        const guide = guideBranches[i];
+        const lit = litBranches[i];
+        const bloom = bloomBranches[i];
+        if (!guide || !lit || !bloom) continue;
+        guide.setAttribute('d', d);
+        lit.setAttribute('d', d);
+        bloom.setAttribute('d', d);
+        const len = lit.getTotalLength();
+        lit.style.strokeDasharray = String(len);
+        lit.style.strokeDashoffset = String(len);
+        bloom.style.strokeDasharray = String(len);
+        bloom.style.strokeDashoffset = String(len);
+        branches.push({
+          jy,
+          len,
+          dur: wide ? 130 : 80,
+          p: -1,
+          on: false,
+          node: items[i],
+          lit,
+          bloom,
+        });
+      }
+    }
+
+    function paint(next: number) {
+      const focus = Math.max(0, Math.min(mapHeight, next));
+      if (focus > focusMax) focusMax = focus;
+      const head = focusMax;
+
+      for (const run of spines) {
+        const p = clamp01((head - run.y0) / Math.max(1, run.y1 - run.y0));
+        if (Math.abs(p - run.p) < 0.0006) continue;
+        run.p = p;
+        const offset = run.len * (1 - p);
+        run.lit.style.strokeDashoffset = String(offset);
+        run.bloom.style.strokeDashoffset = String(offset);
+      }
+
+      for (const run of branches) {
+        const p = clamp01((head - run.jy) / run.dur);
+        if (Math.abs(p - run.p) > 0.0006) {
+          run.p = p;
+          const offset = run.len * (1 - p);
+          run.lit.style.strokeDashoffset = String(offset);
+          run.bloom.style.strokeDashoffset = String(offset);
+        }
+        if (!run.on && p >= 0.94) {
+          run.on = true;
+          run.node.classList.add('is-lit');
+        }
+      }
+
+      if (spark) {
+        let run: SpineRun | BranchRun | null = null;
+        let p = 0;
+        for (const branch of branches) {
+          if (branch.p > 0.003 && branch.p < 0.997) {
+            run = branch;
+            p = branch.p;
+          }
+        }
+        if (!run) {
+          for (const spine of spines) {
+            if (spine.p > 0.003 && spine.p < 0.997) {
+              run = spine;
+              p = spine.p;
+            }
+          }
+        }
+        if (run) {
+          const point = run.lit.getPointAtLength(run.len * p);
+          for (const dot of [sparkGlow, sparkCore]) {
+            if (!dot) continue;
+            dot.setAttribute('cx', String(round(point.x)));
+            dot.setAttribute('cy', String(round(point.y)));
+          }
+          spark.classList.add('is-on');
+        } else {
+          spark.classList.remove('is-on');
+        }
+      }
+    }
+
+    function onScroll() {
+      if (!live || frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        paint(window.scrollY + window.innerHeight * 0.62 - mapTop);
+      });
+    }
+
+    function scheduleMeasure() {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        if (motionQuery.matches) {
+          measure();
+          for (const run of [...spines, ...branches]) {
+            run.lit.style.strokeDasharray = '';
+            run.lit.style.strokeDashoffset = '';
+            run.bloom.style.strokeDasharray = '';
+            run.bloom.style.strokeDashoffset = '';
+          }
+          return;
+        }
+        if (!live) return;
+        measure();
+        const keep = focusMax;
+        focusMax = -1;
+        paint(keep);
+      }, 140);
+    }
+
+    function renderStatic() {
+      if (!svg) return;
+      measure();
+      if (!spines.length) return;
+      for (const run of [...spines, ...branches]) {
+        run.lit.style.strokeDasharray = '';
+        run.lit.style.strokeDashoffset = '';
+        run.bloom.style.strokeDasharray = '';
+        run.bloom.style.strokeDashoffset = '';
+      }
+      for (const run of branches) run.node.classList.add('is-lit');
+    }
+
+    function enable() {
+      if (live || motionQuery.matches || !svg) return;
+      measure();
+      if (!spines.length) return;
+      for (const item of items) item.classList.remove('is-lit');
+      live = true;
+      focusMax = -1;
+      map.classList.add('is-live');
+      paint(window.scrollY + window.innerHeight * 0.62 - mapTop);
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    function disable() {
+      if (!live) return;
+      live = false;
+      window.removeEventListener('scroll', onScroll);
+      map.classList.remove('is-live');
+      spark?.classList.remove('is-on');
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      focusMax = -1;
+      for (const run of [...spines, ...branches]) {
+        run.lit.style.strokeDasharray = '';
+        run.lit.style.strokeDashoffset = '';
+        run.bloom.style.strokeDasharray = '';
+        run.bloom.style.strokeDashoffset = '';
+      }
+    }
+
+    if (motionQuery.matches) renderStatic();
+    else enable();
+    window.addEventListener('resize', scheduleMeasure);
+    if ('ResizeObserver' in window) new ResizeObserver(scheduleMeasure).observe(map);
+    document.fonts?.ready.then(scheduleMeasure);
+    motionQuery.addEventListener('change', () => {
+      if (motionQuery.matches) disable();
+      else enable();
+    });
+    wideQuery.addEventListener('change', scheduleMeasure);
+  }
+</script>

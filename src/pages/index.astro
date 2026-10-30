@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import DecisionLab from '../components/DecisionLab.astro';
+import Journey from '../components/Journey.astro';
 import '../styles/desk.css';
 import site from '../data/site.json';
 import work from '../data/work.json';
@@ -21,7 +22,8 @@ const scenes = [
   ['03', 'How I think', 'doc-approach', 'approach'],
   ['04', 'Decision Lab', 'doc-lab', 'lab'],
   ['05', 'AI workbench', 'doc-ai', 'ai'],
-  ['06', 'Contact', 'doc-contact', 'contact'],
+  ['06', 'Now', 'doc-journey', 'journey'],
+  ['07', 'Contact', 'doc-contact', 'contact'],
 ];
 ---
 
@@ -266,11 +268,14 @@ const scenes = [
       </article>
     </section>
 
-    <!-- 06 / CONTACT -->
+    <!-- 06 / NOW I'M HERE -->
+    <Journey />
+
+    <!-- 07 / CONTACT -->
     <section class="scene scene--right scene--contact" id="panel-contact" data-scene="contact" aria-labelledby="contact-title">
       <article class="dpanel" id="doc-contact">
         <div class="dpanel__inner">
-        <p class="dpanel__scene"><span class="mono">06</span> Contact</p>
+        <p class="dpanel__scene"><span class="mono">07</span> Contact</p>
         <h2 class="dpanel__title" id="contact-title">Hiring a junior analyst?</h2>
         <div class="dpanel__body">
           <p class="dpanel__lede">I am looking for an internship, trainee programme or junior position in IT business analysis, ERP functional consulting or digital transformation. If your team needs someone who reads the process before proposing the system, I would like to hear from you.</p>
@@ -301,6 +306,7 @@ const scenes = [
           <a href="#doc-approach">How I think</a>
           <a href="#doc-lab">Decision Lab</a>
           <a href="#doc-ai">AI workbench</a>
+          <a href="#doc-journey">Now</a>
         </nav>
         <div class="colophon__contact">
           <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>

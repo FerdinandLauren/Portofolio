@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "year": "2025",
+      "role": "Teaching Assistant",
+      "org": "Universitas Lampung",
+      "desc": "Assisted in teaching Information Systems Design Analysis, introducing students to system analysis and design concepts."
+    },
+    {
+      "year": "2025",
+      "role": "Speaker, Visual Editing Training",
+      "org": "Computer Science Department, Universitas Lampung",
+      "desc": "Served as a speaker in a visual editing training session, sharing practical knowledge and techniques in visual editing."
+    },
+    {
+      "year": "2025",
+      "role": "UI/UX Design Intern",
+      "org": "Perum LPPNPI (AirNav Indonesia)",
+      "desc": "Explored UI/UX design through application interface design, user requirement documentation (URS), and infographic development. Gained experience working with professional workflows, SOPs, and cross-functional collaboration."
+    },
+    {
+      "year": "2024",
+      "role": "Teaching Assistant, Multimedia",
+      "org": "Universitas Lampung",
+      "desc": "Assisted in multimedia learning activities, covering video editing, photo editing, and 3D rendering."
+    },
+    {
+      "year": "2024",
+      "role": "Member, Media & Information",
+      "org": "Himakom FMIPA Unila",
+      "desc": "Contributed to the organization's digital media production, primarily working as a video editor for Himakom's YouTube channel."
+    },
+    {
+      "year": "2022",
+      "role": "The Beginning",
+      "org": "Universitas Lampung · Computer Science",
+      "desc": "Started my undergraduate journey in Computer Science, beginning a path of learning, exploring, and figuring things out."
+    }
+  ],
+  "closing": {
+    "lead": "Still learning. Still exploring.",
+    "accent": "Still becoming."
+  }
+}

@@ -378,6 +378,7 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
     approach: { pos: new Vector3(1.0, 1.95, 3.0),   look: new Vector3(-0.55, 1.0, 0.32), fov: 41 },
     lab:      { pos: new Vector3(1.15, 1.95, 2.85), look: new Vector3(-0.42, 1.0, 0.36), fov: 40 },
     ai:       { pos: new Vector3(-0.4, 1.8, 2.75), look: new Vector3(0.95, 1.18, 0.24), fov: 42 },
+    journey:  { pos: new Vector3(2.6, 2.25, 5.5),  look: new Vector3(-0.05, 1.02, 0.05), fov: 44 },
     contact:  { pos: new Vector3(3.1, 2.3, 5.6),  look: new Vector3(0.0, 1.0, 0.1),  fov: 42 },
   };
 

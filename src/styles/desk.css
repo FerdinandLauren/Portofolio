@@ -686,7 +686,7 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
   .hud__avail { display: none; }
   .hud__mark { width: 28px; height: 28px; }
   .desk__notice { top: 58px; left: 16px; right: 16px; max-width: none; }
-  .desk { padding-bottom: 116px; }
+  .desk { padding-bottom: 168px; }
   html.js .desk.is-ready .desk__stage { transition: opacity 0.45s linear; }
   html.js .desk.is-mobile-past .desk__stage { opacity: 0; pointer-events: none; }
   .scenenav {
