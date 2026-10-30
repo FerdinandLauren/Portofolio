@@ -11,7 +11,7 @@ const total = String(scenarios.length).padStart(2, '0');
     <div class="lab__head">
       <div>
         <p class="label label--lime">04 / Instrument: Decision Lab</p>
-        <h2 class="lab__title">Pick a case.<br />Watch the rule decide.</h2>
+        <h2 class="lab__title" id="lab-title">Pick a case.<br />Watch the rule decide.</h2>
       </div>
       <div class="lab__intro">
         <p>
@@ -157,7 +157,7 @@ const total = String(scenarios.length).padStart(2, '0');
                 <span class="panel__ref"><span class="label">Requirement</span> {s.requirement}</span>
                 <span class="panel__ref"><span class="label">Acceptance</span> {s.uat}</span>
                 <a class="panel__ref panel__ref--link" href={`${repo}/${s.test}`} target="_blank" rel="noopener noreferrer">
-                  <span class="label">Test</span> {s.test.replace('tests/Feature/', '')} <span aria-hidden="true">�-</span>
+                  <span class="label">Test</span> {s.test.replace('tests/Feature/', '')} <span aria-hidden="true">↗</span>
                 </a>
               </div>
             </section>

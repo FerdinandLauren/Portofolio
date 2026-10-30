@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import '../styles/opening.css';
 import site from '../data/site.json';
 
 interface Props {
@@ -69,11 +68,11 @@ const hashBase = onHome ? '' : base;
             </span>
           </a>
           <nav class="masthead__nav" aria-label="Sections">
-            <a href={`${hashBase}#case`}>Case file</a>
-            <a href={`${hashBase}#approach`}>Approach</a>
-            <a href={`${hashBase}#lab`}>Lab</a>
-            <a href={`${hashBase}#work`}>Work</a>
-            <a href={`${hashBase}#about`}>About</a>
+            <a href={`${base}work/gym-qr/`}>Case file</a>
+            <a href={`${hashBase}#doc-approach`}>Approach</a>
+            <a href={`${hashBase}#doc-lab`}>Lab</a>
+            <a href={`${hashBase}#doc-projects`}>Work</a>
+            <a href={`${hashBase}#doc-about`}>About</a>
             <a class="masthead__cta" href={`mailto:${site.contact.email}`}>Email me</a>
           </nav>
         </div>
@@ -94,16 +93,16 @@ const hashBase = onHome ? '' : base;
               <p class="foot__meta">{site.location} · {site.education}</p>
             </div>
             <nav class="foot__nav" aria-label="Footer">
-              <a href={`${hashBase}#case`}>Case file</a>
-              <a href={`${hashBase}#approach`}>Approach</a>
-              <a href={`${hashBase}#lab`}>Decision Lab</a>
-              <a href={`${hashBase}#work`}>Selected work</a>
-              <a href={`${hashBase}#about`}>About</a>
+              <a href={`${base}work/gym-qr/`}>Case file</a>
+              <a href={`${hashBase}#doc-approach`}>Approach</a>
+              <a href={`${hashBase}#doc-lab`}>Decision Lab</a>
+              <a href={`${hashBase}#doc-projects`}>Selected work</a>
+              <a href={`${hashBase}#doc-about`}>About</a>
             </nav>
             <div class="foot__contact">
               <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
-              <a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">�-</span></a>
-              <a href={site.contact.github} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">�-</span></a>
+              <a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
+              <a href={site.contact.github} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
               {site.contact.cv && <a href={site.contact.cv}>CV (PDF) <span aria-hidden="true">↓</span></a>}
             </div>
           </div>
@@ -116,20 +115,29 @@ const hashBase = onHome ? '' : base;
     )}
 
     <script>
-      const onScroll = () => document.body.classList.toggle('is-scrolled', window.scrollY > 12);
-      addEventListener('scroll', onScroll, { passive: true });
-      onScroll();
       const bar = document.querySelector('.progress');
-      if (bar) {
-        const paint = () => {
-          const h = document.documentElement;
-          const max = h.scrollHeight - h.clientHeight;
-          bar.style.transform = `scaleX(${max > 0 ? Math.min(1, h.scrollTop / max) : 0})`;
-        };
-        addEventListener('scroll', paint, { passive: true });
-        addEventListener('resize', paint);
-        paint();
-      }
+      const doc = document.documentElement;
+      let maxScroll = 0;
+      let ticking = false;
+      // Cache the scroll range instead of reading scrollHeight on every scroll
+      // event; ResizeObserver keeps it current when panels change height.
+      const measure = () => { maxScroll = Math.max(0, doc.scrollHeight - doc.clientHeight); };
+      const paint = () => {
+        document.body.classList.toggle('is-scrolled', window.scrollY > 12);
+        if (bar) bar.style.transform = `scaleX(${maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 0})`;
+      };
+      const queuePaint = () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => { ticking = false; paint(); });
+      };
+      addEventListener('scroll', queuePaint, { passive: true });
+      addEventListener('resize', measure);
+      addEventListener('load', measure);
+      document.fonts?.ready.then(measure);
+      if ('ResizeObserver' in window) new ResizeObserver(measure).observe(document.body);
+      measure();
+      paint();
       const links = Array.from(document.querySelectorAll('.masthead__nav a[href*="#"]'));
       const sections = links.map(a => document.querySelector(a.getAttribute('href').replace(/^.*#/, '#'))).filter(Boolean);
       if ('IntersectionObserver' in window && sections.length) {

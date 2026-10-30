@@ -14,56 +14,85 @@ const alsoDone = supporting.filter(p => !work.some(w => w.title === p.name));
 const root = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const caseHref = `${root}work/gym-qr/`;
 const p2pHref = `${root}work/p2p-procurement/`;
+
+const scenes = [
+  ['01', 'About', 'doc-about', 'about'],
+  ['02', 'Projects', 'doc-projects', 'projects'],
+  ['03', 'How I think', 'doc-approach', 'approach'],
+  ['04', 'Decision Lab', 'doc-lab', 'lab'],
+  ['05', 'AI workbench', 'doc-ai', 'ai'],
+  ['06', 'Contact', 'doc-contact', 'contact'],
+];
 ---
 
 <Base desk bodyClass="is-desk">
-  <main class="desk" id="desk">
-    <canvas class="desk__canvas" id="desk-canvas" aria-hidden="true"></canvas>
-    <div class="desk__vignette" aria-hidden="true"></div>
+  <div class="desk" id="desk">
+    <!-- persistent 3D stage -->
+    <div class="desk__stage" aria-hidden="true">
+      <canvas class="desk__canvas" id="desk-canvas"></canvas>
+      <div class="desk__vignette"></div>
+    </div>
 
-    <header class="desk__brand">
-      <span class="desk__brand-mark" aria-hidden="true">FL</span>
-      <span class="desk__brand-name">{site.name}</span>
-      <span class="desk__brand-sub">Systems Analyst</span>
+    <!-- fixed chrome -->
+    <header class="hud">
+      <a class="hud__brand" href="#scene-desk" aria-label={`${site.name}, back to the desk`}>
+        <span class="hud__mark" aria-hidden="true">FL</span>
+        <span class="hud__id">
+          <span class="hud__name">{site.name}</span>
+          <span class="hud__sub">Systems Workbench</span>
+        </span>
+      </a>
+      <p class="hud__avail"><i aria-hidden="true"></i>Open to internship, trainee and junior roles</p>
+      <p class="desk__notice" data-desk-notice hidden>The 3D desk could not start here. The complete portfolio is below.</p>
     </header>
 
-    <p class="desk__intro">I turn observations into <em>systems people can rely on</em>.</p>
-
-    <nav class="dlabels" aria-label="Sections">
-      <button class="dlabel" data-desk-target="about" data-desk-focus="monitor" data-depth="1.0" aria-controls="panel-about" aria-expanded="false">About</button>
-      <button class="dlabel" data-desk-target="projects" data-desk-focus="folder" data-depth="1.2" aria-controls="panel-projects" aria-expanded="false">Projects</button>
-      <button class="dlabel" data-desk-target="approach" data-desk-focus="notebook" data-depth="0.9" aria-controls="panel-approach" aria-expanded="false">How I think</button>
-      <button class="dlabel" data-desk-target="lab" data-desk-focus="clipboard" data-depth="1.1" aria-controls="panel-lab" aria-expanded="false">Decision Lab</button>
-      <button class="dlabel" data-desk-target="ai" data-depth="0.8" aria-controls="panel-ai" aria-expanded="false">AI workbench</button>
-      <button class="dlabel" data-desk-target="contact" data-desk-focus="card" data-depth="0.7" aria-controls="panel-contact" aria-expanded="false">Contact</button>
+    <nav class="scenenav" aria-label="Portfolio scenes">
+      {scenes.map(([n, label, id, key]) => (
+        <a href={`#${id}`} data-scene-link={key}>
+          <span class="scenenav__n">{n}</span>
+          <span class="scenenav__label">{label}</span>
+        </a>
+      ))}
     </nav>
 
-    <p class="desk__hint" id="desk-hint">Move the cursor. Click an object or a label.</p>
+    <p class="desk__hint" id="desk-hint" aria-hidden="true">Move the cursor. Click an object to travel.</p>
 
-    <div class="desk__fallback" hidden>
-      <p class="desk__fallback-msg">The 3D desk could not start here. The full portfolio is below.</p>
-      <nav aria-label="Fallback navigation">
-        <a href="#panel-about">About</a>
-        <a href="#panel-projects">Projects</a>
-        <a href="#panel-approach">How I think</a>
-        <a href="#panel-lab">Decision Lab</a>
-        <a href="#panel-ai">AI workbench</a>
-        <a href="#panel-contact">Contact</a>
-      </nav>
-    </div>
+    <!-- =================== scenes =================== -->
 
-    <div class="desk__bar" data-desk-bar hidden>
-      <button class="desk__back" data-desk-back type="button">← Back to desk</button>
-      <span class="desk__barlabel" data-desk-barlabel></span>
-    </div>
+    <!-- 00 / THE DESK -->
+    <section class="scene scene--hero" id="scene-desk" data-scene="desk" aria-labelledby="hero-name">
+      <div class="hero">
+        <p class="hero__role">
+          Systems Analyst <span aria-hidden="true">|</span>
+          IT Business Analyst <span aria-hidden="true">|</span>
+          ERP Functional Consultant
+        </p>
+        <h1 class="hero__name" id="hero-name">{site.name}</h1>
+        <p class="hero__line">I turn observations into <em>systems people can rely on</em>.</p>
+        <p class="hero__note">{site.positioning}</p>
+        <p class="hero__meta">
+          <span>{site.location}</span>
+          <span>{site.education}</span>
+          <span>{site.cohort}</span>
+        </p>
+        <p class="hero__actions">
+          <a class="hero__cta" href="#doc-projects">See the work</a>
+          <a class="hero__mail" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+        </p>
+      </div>
+      <a class="hero__cue" href="#doc-about">
+        <span>Scroll to explore the desk</span>
+        <span class="hero__cue-line" aria-hidden="true"></span>
+      </a>
+    </section>
 
-    <!-- =================== panels =================== -->
-
-    <!-- ABOUT -->
-    <section class="dpanel" id="panel-about" data-panel="about" data-side="left" data-label="About" aria-labelledby="about-title" hidden>
-      <div class="dpanel__inner">
-        <h2 class="dpanel__title" id="about-title">{site.name}</h2>
-        <div class="dpanel__body">
+    <!-- 01 / ABOUT -->
+    <section class="scene scene--right" id="panel-about" data-scene="about" aria-labelledby="about-title">
+      <article class="dpanel" id="doc-about">
+        <div class="dpanel__inner">
+          <p class="dpanel__scene"><span class="mono">01</span> About</p>
+          <h2 class="dpanel__title" id="about-title">Who is at this desk</h2>
+          <div class="dpanel__body">
           <p class="dpanel__lede">Computer Science undergraduate at Universitas Lampung, working towards IT business analysis and ERP functional consulting.</p>
           <dl class="dpanel__facts">
             <div><dt>Based in</dt><dd>{site.location}</dd></div>
@@ -75,13 +104,16 @@ const p2pHref = `${root}work/p2p-procurement/`;
           <p>The problems I enjoy are operational: a request that arrives through three channels, an approval nobody owns, a goods receipt that does not match the order. Before software can help, someone has to describe the process, separate what was observed from what was assumed, and write the rule down.</p>
           <p>My degree gives me the technical vocabulary (data models, state, APIs, tests), but the work I want sits earlier: process mapping, requirements, and acceptance criteria. That is why every case study here starts with a process, not a screen.</p>
           <p>I have no industry experience yet. What I can show is how I practise: documented requirements, traceable decisions, and an honest note on what remains unverified.</p>
+          </div>
         </div>
-      </div>
+      </article>
     </section>
 
-    <!-- PROJECTS -->
-    <section class="dpanel" id="panel-projects" data-panel="projects" data-side="left" data-label="Projects" aria-labelledby="projects-title" hidden>
-      <div class="dpanel__inner">
+    <!-- 02 / PROJECTS -->
+    <section class="scene scene--left" id="panel-projects" data-scene="projects" aria-labelledby="projects-title">
+      <article class="dpanel" id="doc-projects">
+        <div class="dpanel__inner">
+        <p class="dpanel__scene"><span class="mono">02</span> Projects</p>
         <h2 class="dpanel__title" id="projects-title">Selected work</h2>
         <div class="dpanel__body">
           <!-- ERP case study -->
@@ -111,7 +143,7 @@ const p2pHref = `${root}work/p2p-procurement/`;
             </dl>
             <p class="dproject__links">
               <a href={caseHref}>Read the case study →</a>
-              <a href={gym.repository} target="_blank" rel="noopener noreferrer">Repository �-</a>
+              <a href={gym.repository} target="_blank" rel="noopener noreferrer">Repository <span aria-hidden="true">↗</span></a>
             </p>
           </article>
 
@@ -136,12 +168,15 @@ const p2pHref = `${root}work/p2p-procurement/`;
             Also on GitHub: {alsoDone.map((p,i) => (<span>{i>0 && ' · '}<a href={p.url} target="_blank" rel="noopener noreferrer">{p.name}</a> <span class="mono">({p.kind.toLowerCase()}, {p.year})</span></span>))}
           </p>
         </div>
-      </div>
+        </div>
+      </article>
     </section>
 
-    <!-- HOW I THINK -->
-    <section class="dpanel" id="panel-approach" data-panel="approach" data-side="left" data-label="How I think" aria-labelledby="approach-title" hidden>
-      <div class="dpanel__inner">
+    <!-- 03 / HOW I THINK -->
+    <section class="scene scene--right" id="panel-approach" data-scene="approach" aria-labelledby="approach-title">
+      <article class="dpanel" id="doc-approach">
+        <div class="dpanel__inner">
+        <p class="dpanel__scene"><span class="mono">03</span> How I think</p>
         <h2 class="dpanel__title" id="approach-title">Observe → Define → Design → Verify</h2>
         <div class="dpanel__body">
           {site.process.map((step) => (
@@ -156,19 +191,24 @@ const p2pHref = `${root}work/p2p-procurement/`;
           ))}
           <p class="dpanel__caveat">{site.approachCaveat}</p>
         </div>
-      </div>
+        </div>
+      </article>
     </section>
 
-    <!-- DECISION LAB -->
-    <section class="dpanel dpanel--lab" id="panel-lab" data-panel="lab" data-side="right" data-label="Decision Lab" aria-labelledby="lab-title" hidden>
-      <div class="dpanel__inner dpanel__inner--lab">
-        <DecisionLab />
-      </div>
+    <!-- 04 / DECISION LAB -->
+    <section class="scene scene--right scene--lab" id="panel-lab" data-scene="lab" aria-labelledby="lab-title">
+      <article class="dpanel dpanel--lab" id="doc-lab">
+        <div class="dpanel__inner dpanel__inner--lab">
+          <DecisionLab />
+        </div>
+      </article>
     </section>
 
-    <!-- AI WORKBENCH -->
-    <section class="dpanel" id="panel-ai" data-panel="ai" data-side="right" data-label="AI Workbench" aria-labelledby="ai-title" hidden>
-      <div class="dpanel__inner">
+    <!-- 05 / AI WORKBENCH -->
+    <section class="scene scene--left" id="panel-ai" data-scene="ai" aria-labelledby="ai-title">
+      <article class="dpanel" id="doc-ai">
+        <div class="dpanel__inner">
+        <p class="dpanel__scene"><span class="mono">05</span> AI workbench</p>
         <h2 class="dpanel__title" id="ai-title">AI sits on the bench. It never gives the verdict.</h2>
         <div class="dpanel__body">
           <p>AI is a drafting tool on this desk, not the analyst. It turns raw notes into candidate structure; every line is tested against the process, the rules and the evidence before it becomes a requirement.</p>
@@ -222,12 +262,15 @@ const p2pHref = `${root}work/p2p-procurement/`;
             </ul>
           </div>
         </div>
-      </div>
+        </div>
+      </article>
     </section>
 
-    <!-- CONTACT -->
-    <section class="dpanel" id="panel-contact" data-panel="contact" data-side="right" data-label="Contact" aria-labelledby="contact-title" hidden>
-      <div class="dpanel__inner">
+    <!-- 06 / CONTACT -->
+    <section class="scene scene--right scene--contact" id="panel-contact" data-scene="contact" aria-labelledby="contact-title">
+      <article class="dpanel" id="doc-contact">
+        <div class="dpanel__inner">
+        <p class="dpanel__scene"><span class="mono">06</span> Contact</p>
         <h2 class="dpanel__title" id="contact-title">Hiring a junior analyst?</h2>
         <div class="dpanel__body">
           <p class="dpanel__lede">I am looking for an internship, trainee programme or junior position in IT business analysis, ERP functional consulting or digital transformation. If your team needs someone who reads the process before proposing the system, I would like to hear from you.</p>
@@ -240,91 +283,243 @@ const p2pHref = `${root}work/p2p-procurement/`;
             <a href={`mailto:${site.contact.email}?subject=Junior%20analyst%20role%20-%20Ferdinand%20Lauren`}>Email me about a role →</a>
           </p>
           <p class="dpanel__note mono">{site.location} · {site.cohort} · internship / trainee / junior</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <footer class="colophon">
+      <div class="colophon__inner">
+        <div class="colophon__id">
+          <p class="label">WORKBENCH / 001</p>
+          <p class="colophon__name">{site.name}</p>
+          <p class="colophon__meta">{site.location} · {site.education}</p>
+        </div>
+        <nav class="colophon__nav" aria-label="Footer">
+          <a href="#doc-about">About</a>
+          <a href="#doc-projects">Projects</a>
+          <a href="#doc-approach">How I think</a>
+          <a href="#doc-lab">Decision Lab</a>
+          <a href="#doc-ai">AI workbench</a>
+        </nav>
+        <div class="colophon__contact">
+          <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+          <a href={site.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
+          <a href={site.contact.github} target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
         </div>
       </div>
-    </section>
-  </main>
+      <div class="colophon__bottom">
+        <span class="mono">© 2026 {site.name}</span>
+        <span class="mono">Static Astro build · content held in JSON · no analytics</span>
+      </div>
+    </footer>
+  </div>
 </Base>
 
 <script>
-  import { createDesk } from '../lib/desk/scene.js';
-
   (function init() {
-    const root = document.querySelector('.desk');
-    const canvas = document.getElementById('desk-canvas');
-    const labels = Array.from(document.querySelectorAll('[data-desk-target]'));
-    const panels = Array.from(document.querySelectorAll('.dpanel'));
+    const root = document.querySelector<HTMLElement>('.desk');
+    if (!root) return;
+    const canvas = document.getElementById('desk-canvas') as HTMLCanvasElement | null;
     const hint = document.getElementById('desk-hint');
-    const fallback = document.querySelector('.desk__fallback');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const DEF = 'Move the cursor. Click an object or a label.';
+    const notice = document.querySelector<HTMLElement>('[data-desk-notice]');
+    const scenes = Array.from(document.querySelectorAll<HTMLElement>('[data-scene]'));
+    const links = Array.from(document.querySelectorAll<HTMLElement>('[data-scene-link]'));
+    const docs = Array.from(document.querySelectorAll<HTMLElement>('.scene .dpanel'));
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const narrowQuery = window.matchMedia('(max-width: 720px)');
+    let reduceMotion = motionQuery.matches;
+    root.classList.toggle('reduce-motion', reduceMotion);
 
-    let desk;
-    try {
-      desk = createDesk({ canvas, reduceMotion });
-    } catch (err) {
-      console.warn('Desk scene failed to start:', err);
-      root.classList.add('is-fallback');
-      fallback && (fallback.hidden = false);
-      return;
-    }
+    let scrollTarget = { from: 'desk', to: 'desk', t: 0 };
+    let currentScene = '';
 
-    root.classList.add('is-ready');
-    desk.resize();
-    for (const p of panels) p.hidden = true;
+    let desk: any = null;
 
-    function openPanel(id, objectId, sourceLabel) {
-      const open = id != null;
-      const panel = panels.find(p => p.dataset.panel === id);
-      const side = panel?.dataset.side || 'left';
-      root.dataset.panelSide = side;
-      root.dataset.panelTheme = panel?.classList.contains('dpanel--lab') ? 'dark' : 'light';
-      for (const p of panels) p.hidden = p.dataset.panel !== id;
-      for (const l of labels) {
-        l.classList.toggle('is-active', open && sourceLabel === l);
-        l.setAttribute('aria-expanded', String(l.dataset.deskTarget === id));
+    /* The Three.js bundle is loaded after the page is readable, so the
+       documents and metadata never wait for WebGL. */
+    async function bootScene() {
+      if (!canvas) return;
+      try {
+        const { createDesk } = await import('../lib/desk/scene.js');
+        desk = await createDesk({ canvas, reduceMotion });
+        root.classList.add('is-ready');
+        desk.resize();
+        desk.setScene('desk', 'desk', 0);
+        if (reduceMotion) {
+          desk.setReducedMotion(true);
+          for (const d of docs) d.classList.add('is-in');
+        }
+        bindDesk(desk);
+        (window as unknown as { __desk?: unknown }).__desk = desk;
+        updateScrollTarget();
+        schedule();
+      } catch (err) {
+        console.warn('Desk scene failed to start:', err);
+        root.classList.add('is-fallback');
+        if (notice) notice.hidden = false;
       }
-      desk.focus(objectId || null);
-      root.classList.toggle('has-panel', open);
-      const bar = document.querySelector('[data-desk-bar]');
-      const barLabel = document.querySelector('[data-desk-barlabel]');
-      if (bar) bar.hidden = !open;
-      if (barLabel) barLabel.textContent = panel?.dataset.label || '';
-    }
-    function closePanel() {
-      openPanel(null, null);
     }
 
-    for (const l of labels) {
-      l.addEventListener('click', () => openPanel(l.dataset.deskTarget, l.dataset.deskFocus || null, l));
+    /* ---- scene anchors: each section owns a camera pose ---- */
+    const anchors: { key: string; top: number }[] = [];
+    function measure() {
+      anchors.length = 0;
+      for (const el of scenes) {
+        const rect = el.getBoundingClientRect();
+        anchors.push({ key: el.dataset.scene || 'desk', top: rect.top + window.scrollY });
+      }
     }
-    const globalBack = document.querySelector('[data-desk-back]');
-    globalBack?.addEventListener('click', closePanel);
 
-    desk.onSelect(obj => { if (obj.userData.panelId) openPanel(obj.userData.panelId, obj.userData.id); });
-    desk.onHover(obj => {
-      if (obj) { hint.textContent = obj.userData.hint; root.classList.add('is-hovering'); }
-      else { hint.textContent = DEF; root.classList.remove('is-hovering'); }
-    });
+    /* ---- scroll → hold the section frame, travel as the section leaves ---- */
+    function updateScrollTarget() {
+      if (!anchors.length) return;
+      const y = window.scrollY + window.innerHeight / 2;
+      if (y <= anchors[0].top) { scrollTarget = { from: anchors[0].key, to: anchors[0].key, t: 0 }; return; }
+      const last = anchors[anchors.length - 1];
+      if (y >= last.top) { scrollTarget = { from: last.key, to: last.key, t: 0 }; return; }
+      for (let i = 0; i < anchors.length - 1; i++) {
+        const a = anchors[i], b = anchors[i + 1];
+        if (y >= a.top && y < b.top) {
+          const span = b.top - a.top;
+          const band = Math.min(window.innerHeight * 0.5, Math.max(200, span * 0.34));
+          const remaining = b.top - y;
+          if (remaining < band) {
+            let t = 1 - remaining / band;
+            t = t * t * (3 - 2 * t);
+            scrollTarget = { from: a.key, to: b.key, t };
+          } else {
+            scrollTarget = { from: a.key, to: a.key, t: 0 };
+          }
+          return;
+        }
+      }
+    }
 
-    if (!reduceMotion) {
-      const ld = labels.map(l => ({ el: l, depth: parseFloat(l.dataset.depth || '0.8') }));
-      desk.onPointer((nx, ny) => {
-        for (const { el, depth } of ld) {
-          el.style.transform = `translate3d(${(nx * 14 * depth).toFixed(1)}px, ${(ny * 9 * depth).toFixed(1)}px, 0)`;
+    /* ---- reveal documents as they enter the reading column ---- */
+    if ('IntersectionObserver' in window) {
+      const reveal = new IntersectionObserver(entries => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in');
+            reveal.unobserve(e.target);
+          }
+        }
+      }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+      for (const d of docs) reveal.observe(d);
+    } else {
+      for (const d of docs) d.classList.add('is-in');
+    }
+
+    /* ---- active scene in the rail ---- */
+    function setActive(key: string) {
+      if (key === currentScene) return;
+      currentScene = key;
+      for (const l of links) {
+        const on = l.dataset.sceneLink === key;
+        l.classList.toggle('is-current', on);
+        if (on) l.setAttribute('aria-current', 'true');
+        else l.removeAttribute('aria-current');
+      }
+    }
+
+    if ('IntersectionObserver' in window) {
+      const spy = new IntersectionObserver(entries => {
+        for (const e of entries) {
+          if (e.isIntersecting) setActive((e.target as HTMLElement).dataset.scene || '');
+        }
+      }, { rootMargin: '-46% 0px -46% 0px', threshold: 0 });
+      for (const el of scenes) spy.observe(el);
+    }
+
+    /* ---- object interaction: travel to the matching scene ---- */
+    function bindDesk(d: any) {
+      d.onSelect((obj: any) => {
+        const panelId = obj.userData.panelId;
+        if (!panelId) return;
+        const target = document.getElementById(`doc-${panelId}`);
+        target?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      });
+      d.onHover((obj: any) => {
+        if (!hint) return;
+        if (obj) {
+          hint.textContent = obj.userData.hint;
+          root.classList.add('is-hovering');
+        } else {
+          hint.textContent = 'Move the cursor. Click an object to travel.';
+          root.classList.remove('is-hovering');
         }
       });
     }
 
+    /* ---- frame loop for scroll target + subtle label parallax ---- */
+    let raf = 0;
+    function frame() {
+      raf = 0;
+      const hideStage = narrowQuery.matches && window.scrollY > window.innerHeight * 0.55;
+      root.classList.toggle('is-mobile-past', hideStage);
+      if (desk) {
+        desk.setPaused(hideStage);
+        if (!reduceMotion && !narrowQuery.matches) desk.setScene(scrollTarget.from, scrollTarget.to, scrollTarget.t);
+        else desk.setScene('desk', 'desk', 0);
+      }
+    }
+    function schedule() {
+      if (!raf) raf = requestAnimationFrame(frame);
+    }
+
+    let measureTimer = 0;
+    function remeasure() {
+      clearTimeout(measureTimer);
+      measureTimer = window.setTimeout(() => {
+        measure();
+        updateScrollTarget();
+        schedule();
+      }, 120);
+    }
+
+    let lastScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (y > lastScrollY + 4 && y > 240) root.classList.add('is-hud-hidden');
+      else if (y < lastScrollY - 4 || y < 80) root.classList.remove('is-hud-hidden');
+      lastScrollY = y;
+      updateScrollTarget();
+      schedule();
+    }, { passive: true });
+    window.addEventListener('resize', remeasure);
+    window.addEventListener('load', remeasure);
+    document.fonts?.ready.then(remeasure);
+
+    measure();
+    updateScrollTarget();
+    schedule();
+    bootScene();
+
+    /* ---- reduced motion: no reveal animation, static camera ---- */
+    function applyMotionPreference() {
+      reduceMotion = motionQuery.matches;
+      root.classList.toggle('reduce-motion', reduceMotion);
+      for (const d of docs) d.classList.add('is-in');
+      if (desk) {
+        desk.setScene('desk', 'desk', 0);
+        desk.setReducedMotion(reduceMotion);
+      }
+      schedule();
+    }
+    if (motionQuery.addEventListener) motionQuery.addEventListener('change', applyMotionPreference);
+
+    /* ---- keyboard: Escape returns to the desk ---- */
     addEventListener('keydown', e => {
-      if (e.key === 'Escape' && root.classList.contains('has-panel')) closePanel();
+      if (e.key === 'Escape') {
+        const active = document.activeElement as HTMLElement | null;
+        active?.blur();
+      }
     });
-    window.addEventListener('pagehide', () => desk.dispose());
-    window.__desk = desk;
+
+    window.addEventListener('pagehide', e => {
+      if (!(e as PageTransitionEvent).persisted) desk?.dispose();
+    });
+    (window as unknown as { __desk?: unknown }).__desk = desk;
   })();
 </script>
-
-<style>
-  /* entry animation for panels when revealed */
-  @keyframes deskPanelIn { from { transform: translateX(14px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-</style>

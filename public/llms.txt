@@ -27,8 +27,8 @@ client engagements.
 
 ## Pages
 
-- /: the desk, working approach, featured case file, Decision Lab, AI Workbench, selected work,
-  about and contact
+- /: a scroll-driven desk narrative. Six scenes (about, projects, how I think, Decision Lab, AI
+  workbench, contact) sit over one persistent 3D desk; all text and links remain in the HTML.
 - /work/gym-qr: the GYM-QR case study as a document: observe, analyse, define, verify, reflect
 - /work/p2p-procurement: the Procure-to-Pay learning case study: context, process, actors, rules,
   requirements, acceptance criteria, exceptions, ERP concepts, scope
