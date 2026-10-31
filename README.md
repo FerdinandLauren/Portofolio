@@ -112,6 +112,26 @@ In `src/data/projects/gym-qr.json`: `period` ("2026"), `status`, and the copy un
 `public/llms.txt` summarises the site for AI assistants, and every page emits Person JSON-LD plus
 Open Graph and Twitter card metadata.
 
+## Mobile experience (`<= 760px`, portrait)
+
+Phones get the same portfolio twice, chosen once per session and switchable from the Explore sheet
+or the "Change experience" chip:
+
+- **Interactive 3D (default).** A compact fixed 3D band (46 px top, `clamp(210px, 34svh, 300px)`
+  tall) and one floating glass window at a time, overlapping the lower edge of the workspace. The
+  window is not a scroller: the page scroll is the only scroll container, and it translates the
+  document inside the window, hands the window to the next section at the end of that section's
+  range, and moves the camera to the section's object (poses in `src/lib/desk/scene.js`). Every
+  window keeps a discreet **Back to workspace** rail at its top; scrolling forward or back is
+  always enough on its own. Object taps, the Explore sheet, in-page anchors and the HUD all go
+  through the same controller in `src/pages/index.astro`.
+- **Classic.** The same desk behind the hero as a non-interactive backdrop, held at the overview
+  pose and faded out as soon as the hero leaves the screen; the documents are the repository's
+  plain paper layouts. Without WebGL the desk never appears and the documents are unchanged.
+
+Desktop and landscape keep the original full-stage cinematic scroll. The colophon is hidden in the
+phone 3D experience (its links live in the Contact window and the Explore sheet).
+
 ## Verification performed (29 Oct 2026)
 
 - `npm run build`: 3 pages built, no errors.
