@@ -726,8 +726,11 @@ const scenes = [
         ? (stage?.getBoundingClientRect().bottom || 46 + Math.min(480, Math.max(310, window.innerHeight * 0.52)))
         : 0;
       read = Math.max(1, window.innerHeight - band);
+      // Keeps the card layout honest on every path: builds the ranges in the
+      // phone workspace and clears them everywhere else (desktop, classic,
+      // rotation out of portrait).
+      layoutCards();
       if (narrow && expMode === '3d') {
-        layoutCards();
         for (const c of cards) anchors.push({ key: c.key, top: c.top });
         return;
       }
@@ -1094,10 +1097,29 @@ const scenes = [
       heroSpy.observe(heroSection);
     }
 
+    /* A section can be linked directly (#doc-projects). The fixed windows sit
+       outside the document flow, so the browser's own anchor has nothing to
+       scroll to: the controller places the range instead. */
+    function applyHash() {
+      if (!(narrowQuery.matches && expMode === '3d')) return false;
+      const id = decodeURIComponent(location.hash.replace('#', ''));
+      const key = id.startsWith('doc-') ? id.slice(4) : (id === 'scene-desk' ? 'desk' : '');
+      if (!key || !cardsByKey.has(key)) return false;
+      measure();
+      const dock = Math.max(0, Math.ceil(dockTop(key) + 1));
+      window.scrollTo({ top: dock, behavior: 'instant' });
+      setActive(key);
+      updateScrollTarget();
+      settleTravel();
+      return true;
+    }
+    window.addEventListener('hashchange', () => { applyHash(); });
+
     measure();
     updateScrollTarget();
     schedule();
     initExperience();
+    window.setTimeout(() => { applyHash(); }, 80);
 
     for (const b of Array.from(document.querySelectorAll<HTMLElement>('[data-xp]'))) {
       b.addEventListener('click', () => applyMode(b.dataset.xp === 'classic' ? 'classic' : '3d'));
