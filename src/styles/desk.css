@@ -815,10 +815,17 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
 @media (max-width: 760px) and (orientation: portrait) {
   html.js .desk {
     --band-top: 46px;
-    /* svh keeps the window a fixed height while the URL bar slides; the vh
-       line is the fallback for browsers without small viewport units. */
-    --band-h: clamp(280px, 52vh, 480px);
-    --band-h: clamp(280px, 52svh, 480px);
+    /* The compact workspace: a wide, shallow window, so the floating card has
+       the room a document needs. svh keeps it steady while the URL bar slides;
+       the vh line is the fallback for browsers without small viewport units. */
+    --band-h: clamp(210px, 34vh, 300px);
+    --band-h: clamp(210px, 34svh, 300px);
+    /* the card floats over the lower edge of the window and stops above the bar */
+    --ov-gap: 10px;
+    --ov-overlap: clamp(48px, 7.4svh, 78px);
+    --ov-top: calc(var(--band-top) + var(--band-h) - var(--ov-overlap));
+    --ov-h: calc(100vh - var(--ov-top) - 74px - env(safe-area-inset-bottom));
+    --ov-h: calc(100svh - var(--ov-top) - 74px - env(safe-area-inset-bottom));
     padding-bottom: calc(86px + env(safe-area-inset-bottom));
   }
 
@@ -845,7 +852,9 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
   html.js .desk .desk__band {
     display: block;
     position: absolute;
-    left: 0; right: 0; bottom: 0;
+    left: 0; right: 0;
+    /* the card covers the bottom of the window: keep the label above it */
+    bottom: calc(var(--ov-overlap) + 2px);
     z-index: 3;
     pointer-events: none;
     padding: 1.7rem 16px 0.68rem;
@@ -1305,64 +1314,144 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
 }
 
 /* ============================================================
-   3D MODE, the floating overlay.
-   Every paper docks under the 3D window as a window of its own: a
-   hairline edge, a soft shadow, a sticky header that keeps the way
-   back to the workspace within reach. The camera holds the selected
-   object in the band above the text, so the content never hides the
-   desk it belongs to.
+   THE WORKSPACE, floating windows.
+   The phone shows a compact 3D workspace and one content window at a
+   time, floating over its lower edge: a translucent glass surface with
+   a hairline border, a deep shadow and a rail that keeps the way back
+   to the workspace in reach. The page scroll is the single scroll
+   container - it moves the text inside the window and hands the window
+   to the next section when the section's range ends - so touch
+   scrolling never fights a nested scroller.
    ============================================================ */
 .dpanel__dock { display: none; }
 
 @media (max-width: 760px) and (orientation: portrait) {
-  html.js .desk[data-exp="3d"] .scene { transition: opacity 0.18s linear; }
+  /* ---- sections become scroll ranges; the 3D window stays the stage ---- */
+  html.js .desk[data-exp="3d"] .scene,
+  html.js .desk[data-exp="3d"] .scene--hero,
+  html.js .desk[data-exp="3d"] .scene--left,
+  html.js .desk[data-exp="3d"] .scene--right,
+  html.js .desk[data-exp="3d"] .scene--lab,
+  html.js .desk[data-exp="3d"] .scene--journey,
+  html.js .desk[data-exp="3d"] .scene--contact {
+    display: block;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    align-items: initial;
+  }
+  /* The window has to paint over the workspace, and the empty section boxes
+     must not intercept the taps meant for the objects behind them. */
+  html.js .desk[data-exp="3d"] .scene { z-index: 6; pointer-events: none; }
+  html.js .desk[data-exp="3d"] .scene--hero::before,
+  html.js .desk[data-exp="3d"] .hero__cue { display: none; }
+  html.js .desk[data-exp="3d"] {
+    /* the fixed window needs room after the last section, otherwise the last
+       section's range can never be scrolled to the top of the page */
+    padding-bottom: calc(100svh - 74px + env(safe-area-inset-bottom));
+    padding-bottom: calc(100dvh - 74px + env(safe-area-inset-bottom));
+  }
 
+  /* ---- the floating window ---- */
   html.js .desk[data-exp="3d"] .scene .dpanel,
-  html.js .desk[data-exp="3d"] .scene--lab .dpanel,
-  html.js .desk[data-exp="3d"] .scene--journey .dpanel,
-  html.js .desk[data-exp="3d"] .scene--contact .dpanel {
-    position: relative;
-    width: calc(100% - 20px);
-    margin-inline: auto;
-    border: 1px solid rgba(25, 25, 19, 0.14);
+  html.js .desk[data-exp="3d"] .scene--hero .hero {
+    position: fixed;
+    left: var(--ov-gap);
+    right: var(--ov-gap);
+    top: var(--ov-top);
+    width: auto;
+    height: var(--ov-h);
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 8;
+    border: 1px solid rgba(241, 238, 228, 0.16);
+    border-radius: 18px;
+    background:
+      linear-gradient(180deg, rgba(30, 38, 32, 0.95) 0%, rgba(18, 24, 20, 0.96) 34%, rgba(12, 17, 14, 0.98) 100%);
     box-shadow:
-      0 14px 26px rgba(9, 13, 10, 0.18),
-      0 1px 0 rgba(255, 255, 255, 0.36) inset;
-  }
-  html.js .desk[data-exp="3d"] .scene--lab .dpanel,
-  html.js .desk[data-exp="3d"] .scene--journey .dpanel {
-    border-color: rgba(241, 238, 228, 0.14);
-    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.4);
+      0 -18px 46px rgba(0, 0, 0, 0.46),
+      0 26px 64px rgba(0, 0, 0, 0.55),
+      0 1px 0 rgba(255, 255, 255, 0.06) inset;
+    color: var(--on-board);
+    /* the paper's colour roles, retuned for a lit glass surface */
+    --ink: #f2efe6;
+    --ink-2: rgba(241, 238, 228, 0.8);
+    --ink-3: rgba(241, 238, 228, 0.54);
+    --line: rgba(241, 238, 228, 0.12);
+    --line-2: rgba(241, 238, 228, 0.2);
+    --paper: rgba(241, 238, 228, 0.05);
+    --paper-2: rgba(241, 238, 228, 0.06);
+    --forest: var(--lime);
+    --forest-2: var(--lime);
+    --forest-3: rgba(216, 242, 106, 0.72);
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(26px) scale(0.993);
+    transform-origin: 50% 100%;
+    transition:
+      opacity 0.34s var(--ease),
+      transform 0.46s var(--ease),
+      visibility 0s linear 0.46s;
+    pointer-events: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* the header rides the top of the open paper, right under the window */
+  /* the part of the window that hangs over the 3D workspace gets the blur */
+  html.js .desk[data-exp="3d"] .scene .dpanel::before,
+  html.js .desk[data-exp="3d"] .scene--hero .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: calc(var(--ov-overlap) + 30px);
+    z-index: 0;
+    pointer-events: none;
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 0%, #000 58%, transparent 100%);
+  }
+
+  html.js .desk[data-exp="3d"] .scene .dpanel.is-open,
+  html.js .desk[data-exp="3d"] .scene--hero .hero.is-open {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.34s var(--ease),
+      transform 0.46s var(--ease),
+      visibility 0s;
+    pointer-events: auto;
+  }
+
+  /* the rail: a discreet way back, and where you are */
   html.js .desk[data-exp="3d"] .dpanel__dock {
     display: flex;
-    position: sticky;
-    top: calc(var(--band-top) + var(--band-h));
-    z-index: 2;
+    position: relative;
+    z-index: 3;
+    flex: none;
     align-items: center;
     justify-content: space-between;
     gap: 0.8rem;
     margin: 0;
-    padding: 0.15rem 18px;
-    background: inherit;
-    border-bottom: 1px solid rgba(25, 25, 19, 0.12);
-  }
-  html.js .desk[data-exp="3d"] .scene--lab .dpanel__dock,
-  html.js .desk[data-exp="3d"] .scene--journey .dpanel__dock {
-    border-bottom-color: rgba(241, 238, 228, 0.14);
+    padding: 0.05rem 16px;
+    background: linear-gradient(180deg, rgba(26, 33, 28, 0.98), rgba(18, 24, 20, 0.95));
+    border-bottom: 1px solid rgba(241, 238, 228, 0.1);
   }
   .dpanel__ws {
     display: inline-flex;
     align-items: center;
     gap: 0.32rem;
-    min-height: 40px;
+    min-height: 44px;
     margin: 0 0 0 -0.45rem;
     padding: 0 0.45rem;
     border: 0;
     background: transparent;
-    color: var(--ink-3);
+    color: rgba(241, 238, 228, 0.62);
     font-family: var(--mono);
     font-size: 0.52rem;
     letter-spacing: 0.1em;
@@ -1370,32 +1459,87 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
     -webkit-tap-highlight-color: transparent;
   }
   .dpanel__ws svg { width: 11px; height: 11px; flex: none; }
-  .dpanel__ws:active { color: var(--forest-2); }
-  .dpanel__ws:focus-visible { outline: 1px solid var(--forest-2); outline-offset: 2px; }
-  .dpanel__dock-n { font-size: 0.5rem; letter-spacing: 0.1em; color: var(--ink-3); opacity: 0.6; }
-  html.js .desk[data-exp="3d"] .scene--lab .dpanel__ws,
-  html.js .desk[data-exp="3d"] .scene--journey .dpanel__ws { color: var(--on-board-2); }
-  html.js .desk[data-exp="3d"] .scene--lab .dpanel__ws:active,
-  html.js .desk[data-exp="3d"] .scene--journey .dpanel__ws:active { color: var(--lime); }
-  html.js .desk[data-exp="3d"] .scene--lab .dpanel__dock-n,
-  html.js .desk[data-exp="3d"] .scene--journey .dpanel__dock-n { color: var(--on-board-2); }
+  .dpanel__ws:active { color: var(--lime); }
+  .dpanel__ws:focus-visible { outline: 1px solid var(--lime); outline-offset: 2px; }
+  .dpanel__dock-n { font-size: 0.5rem; letter-spacing: 0.1em; color: rgba(241, 238, 228, 0.42); }
 
-  /* the sheet arrives with the camera, not before it */
-  html.js .desk[data-exp="3d"] .scene .dpanel.is-arriving { animation: paperArrive 0.62s var(--ease) both; }
-  @keyframes paperArrive {
-    from { opacity: 0.35; transform: translateY(18px); }
-    to { opacity: 1; transform: none; }
+  /* the reading area: clipped, never a scroller of its own */
+  html.js .desk[data-exp="3d"] .dpanel__scroll {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    z-index: 1;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 16px, #000 calc(100% - 22px), transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 16px, #000 calc(100% - 22px), transparent 100%);
+  }
+  html.js .desk[data-exp="3d"] .dpanel__scroll > * { will-change: transform; }
+  html.js .desk[data-exp="3d"] .dpanel__inner { padding: 1.15rem 18px 3.2rem; }
+  html.js .desk[data-exp="3d"] .hero__inner { padding: 1.15rem 18px 1.6rem; }
+
+  /* dark-surface typography: the same documents, read on glass */
+  html.js .desk[data-exp="3d"] .dpanel__scene { color: rgba(241, 238, 228, 0.5); }
+  html.js .desk[data-exp="3d"] .dpanel__scene .mono { border-color: rgba(216, 242, 106, 0.42); }
+  html.js .desk[data-exp="3d"] .dpanel__title { color: #f2efe6; }
+  html.js .desk[data-exp="3d"] .dpanel__lede { color: rgba(241, 238, 228, 0.86); }
+  html.js .desk[data-exp="3d"] .dpanel__body { color: rgba(241, 238, 228, 0.76); }
+  html.js .desk[data-exp="3d"] .dpanel__body a { color: var(--lime); }
+  html.js .desk[data-exp="3d"] .dpanel__caveat,
+  html.js .desk[data-exp="3d"] .dpanel__note { color: rgba(241, 238, 228, 0.48); border-top-color: rgba(241, 238, 228, 0.12); }
+  html.js .desk[data-exp="3d"] .dpanel__facts,
+  html.js .desk[data-exp="3d"] .dpanel__links { border-top-color: rgba(241, 238, 228, 0.16); }
+  html.js .desk[data-exp="3d"] .dpanel__facts > div,
+  html.js .desk[data-exp="3d"] .dpanel__links > div { border-bottom-color: rgba(241, 238, 228, 0.1); }
+  html.js .desk[data-exp="3d"] .dpanel__facts dt,
+  html.js .desk[data-exp="3d"] .dpanel__links dt { color: rgba(241, 238, 228, 0.46); }
+  html.js .desk[data-exp="3d"] .dpanel__facts dd,
+  html.js .desk[data-exp="3d"] .dpanel__links dd { color: rgba(241, 238, 228, 0.9); }
+  html.js .desk[data-exp="3d"] .dpanel__links a { border-bottom-color: rgba(241, 238, 228, 0.3); }
+  html.js .desk[data-exp="3d"] .dpanel__links a:hover { color: var(--lime); border-color: var(--lime); }
+  html.js .desk[data-exp="3d"] .dpanel__flag { color: var(--lime); }
+  html.js .desk[data-exp="3d"] .dpanel__claimbox { background: rgba(241, 238, 228, 0.05); border: 1px solid rgba(241, 238, 228, 0.1); }
+  html.js .desk[data-exp="3d"] .dpanel__claimbox .mono { color: rgba(241, 238, 228, 0.46); }
+  html.js .desk[data-exp="3d"] .dpanel__claimbox li { color: rgba(241, 238, 228, 0.8); border-bottom-color: rgba(241, 238, 228, 0.08); }
+  html.js .desk[data-exp="3d"] .dpanel__also { color: rgba(241, 238, 228, 0.5); border-top-color: rgba(241, 238, 228, 0.12); }
+  html.js .desk[data-exp="3d"] .dpanel__also a { border-bottom-color: rgba(241, 238, 228, 0.24); }
+  html.js .desk[data-exp="3d"] .dpanel--lab { background: transparent; border-color: rgba(241, 238, 228, 0.14); }
+  html.js .desk[data-exp="3d"] .dpanel--lab .lab,
+  html.js .desk[data-exp="3d"] .dpanel--journey .jpanel { color: var(--on-board); }
+
+  /* the hero reads as the workspace card, without a rail */
+  html.js .desk[data-exp="3d"] .scene--hero .hero { justify-content: flex-end; }
+  html.js .desk[data-exp="3d"] .hero__role { color: rgba(241, 238, 228, 0.58); }
+  html.js .desk[data-exp="3d"] .hero__name { color: #f5f2e9; }
+  html.js .desk[data-exp="3d"] .hero__line { color: rgba(241, 238, 228, 0.9); }
+  html.js .desk[data-exp="3d"] .hero__meta { color: rgba(241, 238, 228, 0.4); }
+
+  /* a jump between sections: the window steps back, then the next one rises */
+  html.js .desk.is-transit .scene .dpanel.is-open,
+  html.js .desk.is-transit .scene--hero .hero.is-open {
+    opacity: 0;
+    transform: translateY(20px) scale(0.99);
+    pointer-events: none;
+  }
+  html.js .desk[data-exp="3d"] .dpanel.is-arriving .dpanel__scroll,
+  html.js .desk[data-exp="3d"] .hero.is-arriving .dpanel__scroll { animation: cardContentIn 0.6s var(--ease) both; }
+  @keyframes cardContentIn {
+    from { opacity: 0.25; }
+    to { opacity: 1; }
   }
 
-  /* a section swap: the column retracts while the camera travels, then the
-     next sheet arrives with it. The same class closes the workspace too. */
-  html.js .desk.is-transit .scene { opacity: 0; }
-  html.js .desk.is-transit .scene .dpanel { transform: translateY(14px); }
+  /* The colophon is desktop chrome and would sit under the band and the card;
+     the Contact window already carries every link it holds. */
+  html.js .desk[data-exp="3d"] .colophon { display: none; }
 
   @media (prefers-reduced-motion: reduce) {
-    html.js .desk[data-exp="3d"] .scene { transition: none; }
-    html.js .desk[data-exp="3d"] .scene .dpanel.is-arriving { animation: none; }
-    html.js .desk.is-transit .scene .dpanel { transform: none; }
+    html.js .desk[data-exp="3d"] .scene .dpanel,
+    html.js .desk[data-exp="3d"] .scene--hero .hero,
+    html.js .desk[data-exp="3d"] .scene .dpanel.is-open,
+    html.js .desk[data-exp="3d"] .scene--hero .hero.is-open { transition: none; }
+    html.js .desk[data-exp="3d"] .dpanel.is-arriving .dpanel__scroll,
+    html.js .desk[data-exp="3d"] .hero.is-arriving .dpanel__scroll { animation: none; }
+    html.js .desk.is-transit .scene .dpanel.is-open,
+    html.js .desk.is-transit .scene--hero .hero.is-open { transform: none; }
   }
 }
 
@@ -1405,11 +1549,41 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
    layout returns to the repository's plain mobile documents.
    ============================================================ */
 @media (max-width: 760px) and (orientation: portrait) {
-  html.js .desk[data-exp="classic"] .desk__stage,
   html.js .desk[data-exp="classic"] .desk__band,
   html.js .desk[data-exp="classic"] .sbar,
   html.js .desk[data-exp="classic"] .tapnote,
   html.js .desk[data-exp="classic"] .tapring { display: none; }
+
+  /* The desk stays, but only as the hero's backdrop: fixed behind the first
+     screen, non-interactive, held at the overview, and gone once the visitor
+     scrolls into the documents. */
+  html.js .desk[data-exp="classic"] .desk__stage {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 66svh;
+    z-index: 0;
+    border: 0;
+    box-shadow: none;
+    background: radial-gradient(70% 60% at 50% 36%, #1a201d, #0c110e);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s linear;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 52%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 0%, #000 52%, transparent 100%);
+  }
+  html.js .desk[data-exp="classic"].is-ready .desk__stage { opacity: 0.92; }
+  html.js .desk[data-exp="classic"].is-desk-away .desk__stage { opacity: 0; }
+  html.js .desk[data-exp="classic"] .desk__hold,
+  html.js .desk[data-exp="classic"] .desk__fallback,
+  html.js .desk[data-exp="classic"] .desk__notice,
+  html.js .desk[data-exp="classic"] .desk__vignette { display: none; }
+
+  /* the documents sit above that backdrop */
+  html.js .desk[data-exp="classic"] .scene,
+  html.js .desk[data-exp="classic"] .colophon { position: relative; z-index: 1; }
 
   html.js .desk[data-exp="classic"] .scenenav { display: grid; }
 
@@ -1431,7 +1605,9 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
     padding: 6.2rem 16px 7rem;
   }
   html.js .desk[data-exp="classic"] .scene--hero::before {
-    background: linear-gradient(180deg, rgba(8, 12, 9, 0.9) 0%, rgba(8, 12, 9, 0.5) 42%, rgba(8, 12, 9, 0.82) 100%);
+    background:
+      radial-gradient(92% 74% at 12% 64%, rgba(8, 12, 9, 0.86) 0%, rgba(8, 12, 9, 0.5) 54%, transparent 82%),
+      linear-gradient(180deg, rgba(8, 12, 9, 0.22) 0%, rgba(8, 12, 9, 0.34) 46%, rgba(8, 12, 9, 0.92) 100%);
   }
   html.js .desk[data-exp="classic"] .hero { width: 100%; }
   html.js .desk[data-exp="classic"] .hero__name { font-size: clamp(2.8rem, 13vw, 4.2rem); }

@@ -452,8 +452,60 @@ const scenes = [
       if (key) papersByKey.set(key, d);
     }
     const sectionCount = String(links.length).padStart(2, '0');
+
+    /* ============================================================
+       FLOATING WINDOWS
+       One card per section: a header holding the way back to the
+       workspace and a clipped reading area. On phones the card is a
+       fixed window floating over the compact 3D workspace, the page
+       scroll moves the text inside it, and the journey hands the
+       window from section to section. There is still exactly one
+       scroll container, so touch scrolling never fights itself.
+       ============================================================ */
+    type CardItem = {
+      key: string;
+      section: HTMLElement;
+      card: HTMLElement;
+      scroll: HTMLElement;
+      inner: HTMLElement;
+      top: number;
+      range: number;
+      beat: number;
+      maxRead: number;
+      read: number;
+    };
+    const cards: CardItem[] = [];
+    const cardsByKey = new Map<string, CardItem>();
+
+    function makeCard(key: string, section: HTMLElement, card: HTMLElement, header: HTMLElement | null, inner: HTMLElement) {
+      const scroll = document.createElement('div');
+      scroll.className = 'dpanel__scroll';
+      scroll.appendChild(inner);
+      if (header) card.insertBefore(header, card.firstChild);
+      card.appendChild(scroll);
+      const item: CardItem = {
+        key, section, card, scroll, inner,
+        top: 0, range: 0, beat: 0, maxRead: 0, read: 0,
+      };
+      cards.push(item);
+      cardsByKey.set(key, item);
+      return item;
+    }
+
+    /* The hero is the workspace itself: same window, no way back. */
+    const heroSection = document.getElementById('scene-desk');
+    const heroCard = heroSection?.querySelector<HTMLElement>('.hero') || null;
+    if (heroSection && heroCard) {
+      const inner = document.createElement('div');
+      inner.className = 'hero__inner';
+      while (heroCard.firstChild) inner.appendChild(heroCard.firstChild);
+      makeCard('desk', heroSection, heroCard, null, inner);
+    }
     for (const [key, paper] of papersByKey) {
-      if (paper.querySelector('[data-ws-back]')) continue;
+      // The content is whatever the component put inside the paper: the lab and
+      // the journey carry their own wrapper instead of .dpanel__inner.
+      const inner = paper.firstElementChild as HTMLElement | null;
+      if (!inner) continue;
       const bar = document.createElement('div');
       bar.className = 'dpanel__dock';
       bar.innerHTML =
@@ -461,7 +513,7 @@ const scenes = [
         + '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M7.4 2.2 3.6 6l3.8 3.8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>'
         + 'Back to workspace</button>'
         + `<span class="dpanel__dock-n mono" aria-hidden="true">${sceneMeta.get(key)?.n || ''} / ${sectionCount}</span>`;
-      paper.prepend(bar);
+      makeCard(key, paper.closest('.scene') as HTMLElement, paper, bar, inner);
     }
 
     let scrollTarget = { from: 'desk', to: 'desk', t: 0 };
@@ -483,6 +535,15 @@ const scenes = [
     const XP_KEY = 'fl-exp';
     let expMode: ExpMode | null = null;
     let booting: Promise<void> | null = null;
+    let heroAway = false;
+
+    /* One place decides whether the renderer runs: the experience chooser and
+       a classic hero that has scrolled away both stop it. */
+    function syncDeskPause() {
+      if (!desk) return;
+      const selectorOpen = Boolean(xps?.open);
+      desk.setPaused(selectorOpen || (expMode === 'classic' && heroAway));
+    }
 
     function readStoredMode(): ExpMode | null {
       try {
@@ -504,7 +565,7 @@ const scenes = [
       xps.dataset.current = expMode || '';
       if (!xps.open) xps.showModal();
       document.documentElement.classList.add('is-xps');
-      desk?.setPaused(true);
+      syncDeskPause();
       const first = xps.querySelector<HTMLElement>('.xps__opt');
       window.setTimeout(() => first?.focus({ preventScroll: true }), 80);
     }
@@ -512,7 +573,7 @@ const scenes = [
       if (!xps) return;
       if (xps.open) xps.close();
       document.documentElement.classList.remove('is-xps');
-      if (expMode === '3d') desk?.setPaused(false);
+      syncDeskPause();
     }
     function bootDesk() {
       if (desk) { desk.setPaused(false); return; }
@@ -530,23 +591,33 @@ const scenes = [
       expMode = m;
       writeStoredMode(m);
       // A mode switch always lands on a settled controller: no half-finished
-      // travel, no fading column left behind.
+      // travel, no fading window left behind.
       root.classList.remove('is-transit');
       if (travelKey) endTravel();
       root.dataset.exp = m;
       root.dataset.scene = root.dataset.scene || 'desk';
       hideSelector();
-      if (m === '3d') {
-        bootDesk();
-      } else {
-        // Classic never loads Three.js; the documents only need the reveal.
-        dropDesk();
-        root.classList.add('is-ready');
+      // Both experiences share the same desk. In classic it is the hero
+      // backdrop, held at the overview and never interactive; in 3D it is the
+      // workspace. Only a device without WebGL skips it.
+      bootDesk();
+      if (m === 'classic') {
+        heroAway = false;
+        root.classList.remove('is-desk-away');
+        desk?.focus('desk');
       }
-      remeasure();
+      layoutCards();
+      measure();
+      openCard(m === '3d' ? (currentScene || 'desk') : '');
       updateScrollTarget();
       schedule();
-      if (!opts.keepScroll) window.scrollTo({ top: 0, behavior: 'instant' });
+      if (opts.keepScroll) remeasure();
+      else {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        updateScrollTarget();
+        schedule();
+      }
+      syncDeskPause();
     }
     function initExperience() {
       if (narrowQuery.matches) {
@@ -575,13 +646,69 @@ const scenes = [
         }
         bindDesk(desk);
         (window as unknown as { __desk?: unknown }).__desk = desk;
+        if (expMode === 'classic') desk.focus('desk');
         updateScrollTarget();
         schedule();
+        syncDeskPause();
       } catch (err) {
         console.warn('Desk scene failed to start:', err);
         root.classList.add('is-fallback');
         if (notice) notice.hidden = false;
       }
+    }
+
+    /* ---- one window at a time, one reading offset per window ---- */
+    function tailLength() {
+      return Math.round(Math.min(230, Math.max(130, window.innerHeight * 0.22)));
+    }
+
+    /* Every section keeps a scroll range: an arrival beat, the length of its
+       own text, and a tail where the camera travels to the next object. The
+       page scroll is the single clock for all of it. */
+    function layoutCards() {
+      const on = Boolean(narrowQuery.matches && expMode === '3d');
+      if (!on) {
+        for (const c of cards) {
+          c.section.style.removeProperty('height');
+          c.inner.style.transform = '';
+          c.card.classList.remove('is-open', 'is-arriving');
+          c.top = 0; c.range = 0; c.maxRead = 0; c.read = 0;
+        }
+        return;
+      }
+      const vh = window.innerHeight;
+      const beat = Math.round(Math.min(216, Math.max(140, vh * 0.2)));
+      const tail = tailLength();
+      let top = 0;
+      for (const c of cards) {
+        const viewH = c.scroll.clientHeight;
+        const contentH = Math.ceil(c.inner.getBoundingClientRect().height);
+        c.beat = beat;
+        c.maxRead = Math.max(0, contentH - Math.max(0, viewH));
+        c.range = beat + c.maxRead + tail;
+        c.top = top;
+        c.read = -1;
+        c.section.style.height = `${c.range}px`;
+        top += c.range;
+      }
+    }
+
+    function openCard(key: string) {
+      const on3d = Boolean(narrowQuery.matches && expMode === '3d');
+      for (const c of cards) {
+        const on = on3d && c.key === key;
+        c.card.classList.toggle('is-open', on);
+        if (on) { c.read = -1; c.inner.style.transform = ''; }
+      }
+    }
+
+    function updateRead(key: string, y: number) {
+      const c = cardsByKey.get(key);
+      if (!c) return;
+      const px = Math.min(c.maxRead, Math.max(0, Math.round(y - c.top - c.beat)));
+      if (px === c.read) return;
+      c.read = px;
+      c.inner.style.transform = px ? `translate3d(0, ${-px}px, 0)` : '';
     }
 
     /* ---- scene anchors: each section owns a camera pose ---- */
@@ -599,11 +726,14 @@ const scenes = [
         ? (stage?.getBoundingClientRect().bottom || 46 + Math.min(480, Math.max(310, window.innerHeight * 0.52)))
         : 0;
       read = Math.max(1, window.innerHeight - band);
+      if (narrow && expMode === '3d') {
+        layoutCards();
+        for (const c of cards) anchors.push({ key: c.key, top: c.top });
+        return;
+      }
       if (narrow) {
         const hero = document.getElementById('scene-desk');
         if (hero) anchors.push({ key: 'desk', top: hero.getBoundingClientRect().top + window.scrollY });
-        // Each scene is docked by its paper: the anchor is the document, not the
-        // section wrapper, so navigation and camera agree on the same edge.
         for (const el of scenes) {
           const paper = el.querySelector<HTMLElement>('.dpanel') || el;
           anchors.push({ key: el.dataset.scene || '', top: paper.getBoundingClientRect().top + window.scrollY });
@@ -621,25 +751,26 @@ const scenes = [
       if (!anchors.length) return;
       if (narrowQuery.matches && expMode === '3d') {
         if (travelKey) return;
-        // Travel starts while the next paper is rising into the reading column
-        // and ends exactly when it docks under the band edge.
+        // Each section is a scroll range: an arrival beat, the length of its own
+        // text, then a tail where the camera travels to the next object while
+        // the window is handed over.
         const y = window.scrollY;
-        const lead = Math.max(120, read * 0.4);
+        const lead = tailLength();
         let from = anchors[0].key, to = anchors[0].key, t = 0;
         let active = anchors[0].key;
         for (let i = 1; i < anchors.length; i++) {
-          const dock = anchors[i].top - band;
-          if (y >= dock) { from = anchors[i].key; to = anchors[i].key; t = 0; active = anchors[i].key; continue; }
-          if (y >= dock - lead) {
-            const p = (y - (dock - lead)) / lead;
+          const start = anchors[i].top;
+          if (y >= start) { from = anchors[i].key; to = anchors[i].key; t = 0; active = anchors[i].key; continue; }
+          if (y >= start - lead) {
+            const p = (y - (start - lead)) / lead;
             const e = p * p * (3 - 2 * p);
             from = anchors[i - 1].key; to = anchors[i].key; t = e;
             // Hysteresis: a section only gives way once the next one clearly
             // owns the window, so a few pixels of jitter cannot flip the label.
             const prev = currentScene;
-            active = e >= 0.5 ? anchors[i].key : anchors[i - 1].key;
-            if (prev === anchors[i - 1].key) active = e > 0.58 ? anchors[i].key : anchors[i - 1].key;
-            else if (prev === anchors[i].key) active = e < 0.42 ? anchors[i - 1].key : anchors[i].key;
+            active = e >= 0.5 ? to : from;
+            if (prev === anchors[i - 1].key) active = e > 0.58 ? to : from;
+            else if (prev === to) active = e < 0.42 ? from : to;
           }
           break;
         }
@@ -650,8 +781,11 @@ const scenes = [
           scrollTarget = { from, to, t };
         }
         setActive(active);
+        updateRead(active, y);
         return;
       }
+      // Classic mode is a plain document: the camera never follows the page.
+      if (narrowQuery.matches) return;
       const y = window.scrollY + window.innerHeight / 2;
       if (y <= anchors[0].top) { scrollTarget = { from: anchors[0].key, to: anchors[0].key, t: 0 }; return; }
       const last = anchors[anchors.length - 1];
@@ -694,6 +828,7 @@ const scenes = [
       if (key === currentScene) return;
       currentScene = key;
       root.dataset.scene = key;
+      openCard(key);
       for (const l of links) {
         const on = l.dataset.sceneLink === key;
         l.classList.toggle('is-current', on);
@@ -755,48 +890,48 @@ const scenes = [
       travelSettle = window.setTimeout(endTravel, 190);
     }
 
-    /* The scroll offset at which a paper docks right under the 3D window. */
+    /* The page offset at which a section's window takes over the screen. */
     function dockTop(key: string) {
-      for (const a of anchors) if (a.key === key) return Math.max(0, a.top - band);
-      return 0;
+      const c = cardsByKey.get(key);
+      return c ? c.top : 0;
     }
 
-    /* The sheet arrives while the camera is still travelling: one move, two
+    /* The window arrives while the camera is still travelling: one move, two
        halves that overlap instead of queueing. */
     function overlayArrive(key: string) {
-      const paper = papersByKey.get(key);
-      if (!paper) return;
-      paper.classList.add('is-in');
+      const c = cardsByKey.get(key);
+      if (!c) return;
+      c.read = 0;
+      c.inner.style.transform = '';
       if (reduceMotion) return;
-      paper.classList.remove('is-arriving');
-      void paper.offsetWidth;
-      paper.classList.add('is-arriving');
-      window.setTimeout(() => paper.classList.remove('is-arriving'), 660);
+      c.card.classList.remove('is-arriving');
+      void c.card.offsetWidth;
+      c.card.classList.add('is-arriving');
+      window.setTimeout(() => c.card.classList.remove('is-arriving'), 700);
     }
 
     function goToSection(key: string) {
-      const paper = papersByKey.get(key);
-      if (!paper) return;
+      const c = cardsByKey.get(key);
+      if (!c) return;
       // The lab can grow a panel and the fonts can land late; measure again so
-      // the jump always lands on the edge the stylesheet promises.
+      // the jump always lands on the range the layout promised.
       measure();
-      // ceil, not round: one pixel past the dock keeps the scroll mapping on
-      // the settled side of its edge instead of a hair before the transition.
-      const dock = Math.max(0, Math.ceil(dockTop(key)));
+      // One pixel inside the range: the mapping treats the section as arrived.
+      const dock = Math.max(0, Math.ceil(dockTop(key) + 1));
       const here = Math.abs(window.scrollY - dock) < 4;
       if (currentScene === key && here && !travelKey) {
         // A second tap on the section already open is not an error: the camera
-        // answers again, the sheet does not animate twice.
+        // answers again, the window does not animate twice.
         desk?.focus(key);
         return;
       }
       beginTravel(key);
       if (here) { setActive(key); overlayArrive(key); settleTravel(); return; }
-      // One move, two halves: the open sheet retracts, the dock lands on the
-      // next paper, the camera damps toward its object while that sheet
-      // arrives. No page-long rewind between the two.
+      // One move, two halves: the open window retracts, the page lands on the
+      // next section's range, and the camera damps toward that object while
+      // the next window arrives. No page-long rewind between the two.
       if (!reduceMotion) root.classList.add('is-transit');
-      const hold = reduceMotion ? 0 : 200;
+      const hold = reduceMotion ? 0 : 170;
       window.setTimeout(() => {
         window.scrollTo({ top: dock, behavior: 'instant' });
         setActive(key);
@@ -891,6 +1026,8 @@ const scenes = [
       // damping turns the destination pose into one continuous move, and the
       // scroll mapping must not fight it.
       if (!desk || travelKey) return;
+      // Classic holds the overview: the desk there is a backdrop, not a journey.
+      if (expMode === 'classic') return;
       if (!reduceMotion) desk.setScene(scrollTarget.from, scrollTarget.to, scrollTarget.t);
       // Reduced motion cuts instead of travelling: the phone window still shows
       // the object of the section being read. The full stage stays still.
@@ -945,6 +1082,18 @@ const scenes = [
     window.addEventListener('load', remeasure);
     document.fonts?.ready.then(remeasure);
 
+    /* Classic mode keeps the desk behind the hero only. Once the hero has
+       left the screen the stage steps aside and the renderer idles. */
+    if ('IntersectionObserver' in window && heroSection) {
+      const heroSpy = new IntersectionObserver(entries => {
+        const e = entries[0];
+        heroAway = !(e.isIntersecting && e.intersectionRatio > 0.15);
+        root.classList.toggle('is-desk-away', heroAway);
+        syncDeskPause();
+      }, { threshold: [0, 0.15, 0.4] });
+      heroSpy.observe(heroSection);
+    }
+
     measure();
     updateScrollTarget();
     schedule();
@@ -962,7 +1111,7 @@ const scenes = [
     xps?.addEventListener('cancel', (e) => { if (!expMode) e.preventDefault(); });
     xps?.addEventListener('close', () => {
       document.documentElement.classList.remove('is-xps');
-      if (expMode === '3d') desk?.setPaused(false);
+      syncDeskPause();
     });
 
     /* ---- every other way into a section goes through the controller ---- */
