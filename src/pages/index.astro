@@ -41,7 +41,7 @@ const scenes = [
       <div class="desk__band">
         <div class="desk__band-foot">
           <p class="desk__band-scene"><span class="desk__band-n" data-band-n>00</span><span class="desk__band-name" data-band-name>The desk</span></p>
-          <p class="desk__band-hint" data-band-hint><i aria-hidden="true"></i>Tap the desk</p>
+          <p class="desk__band-hint" data-band-hint><i aria-hidden="true"></i>Tap an object</p>
         </div>
       </div>
     </div>
@@ -55,7 +55,14 @@ const scenes = [
           <span class="hud__sub">Systems Workbench</span>
         </span>
       </a>
-      <p class="hud__avail"><i aria-hidden="true"></i>Open to internship, trainee and junior roles</p>
+      <div class="hud__tools">
+        <a class="hud__work" href="#scene-desk" aria-label="Back to the workspace overview">
+          <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M7.4 2.2 3.6 6l3.8 3.8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+          Workspace
+        </a>
+        <button class="hud__exp" type="button" data-xp-open>Change experience</button>
+        <p class="hud__avail"><i aria-hidden="true"></i>Open to internship, trainee and junior roles</p>
+      </div>
       <p class="desk__notice" data-desk-notice hidden>The 3D desk could not start here. The complete portfolio is below.</p>
     </header>
 
@@ -73,15 +80,16 @@ const scenes = [
     <div class="sbar">
       <p class="sbar__now"><span class="sbar__n mono" data-sbar-n>00</span><span class="sbar__label" data-sbar-label>The desk</span></p>
       <p class="sbar__ticks" aria-hidden="true">{scenes.map(() => <i></i>)}</p>
-      <button class="sbar__index" type="button" aria-haspopup="dialog" aria-controls="idx" data-idx-open>
-        Index<span class="sbar__plus" aria-hidden="true">+</span>
+      <button class="sbar__index" type="button" aria-haspopup="dialog" aria-controls="idx" data-idx-open aria-label="Explore sections">
+        Explore<span class="sbar__plus" aria-hidden="true">+</span>
       </button>
     </div>
 
     <dialog class="idx" id="idx" aria-labelledby="idx-title">
       <div class="idx__in">
+        <span class="idx__grip" aria-hidden="true"></span>
         <div class="idx__head">
-          <p class="idx__title" id="idx-title">Index / <span class="mono">07 scenes</span></p>
+          <p class="idx__title" id="idx-title">Explore sections <span class="mono">/ 07</span></p>
           <form method="dialog"><button class="idx__close" aria-label="Close the index">Close</button></form>
         </div>
         <ol class="idx__list">
@@ -96,6 +104,7 @@ const scenes = [
           ))}
         </ol>
         <div class="idx__foot">
+          <button class="idx__switch mono" type="button" data-xp-open>Change experience</button>
           <a class="idx__mail" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
           <p class="idx__note mono">Scroll is the story. The index is a shortcut.</p>
         </div>
@@ -104,6 +113,33 @@ const scenes = [
 
     <p class="tapnote" data-tapnote aria-hidden="true"></p>
     <span class="tapring" data-tapring aria-hidden="true"></span>
+
+    <dialog class="xps" id="xps" aria-labelledby="xps-title">
+      <div class="xps__in">
+        <button class="xps__close" type="button" data-xp-close hidden>Close</button>
+        <div class="xps__brand">
+          <span class="hud__mark" aria-hidden="true">FL</span>
+          <span class="xps__who">{site.name}<span class="xps__who-sub">Systems Workbench</span></span>
+        </div>
+        <h2 class="xps__title" id="xps-title">Choose your <em>experience</em>.</h2>
+        <p class="xps__lede">Explore my workspace or discover my portfolio in a familiar way.</p>
+        <div class="xps__opts">
+          <button class="xps__opt xps__opt--3d" type="button" data-xp="3d">
+            <span class="xps__imgwrap"><img class="xps__img" src={`${root}img/preview-3d.webp`} alt="The 3D workspace: a glowing monitor, notebook, blueprint and lamp on a wooden desk" width="780" height="390" decoding="async" /></span>
+            <span class="xps__name">Interactive 3D</span>
+            <span class="xps__desc">Explore my workspace, discover objects, and experience my portfolio through an interactive journey.</span>
+            <span class="xps__cta mono">Explore in 3D <span aria-hidden="true">→</span></span>
+          </button>
+          <button class="xps__opt xps__opt--classic" type="button" data-xp="classic">
+            <span class="xps__imgwrap"><img class="xps__img" src={`${root}img/preview-classic.webp`} alt="The classic portfolio: paper documents with project and case-study entries" width="780" height="390" decoding="async" /></span>
+            <span class="xps__name">Classic Portfolio</span>
+            <span class="xps__desc">Explore my projects, experience, and professional background through a familiar portfolio layout.</span>
+            <span class="xps__cta mono">Explore Classic View <span aria-hidden="true">→</span></span>
+          </button>
+        </div>
+        <p class="xps__note mono">Same portfolio, two ways in. You can switch at any time.</p>
+      </div>
+    </dialog>
 
     <!-- =================== scenes =================== -->
 
@@ -394,6 +430,7 @@ const scenes = [
     const idx = document.getElementById('idx') as HTMLDialogElement | null;
     const tapNote = document.querySelector<HTMLElement>('[data-tapnote]');
     const tapRing = document.querySelector<HTMLElement>('[data-tapring]');
+    const xps = document.getElementById('xps') as HTMLDialogElement | null;
     // The hero is scene 00; the seven rail entries follow it.
     const sceneOrder = ['desk', ...links.map(l => l.dataset.sceneLink || '')];
     const sceneMeta = new Map<string, { n: string; label: string }>([['desk', { n: '00', label: 'The desk' }]]);
@@ -408,6 +445,92 @@ const scenes = [
     let currentScene = '';
 
     let desk: any = null;
+
+    /* ============================================================
+       EXPERIENCE MODES (phones only)
+       One page, two presentations. "3d" is the workspace window;
+       "classic" is the document version. Everything below — the
+       anchors, the active section, the sheet, the object taps —
+       talks to the same section elements, so both entries stay in
+       sync. The choice lives in sessionStorage and survives a
+       refresh; it is never written to history, so fragment links
+       keep working exactly as before.
+       ============================================================ */
+    type ExpMode = '3d' | 'classic';
+    const XP_KEY = 'fl-exp';
+    let expMode: ExpMode | null = null;
+    let booting: Promise<void> | null = null;
+
+    function readStoredMode(): ExpMode | null {
+      try {
+        const v = sessionStorage.getItem(XP_KEY);
+        return v === '3d' || v === 'classic' ? v : null;
+      } catch { return null; }
+    }
+    function writeStoredMode(m: ExpMode | null) {
+      try {
+        if (m) sessionStorage.setItem(XP_KEY, m);
+        else sessionStorage.removeItem(XP_KEY);
+      } catch { /* storage can be blocked; then the session simply asks again */ }
+    }
+    function showSelector() {
+      if (!xps) return;
+      if (idx?.open) idx.close();
+      const closeBtn = xps.querySelector<HTMLElement>('[data-xp-close]');
+      if (closeBtn) closeBtn.hidden = !expMode;
+      xps.dataset.current = expMode || '';
+      if (!xps.open) xps.showModal();
+      document.documentElement.classList.add('is-xps');
+      desk?.setPaused(true);
+      const first = xps.querySelector<HTMLElement>('.xps__opt');
+      window.setTimeout(() => first?.focus({ preventScroll: true }), 80);
+    }
+    function hideSelector() {
+      if (!xps) return;
+      if (xps.open) xps.close();
+      document.documentElement.classList.remove('is-xps');
+      if (expMode === '3d') desk?.setPaused(false);
+    }
+    function bootDesk() {
+      if (desk) { desk.setPaused(false); return; }
+      if (booting) return;
+      booting = bootScene().finally(() => { booting = null; });
+    }
+    function dropDesk() {
+      if (!desk) return;
+      desk.dispose();
+      desk = null;
+      (window as unknown as { __desk?: unknown }).__desk = undefined;
+      root.classList.remove('is-ready');
+    }
+    function applyMode(m: ExpMode, opts: { keepScroll?: boolean } = {}) {
+      expMode = m;
+      writeStoredMode(m);
+      root.dataset.exp = m;
+      root.dataset.scene = root.dataset.scene || 'desk';
+      hideSelector();
+      if (m === '3d') {
+        bootDesk();
+      } else {
+        // Classic never loads Three.js; the documents only need the reveal.
+        dropDesk();
+        root.classList.add('is-ready');
+      }
+      remeasure();
+      updateScrollTarget();
+      schedule();
+      if (!opts.keepScroll) window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    function initExperience() {
+      if (narrowQuery.matches) {
+        const stored = readStoredMode();
+        if (stored) applyMode(stored, { keepScroll: true });
+        else showSelector();
+      } else {
+        root.dataset.exp = '3d';
+        bootDesk();
+      }
+    }
 
     /* The Three.js bundle is loaded after the page is readable, so the
        documents and metadata never wait for WebGL. */
@@ -469,7 +592,7 @@ const scenes = [
     /* ---- scroll → hold the section frame, travel as the section leaves ---- */
     function updateScrollTarget() {
       if (!anchors.length) return;
-      if (narrowQuery.matches) {
+      if (narrowQuery.matches && expMode === '3d') {
         // Travel starts while the next paper is rising into the reading column
         // and ends exactly when it docks under the band edge.
         const y = window.scrollY;
@@ -566,8 +689,8 @@ const scenes = [
 
     if ('IntersectionObserver' in window) {
       const spy = new IntersectionObserver(entries => {
-        // On phones the scroll mapping below owns the active scene.
-        if (narrowQuery.matches) return;
+        // In the 3D window the scroll mapping below owns the active scene.
+        if (narrowQuery.matches && expMode === '3d') return;
         for (const e of entries) {
           if (e.isIntersecting) setActive((e.target as HTMLElement).dataset.scene || '');
         }
@@ -629,8 +752,14 @@ const scenes = [
     let lastScrollY = window.scrollY;
     window.addEventListener('scroll', () => {
       const y = window.scrollY;
-      if (y > lastScrollY + 4 && y > 240) root.classList.add('is-hud-hidden');
-      else if (y < lastScrollY - 4 || y < 80) root.classList.remove('is-hud-hidden');
+      // The Workspace control lives in the HUD, so the 3D window keeps it up.
+      if (narrowQuery.matches && expMode === '3d') {
+        root.classList.remove('is-hud-hidden');
+      } else if (y > lastScrollY + 4 && y > 240) {
+        root.classList.add('is-hud-hidden');
+      } else if (y < lastScrollY - 4 || y < 80) {
+        root.classList.remove('is-hud-hidden');
+      }
       lastScrollY = y;
       updateScrollTarget();
       schedule();
@@ -642,7 +771,22 @@ const scenes = [
     measure();
     updateScrollTarget();
     schedule();
-    bootScene();
+    initExperience();
+
+    for (const b of Array.from(document.querySelectorAll<HTMLElement>('[data-xp]'))) {
+      b.addEventListener('click', () => applyMode(b.dataset.xp === 'classic' ? 'classic' : '3d'));
+    }
+    for (const b of Array.from(document.querySelectorAll<HTMLElement>('[data-xp-open]'))) {
+      b.addEventListener('click', (e) => { e.preventDefault(); showSelector(); });
+    }
+    xps?.querySelector('[data-xp-close]')?.addEventListener('click', () => {
+      if (expMode) hideSelector();
+    });
+    xps?.addEventListener('cancel', (e) => { if (!expMode) e.preventDefault(); });
+    xps?.addEventListener('close', () => {
+      document.documentElement.classList.remove('is-xps');
+      if (expMode === '3d') desk?.setPaused(false);
+    });
 
     /* ---- reduced motion: no reveal animation, static camera ---- */
     function applyMotionPreference() {
@@ -688,7 +832,19 @@ const scenes = [
       });
     }
 
-    narrowQuery.addEventListener?.('change', () => remeasure());
+    narrowQuery.addEventListener?.('change', () => {
+      if (narrowQuery.matches) {
+        const stored = readStoredMode();
+        if (stored) applyMode(stored, { keepScroll: true });
+        else showSelector();
+      } else {
+        // Landscape / tablet / desktop keeps the full desk and no selector.
+        hideSelector();
+        root.dataset.exp = '3d';
+        bootDesk();
+      }
+      remeasure();
+    });
 
     /* ---- keyboard: Escape returns to the desk ---- */
     addEventListener('keydown', e => {
