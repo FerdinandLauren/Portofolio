@@ -106,7 +106,10 @@ html.js .desk.is-fallback .desk__canvas { visibility: hidden; }
   transform: translateY(-10px);
   pointer-events: none;
 }
-.hud a { pointer-events: auto; }
+/* The HUD row ignores the pointer so the 3D scene stays draggable; its
+   controls opt back in. The experience switch is a button, not a link. */
+.hud a,
+.hud button { pointer-events: auto; }
 .hud::before {
   content: '';
   position: absolute;
@@ -1063,8 +1066,7 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
    HUD tools: Workspace (3D) and the experience switch (classic)
    ============================================================ */
 .hud__tools { display: flex; align-items: center; gap: 0.55rem; }
-.hud__work,
-.hud__exp {
+.hud__work {
   display: none;
   align-items: center;
   gap: 0.3rem;
@@ -1081,12 +1083,37 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
   white-space: nowrap;
 }
 .hud__work svg { width: 11px; height: 11px; flex: none; }
-.hud__work:active,
-.hud__exp:active { border-color: var(--lime); color: var(--lime); }
+.hud__work:active { border-color: var(--lime); color: var(--lime); }
+
+/* The classic-mode switch floats on its own: the HUD fades on scroll, this
+   control must not. It inherits the window's chip language. */
+.xpchip { display: none; }
+@media (max-width: 760px) and (orientation: portrait) {
+  html.js .desk[data-exp="classic"] .xpchip {
+    display: inline-flex;
+    position: fixed;
+    top: 14px;
+    right: 16px;
+    z-index: 30;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 0.62rem;
+    border: 1px solid rgba(232, 229, 219, 0.3);
+    background: rgba(8, 12, 9, 0.78);
+    color: #ece9df;
+    font-family: var(--mono);
+    font-size: 0.54rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html.js .desk[data-exp="classic"] .xpchip:active { border-color: var(--lime); color: var(--lime); }
+  html.js .desk[data-exp="classic"] .xpchip:focus-visible { outline-color: var(--lime); }
+}
 
 @media (max-width: 760px) and (orientation: portrait) {
   html.js .desk[data-exp="3d"][data-scene]:not([data-scene="desk"]) .hud__work { display: inline-flex; }
-  html.js .desk[data-exp="classic"] .hud__exp { display: inline-flex; }
   html.js .desk[data-exp="classic"] .hud__avail { display: none; }
   html.js .desk[data-exp="classic"] .hud__work { display: none; }
 
