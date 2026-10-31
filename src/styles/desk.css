@@ -18,7 +18,10 @@ body.is-desk { background: #0d120f; color: #e3e0d8; }
 /* ---- persistent stage ---- */
 .desk__stage,
 .desk__vignette,
-.desk__hint { display: none; }
+.desk__hint,
+.desk__hold,
+.desk__fallback,
+.desk__band { display: none; }
 
 html.js .desk.is-ready .desk__stage {
   display: block;
@@ -43,6 +46,45 @@ html.js .desk.is-ready .desk__vignette {
     radial-gradient(58% 56% at 50% 42%, transparent 52%, rgba(0, 0, 0, 0.42) 100%),
     linear-gradient(90deg, rgba(8, 12, 9, 0.5) 0%, transparent 22%, transparent 78%, rgba(8, 12, 9, 0.5) 100%);
 }
+html.js .desk__hold {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(232, 229, 219, 0.5);
+  background: radial-gradient(70% 60% at 50% 40%, #1a201d, #0d120f);
+}
+html.js .desk__hold i {
+  width: 7px; height: 7px; margin-right: 0.55rem; border-radius: 50%;
+  background: var(--lime);
+  animation: holdPulse 1.5s var(--ease) infinite alternate;
+}
+@keyframes holdPulse { from { opacity: 0.25; transform: scale(0.7); } to { opacity: 1; transform: scale(1.15); } }
+html.js .desk.is-ready .desk__hold { display: none; }
+html.js .desk__fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: none;
+  place-items: center;
+  align-content: center;
+  gap: 0.55rem;
+  text-align: center;
+  padding: 2rem;
+  background: radial-gradient(70% 60% at 50% 40%, #1a201d, #0d120f);
+  color: rgba(232, 229, 219, 0.85);
+}
+html.js .desk__fallback p { margin: 0; max-width: 30ch; font-size: 0.78rem; line-height: 1.55; color: rgba(232, 229, 219, 0.6); }
+html.js .desk__fallback .mono { font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--lime); }
+html.js .desk.is-fallback .desk__fallback { display: grid; }
+html.js .desk.is-fallback .desk__hold { display: none; }
+html.js .desk.is-fallback .desk__canvas { visibility: hidden; }
 
 /* ============================================================
    fixed chrome
@@ -172,6 +214,10 @@ html.js .desk.is-ready .desk__vignette {
 .scenenav a:focus-visible { color: #e8e5db; }
 .scenenav a.is-current { color: var(--lime); transform: translateX(-3px); }
 .scenenav a.is-current .scenenav__n { color: var(--lime); }
+
+.sbar,
+.tapnote,
+.tapring { display: none; }
 
 .desk__hint {
   position: fixed;
@@ -756,4 +802,259 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
   .dpanel__inner { padding: 1.35rem 1rem 1.5rem; }
   .dpanel--lab .lab { padding: 1.35rem 1rem 1.6rem; }
   .hero__name { font-size: clamp(2.6rem, 14vw, 3.6rem); }
+}
+/* ============================================================
+   THE VERTICAL DESK, phone portrait
+   The 3D scene is not a backdrop here. It is a fixed window at
+   the top of the screen; the documents are paper sheets sliding
+   underneath it. Page scroll is the only navigation.
+   ============================================================ */
+@media (max-width: 760px) and (orientation: portrait) {
+  html.js .desk {
+    --band-top: 46px;
+    /* svh keeps the window a fixed height while the URL bar slides; the vh
+       line is the fallback for browsers without small viewport units. */
+    --band-h: clamp(280px, 52vh, 480px);
+    --band-h: clamp(280px, 52svh, 480px);
+    padding-bottom: calc(86px + env(safe-area-inset-bottom));
+  }
+
+  html.js .desk:not(.is-ready) .desk__stage,
+  html.js .desk.is-ready .desk__stage {
+    display: block;
+    position: fixed;
+    inset: var(--band-top) 0 auto 0;
+    height: var(--band-h);
+    z-index: 4;
+    background: radial-gradient(70% 60% at 50% 40%, #1a201d, #0d120f);
+    border-bottom: 1px solid rgba(241, 238, 228, 0.16);
+    box-shadow: 0 30px 46px rgba(0, 0, 0, 0.44);
+  }
+  html.js .desk.is-ready .desk__stage { transition: none; }
+  html.js .desk .desk__canvas { touch-action: manipulation; }
+  html.js .desk .desk__vignette {
+    background:
+      radial-gradient(64% 62% at 50% 42%, transparent 48%, rgba(0, 0, 0, 0.38) 100%),
+      linear-gradient(180deg, rgba(8, 12, 9, 0.28) 0%, transparent 22%, transparent 62%, rgba(8, 12, 9, 0.62) 100%);
+  }
+
+  /* the strip that carries the scene label, set into the bottom of the window */
+  html.js .desk .desk__band {
+    display: block;
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    z-index: 3;
+    pointer-events: none;
+    padding: 1.7rem 16px 0.68rem;
+    background: linear-gradient(180deg, transparent 0%, rgba(8, 12, 9, 0.55) 58%, rgba(8, 12, 9, 0.82) 100%);
+  }
+  .desk__band-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .desk__band-scene { display: inline-flex; align-items: baseline; gap: 0.5rem; margin: 0; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(241, 238, 228, 0.8); }
+  .desk__band-n { padding: 0.05rem 0.3rem; border: 1px solid rgba(216, 242, 106, 0.5); color: var(--lime); font-size: 0.52rem; letter-spacing: 0.08em; }
+  .desk__band-hint { display: inline-flex; align-items: center; gap: 0.42rem; margin: 0; font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(241, 238, 228, 0.42); transition: opacity 0.6s linear; }
+  .desk__band-hint i { width: 5px; height: 5px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 3px rgba(216, 242, 106, 0.16); }
+  .desk.has-tapped .desk__band-hint,
+  html.js .desk:not(.is-ready) .desk__band-hint,
+  html.js .desk.is-fallback .desk__band-hint { opacity: 0; }
+  .desk__hint { display: none; }
+  /* The band carries the fallback message itself. */
+  html.js .desk__notice { display: none; }
+  html.js .scenenav { display: none; }
+
+  /* ---- the reading column ---- */
+  html.js .scene,
+  html.js .scene--left,
+  html.js .scene--right,
+  html.js .scene--lab,
+  html.js .scene--contact,
+  html.js .scene--journey {
+    display: block;
+    min-height: 0;
+    padding: 0 0 2.8rem;
+  }
+  html.js .scene--hero {
+    display: block;
+    min-height: 100svh;
+    padding: calc(var(--band-top) + var(--band-h) + 1.1rem) 18px 2.4rem;
+  }
+  html.js .scene--hero::before {
+    background: linear-gradient(180deg, transparent 0%, transparent 44%, rgba(8, 12, 9, 0.72) 100%);
+  }
+  html.js .hero { width: 100%; }
+  html.js .hero__name { font-size: clamp(2.9rem, 12.4vw, 4rem); line-height: 0.9; }
+  html.js .hero__line { margin-top: 0.62rem; font-size: clamp(1.45rem, 5.2vw, 1.8rem); max-width: 24ch; }
+  /* The positioning line repeats the About lede; the phone hero keeps the
+     name, the promise and the way in. */
+  html.js .hero__note { display: none; }
+  html.js .hero__meta { margin-top: 0.95rem; font-size: 0.6rem; gap: 0.3rem 0.8rem; }
+  html.js .hero__actions { margin-top: 1.15rem; }
+  html.js .hero__role { font-size: 0.62rem; letter-spacing: 0.05em; }
+  html.js .hero__cta { min-height: 44px; padding: 0.7rem 1rem; }
+
+  /* paper sheets, edge to edge, docked under the window */
+  html.js .scene .dpanel,
+  html.js .scene--lab .dpanel,
+  html.js .scene--contact .dpanel,
+  html.js .scene--journey .dpanel {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+    background: var(--paper);
+    color: var(--ink);
+    scroll-margin-top: calc(var(--band-top) + var(--band-h) + 1px);
+  }
+  html.js .scene--lab .dpanel,
+  html.js .scene--journey .dpanel {
+    background: var(--board);
+    color: var(--on-board);
+    border-top: 1px solid rgba(241, 238, 228, 0.16);
+  }
+  html.js .scene--lab .dpanel--lab .lab { padding: 1.6rem 18px 2.8rem; }
+  /* A modal sheet holds the page still while it is open. */
+  html:has(.idx[open]) { overflow: hidden; }
+  .sbar__index:focus-visible,
+  .idx :focus-visible { outline-color: var(--lime); }
+  @media (prefers-reduced-motion: reduce) {
+    html.js .desk.is-ready .scene .dpanel,
+    html.js .desk.is-ready .scene .dpanel:not(.is-in) {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+  html.js .scene--journey .dpanel--journey .jpanel { padding: 1.6rem 18px 2.6rem; }
+
+  /* ---- document typography, sized for a thumb, not a cursor ---- */
+  /* The sheet already moves with the scroll; a second fade is enough. */
+  html.js .desk.is-ready .scene .dpanel { transition: opacity 0.5s linear; }
+  html.js .desk.is-ready .scene .dpanel:not(.is-in) { opacity: 0; transform: none; }
+  html.js .dpanel__inner { padding: 1.55rem 18px 2.7rem; }
+  html.js .dpanel__scene { margin-bottom: 0.95rem; font-size: 0.66rem; }
+  html.js .dpanel__scene .mono { font-size: 0.6rem; }
+  html.js .dpanel__title { font-size: clamp(2rem, 8.4vw, 2.5rem); margin-bottom: 1.05rem; padding-bottom: 0.7rem; }
+  html.js .dpanel__body { font-size: 1rem; line-height: 1.62; }
+  html.js .dpanel__body p { max-width: none; }
+  html.js .dpanel__lede { font-size: 1.12rem; line-height: 1.4; }
+  html.js .dpanel__facts > div { grid-template-columns: 6.4rem minmax(0, 1fr); gap: 0.8rem; }
+  html.js .dpanel__facts dt { font-size: 0.6rem; }
+  html.js .dpanel__facts dd { font-size: 0.92rem; }
+  html.js .dpanel__facts--tight dd { font-size: 0.9rem; }
+  html.js .dpanel__links dd { font-size: 0.92rem; }
+  html.js .dproject__title { font-size: 1.75rem; }
+  html.js .dproject--sub .dproject__title { font-size: 1.38rem; }
+  html.js .dproject__thesis { font-size: 1.06rem; }
+  html.js .dproject__ctx { font-size: 0.95rem; }
+  html.js .dproject__links { font-size: 0.92rem; }
+  html.js .dproject__link { min-height: 44px; align-items: center; font-size: 0.9rem; }
+  html.js .dstep__head { font-size: 0.98rem; }
+  html.js .dstep__note { font-size: 0.95rem; }
+  html.js .dstep__list li { font-size: 0.92rem; }
+  html.js .dstep__artifact { font-size: 0.6rem; }
+  html.js .dflow li :nth-child(2) { font-size: 0.9rem; }
+  html.js .dflow li :nth-child(3) { font-size: 0.88rem; }
+  html.js .ai-example__row p,
+  html.js .ai-example__row ul { font-size: 0.92rem; }
+  html.js .dpanel__caveat { font-size: 0.84rem; }
+  html.js .dpanel__also { font-size: 0.82rem; }
+  html.js .dpanel__claimbox li { font-size: 0.86rem; }
+  html.js .dpanel--lab .lab__intro p { font-size: 0.95rem; }
+  html.js .dpanel--lab .lab__note { font-size: 0.8rem; }
+  html.js .dpanel--lab .scen__btn { min-height: 52px; }
+  html.js .colophon { padding: 2rem 18px calc(7.2rem + env(safe-area-inset-bottom)); backdrop-filter: none; }
+
+  /* ---- status bar: where you are, how far in, a way across ---- */
+  html.js .sbar {
+    position: fixed;
+    left: 12px; right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 32;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.45rem 0.5rem 0.45rem 0.7rem;
+    background: rgba(9, 13, 10, 0.96);
+    border: 1px solid rgba(232, 229, 219, 0.14);
+  }
+  .sbar__now { display: flex; align-items: baseline; gap: 0.45rem; margin: 0; min-width: 0; }
+  .sbar__n { padding: 0.04rem 0.26rem; border: 1px solid rgba(216, 242, 106, 0.4); font-size: 0.52rem; color: var(--lime); flex: none; }
+  .sbar__label { font-size: 0.72rem; color: rgba(241, 238, 228, 0.82); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sbar__ticks { display: flex; align-items: center; gap: 4px; margin: 0 0 0 auto; flex: none; }
+  .sbar__ticks i { width: 5px; height: 5px; border-radius: 50%; background: rgba(241, 238, 228, 0.18); transition: background 0.3s linear; }
+  .sbar__ticks i.is-past { background: rgba(216, 242, 106, 0.42); }
+  .sbar__ticks i.is-current { background: var(--lime); box-shadow: 0 0 0 3px rgba(216, 242, 106, 0.14); }
+  .sbar__index {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    min-height: 38px; padding: 0 0.72rem;
+    border: 1px solid rgba(232, 229, 219, 0.26);
+    background: transparent; color: #efebe0;
+    font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase;
+    flex: none;
+  }
+  .sbar__index:active { background: rgba(216, 242, 106, 0.1); }
+  .sbar__plus { color: var(--lime); font-size: 0.82rem; line-height: 1; }
+
+  /* ---- index sheet ---- */
+  .idx { border: 0; padding: 0; background: transparent; color: var(--on-board); width: 100%; max-width: none; }
+  .idx::backdrop { background: rgba(6, 9, 7, 0.74); backdrop-filter: blur(7px); }
+  .idx[open] { display: flex; align-items: center; justify-content: center; }
+  .idx__in { width: min(440px, calc(100vw - 28px)); max-height: 86vh; overflow: auto; background: var(--board); border: 1px solid rgba(241, 238, 228, 0.16); }
+  .idx__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.1rem 0.85rem; border-bottom: 1px solid rgba(241, 238, 228, 0.12); }
+  .idx__title { margin: 0; font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(241, 238, 228, 0.5); }
+  .idx__title .mono { color: rgba(241, 238, 228, 0.72); }
+  .idx__close { min-height: 40px; padding: 0 0.75rem; border: 1px solid rgba(241, 238, 228, 0.24); background: transparent; color: var(--on-board); font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .idx__list { list-style: none; margin: 0; padding: 0.3rem 0; }
+  .idx__list li + li { border-top: 1px solid rgba(241, 238, 228, 0.08); }
+  .idx__list a { display: grid; grid-template-columns: 2.1rem minmax(0, 1fr) auto; align-items: center; gap: 0.7rem; padding: 0.72rem 1.1rem; text-decoration: none; color: var(--on-board); }
+  .idx__list a[aria-current] { background: rgba(216, 242, 106, 0.08); }
+  .idx__n { font-size: 0.58rem; color: rgba(241, 238, 228, 0.4); }
+  .idx__label { font-size: 0.95rem; }
+  .idx__obj { font-size: 0.5rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(241, 238, 228, 0.34); }
+  .idx__list a[aria-current] .idx__n,
+  .idx__list a[aria-current] .idx__label { color: var(--lime); }
+  .idx__foot { display: grid; gap: 0.35rem; padding: 0.9rem 1.1rem 1.1rem; border-top: 1px solid rgba(241, 238, 228, 0.12); }
+  .idx__mail { color: var(--lime); text-decoration: none; font-size: 0.82rem; }
+  .idx__note { margin: 0; font-size: 0.52rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(241, 238, 228, 0.34); }
+
+  /* ---- tap feedback ---- */
+  .tapring {
+    display: none;
+    position: fixed;
+    width: 46px; height: 46px; margin: -23px 0 0 -23px;
+    border-radius: 50%;
+    border: 1px solid var(--lime);
+    pointer-events: none;
+    z-index: 60;
+  }
+  .tapring.is-on { display: block; animation: tapRing 0.72s var(--ease) forwards; }
+  @keyframes tapRing { 0% { opacity: 0.9; transform: scale(0.45); } 100% { opacity: 0; transform: scale(1.4); } }
+  .tapnote {
+    display: none;
+    position: fixed;
+    margin: 0;
+    transform: translate(-50%, 0);
+    z-index: 61;
+    padding: 0.4rem 0.62rem;
+    background: rgba(9, 13, 10, 0.95);
+    border: 1px solid rgba(216, 242, 106, 0.42);
+    color: var(--lime);
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .tapnote.is-on { display: block; animation: tapNote 1.5s linear forwards; }
+  @keyframes tapNote {
+    0% { opacity: 0; transform: translate(-50%, 7px); }
+    12%, 70% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -5px); }
+  }
+
+  html { scroll-padding-top: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    .tapring.is-on, .tapnote.is-on { animation: none; display: none; }
+    .sbar__ticks i { transition: none; }
+  }
 }

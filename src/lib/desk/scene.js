@@ -17,8 +17,23 @@ import {
 const PARALLAX = 0.5;           // overview parallax amplitude
 const POINTER_DAMP = 5.0;       // pointer smoothing
 
+const PHONE_MQ = '(max-width: 760px) and (orientation: portrait)';
+
 export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   let reduceMotion = Boolean(motionPref);
+  /* The phone puts the camera inside the scene, so the screen, notebook and
+     clipboard textures are read close up: keep them at full resolution. The
+     saving that matters on a phone is the drawing buffer, not a 1024 px canvas. */
+  let phone = window.matchMedia(PHONE_MQ).matches;
+  const TEX = 1;
+  function canvasLayer(w, h) {
+    const layer = document.createElement('canvas');
+    layer.width = Math.round(w * TEX);
+    layer.height = Math.round(h * TEX);
+    const g = layer.getContext('2d');
+    g.setTransform(TEX, 0, 0, TEX, 0, 0);
+    return [layer, g];
+  }
   /* ---- renderer ---- */
   const renderer = new WebGLRenderer({
     canvas, antialias: true, powerPreference: 'high-performance',
@@ -51,7 +66,7 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   const key = new DirectionalLight(0xfff4e2, 2.8);
   key.position.set(5, 7, 5);
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.mapSize.set(phone ? 1024 : 2048, phone ? 1024 : 2048);
   key.shadow.camera.near = 1; key.shadow.camera.far = 30;
   key.shadow.camera.left = -6; key.shadow.camera.right = 6;
   key.shadow.camera.top = 6; key.shadow.camera.bottom = -6;
@@ -69,7 +84,7 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   const lampLight = new SpotLight(0xffc98a, 0, 8, 0.7, 0.72, 0);
   lampLight.position.set(0.70, 1.78, -0.44);
   lampLight.castShadow = true;
-  lampLight.shadow.mapSize.set(1024, 1024);
+  lampLight.shadow.mapSize.set(phone ? 512 : 1024, phone ? 512 : 1024);
   lampLight.shadow.bias = -0.0005;
   lampLight.target.position.set(0.05, 1.15, -0.5);
   // The lamp starts off, so keep its (zero-intensity) spot and shadow out of
@@ -91,8 +106,7 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   const matBulb = new MeshStandardMaterial({ color: 0xffe0b0, emissive: 0xffc98a, emissiveIntensity: 0.1 });
 
   /* ---- screen texture ---- */
-  const cnv = document.createElement('canvas'); cnv.width = 1024; cnv.height = 576;
-  const ctx = cnv.getContext('2d');
+  const [cnv, ctx] = canvasLayer(1024, 576);
   ctx.fillStyle = '#0c1512'; ctx.fillRect(0, 0, 1024, 576);
   ctx.fillStyle = '#d8f26a'; ctx.font = '600 56px ui-sans-serif, system-ui, sans-serif'; ctx.fillText('FERDINAND LAUREN', 68, 172);
   ctx.fillStyle = '#8a9c90'; ctx.font = '40px ui-monospace, monospace'; ctx.fillText('Systems Analyst Desk', 68, 248);
@@ -105,8 +119,7 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   const matScreen = new MeshStandardMaterial({ map: screenTex, emissive: 0xffffff, emissiveMap: screenTex, emissiveIntensity: 0.7, roughness: 0.35, metalness: 0.1 });
 
   /* ---- blueprint texture: process nodes, no readable copy ---- */
-  const bpc = document.createElement('canvas'); bpc.width = 1024; bpc.height = 640;
-  const bc = bpc.getContext('2d');
+  const [bpc, bc] = canvasLayer(1024, 640);
   bc.fillStyle = '#efe9d9'; bc.fillRect(0, 0, 1024, 640);
   bc.strokeStyle = 'rgba(23,58,43,0.16)'; bc.lineWidth = 1;
   for (let x = 0; x <= 1024; x += 64) { bc.beginPath(); bc.moveTo(x, 0); bc.lineTo(x, 640); bc.stroke(); }
@@ -136,8 +149,7 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   });
 
   /* ---- tablet texture: the AI bench ---- */
-  const tbc = document.createElement('canvas'); tbc.width = 512; tbc.height = 340;
-  const tc = tbc.getContext('2d');
+  const [tbc, tc] = canvasLayer(512, 340);
   tc.fillStyle = '#0c1512'; tc.fillRect(0, 0, 512, 340);
   tc.fillStyle = '#d8f26a'; tc.font = '600 28px ui-monospace, monospace'; tc.fillText('AI WORKBENCH', 34, 74);
   tc.fillStyle = 'rgba(216,242,106,0.5)'; tc.font = '20px ui-monospace, monospace';
@@ -156,6 +168,76 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
     map: tabletTex, emissive: 0xffffff, emissiveMap: tabletTex,
     emissiveIntensity: 0.55, roughness: 0.4, metalness: 0.1,
   });
+
+  /* ---- notebook page: the about close-up reads this ---- */
+  const [npc, npcCtx] = canvasLayer(512, 380);
+  npcCtx.fillStyle = '#f3efe6'; npcCtx.fillRect(0, 0, 512, 380);
+  npcCtx.fillStyle = '#1f4d33'; npcCtx.font = '600 26px ui-monospace, monospace';
+  npcCtx.fillText('FIELD NOTES', 36, 70);
+  npcCtx.fillStyle = 'rgba(31,77,51,0.6)'; npcCtx.font = '15px ui-monospace, monospace';
+  npcCtx.fillText('OBSERVE / DEFINE / VERIFY', 36, 100);
+  npcCtx.fillStyle = '#d8f26a'; npcCtx.fillRect(36, 122, 64, 4);
+  npcCtx.strokeStyle = 'rgba(25,25,19,0.22)'; npcCtx.lineWidth = 2;
+  for (let i = 0; i < 5; i++) {
+    const y = 170 + i * 34;
+    npcCtx.beginPath(); npcCtx.moveTo(36, y); npcCtx.lineTo(36 + (i === 4 ? 180 : 440), y); npcCtx.stroke();
+  }
+  npcCtx.fillStyle = 'rgba(25,25,19,0.5)'; npcCtx.font = '13px ui-monospace, monospace';
+  npcCtx.fillText('F. LAUREN / 001', 36, 352);
+  const notebookTex = new CanvasTexture(npc);
+  notebookTex.colorSpace = SRGBColorSpace;
+  notebookTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const matNotebook = new MeshStandardMaterial({ map: notebookTex, roughness: 0.88, metalness: 0 });
+
+  /* ---- clipboard sheet: the lab close-up reads this ---- */
+  const [clc, clcCtx] = canvasLayer(512, 720);
+  clcCtx.fillStyle = '#f3efe6'; clcCtx.fillRect(0, 0, 512, 720);
+  clcCtx.fillStyle = '#b4592a'; clcCtx.fillRect(40, 46, 48, 4);
+  clcCtx.fillStyle = '#191913'; clcCtx.font = '600 24px ui-monospace, monospace';
+  clcCtx.fillText('DECISION LOG / 04', 40, 96);
+  clcCtx.strokeStyle = 'rgba(25,25,19,0.35)'; clcCtx.lineWidth = 2;
+  clcCtx.beginPath(); clcCtx.moveTo(40, 124); clcCtx.lineTo(472, 124); clcCtx.stroke();
+  const rules = ['R-01  active membership', 'R-02  inside radius', 'R-03  accuracy <= 15 m', 'R-04  one open session'];
+  for (let i = 0; i < rules.length; i++) {
+    const y = 190 + i * 50;
+    clcCtx.fillStyle = 'rgba(25,25,19,0.72)'; clcCtx.font = '17px ui-monospace, monospace';
+    clcCtx.fillText(rules[i], 40, y);
+    clcCtx.strokeStyle = 'rgba(25,25,19,0.22)'; clcCtx.lineWidth = 1.5;
+    clcCtx.beginPath(); clcCtx.moveTo(40, y + 16); clcCtx.lineTo(472, y + 16); clcCtx.stroke();
+    clcCtx.strokeStyle = '#2c6a4a'; clcCtx.lineWidth = 3;
+    clcCtx.beginPath(); clcCtx.moveTo(436, y - 4); clcCtx.lineTo(444, y + 4); clcCtx.lineTo(460, y - 14); clcCtx.stroke();
+  }
+  clcCtx.strokeStyle = 'rgba(180,89,42,0.8)'; clcCtx.lineWidth = 2.5;
+  clcCtx.beginPath(); clcCtx.moveTo(256, 430); clcCtx.lineTo(316, 480); clcCtx.lineTo(256, 530); clcCtx.lineTo(196, 480); clcCtx.closePath(); clcCtx.stroke();
+  clcCtx.beginPath(); clcCtx.moveTo(40, 480); clcCtx.lineTo(196, 480); clcCtx.stroke();
+  clcCtx.beginPath(); clcCtx.moveTo(316, 480); clcCtx.lineTo(472, 480); clcCtx.stroke();
+  clcCtx.fillStyle = 'rgba(25,25,19,0.5)'; clcCtx.font = '14px ui-monospace, monospace';
+  clcCtx.fillText('OPEN SESSION', 44, 462); clcCtx.fillText('MANUAL CHECK', 336, 462);
+  clcCtx.fillStyle = 'rgba(25,25,19,0.42)'; clcCtx.font = '13px ui-monospace, monospace';
+  clcCtx.fillText('AC-01 ... AC-15, tested', 40, 664);
+  const clipTex = new CanvasTexture(clc);
+  clipTex.colorSpace = SRGBColorSpace;
+  clipTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const matClip = new MeshStandardMaterial({ map: clipTex, roughness: 0.92, metalness: 0 });
+
+  /* ---- contact card: the closing close-up reads this ---- */
+  const [cdc, cdcCtx] = canvasLayer(512, 330);
+  cdcCtx.fillStyle = '#f3efe6'; cdcCtx.fillRect(0, 0, 512, 330);
+  cdcCtx.fillStyle = '#d8f26a'; cdcCtx.fillRect(0, 0, 512, 10);
+  cdcCtx.fillStyle = '#191913'; cdcCtx.font = '600 30px ui-monospace, monospace';
+  cdcCtx.fillText('FERDINAND LAUREN', 36, 110);
+  cdcCtx.fillStyle = 'rgba(25,25,19,0.55)'; cdcCtx.font = '15px ui-monospace, monospace';
+  cdcCtx.fillText('IT BUSINESS ANALYST', 36, 142);
+  cdcCtx.strokeStyle = 'rgba(25,25,19,0.25)'; cdcCtx.lineWidth = 2;
+  cdcCtx.beginPath(); cdcCtx.moveTo(36, 176); cdcCtx.lineTo(476, 176); cdcCtx.stroke();
+  cdcCtx.fillStyle = '#1f5138'; cdcCtx.font = '18px ui-monospace, monospace';
+  cdcCtx.fillText('ferdinandlauren78@gmail.com', 36, 222);
+  cdcCtx.fillStyle = 'rgba(25,25,19,0.45)'; cdcCtx.font = '14px ui-monospace, monospace';
+  cdcCtx.fillText('BANDAR LAMPUNG', 36, 288);
+  const cardTex = new CanvasTexture(cdc);
+  cardTex.colorSpace = SRGBColorSpace;
+  cardTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const matCard = new MeshStandardMaterial({ map: cardTex, roughness: 0.9, metalness: 0 });
 
   /* ---- desk group ---- */
   const group = new Group();
@@ -215,6 +297,11 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   nbPages.position.set(0.01, 0.04, 0);
   nbPages.receiveShadow = true;
   notebook.add(nbPages);
+  const nbLabel = new Mesh(new PlaneGeometry(0.45, 0.33), matNotebook);
+  nbLabel.rotation.x = -Math.PI / 2;
+  nbLabel.position.set(0.01, 0.053, 0);
+  nbLabel.receiveShadow = true;
+  notebook.add(nbLabel);
   for (let i = 0; i < 4; i++) {
     const r = new Mesh(new TorusGeometry(0.02, 0.006, 8, 20), matMetal);
     r.rotation.y = Math.PI / 2; r.position.set(-0.24, 0.035, -0.13 + i * 0.09);
@@ -257,6 +344,11 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   cSheet.position.y = 0.025;
   cSheet.receiveShadow = true;
   clipboard.add(cSheet);
+  const cFace = new Mesh(new PlaneGeometry(0.33, 0.47), matClip);
+  cFace.rotation.x = -Math.PI / 2;
+  cFace.position.y = 0.0305;
+  cFace.receiveShadow = true;
+  clipboard.add(cFace);
   const clip = new Mesh(new BoxGeometry(0.1, 0.04, 0.16), matMetal2);
   clip.position.set(0, 0.05, -0.24);
   clipboard.add(clip);
@@ -324,6 +416,11 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   const cardBody = new Mesh(new BoxGeometry(0.22, 0.008, 0.14), matPaper);
   cardBody.castShadow = true; cardBody.receiveShadow = true;
   card.add(cardBody);
+  const cardFace = new Mesh(new PlaneGeometry(0.21, 0.13), matCard);
+  cardFace.rotation.x = -Math.PI / 2;
+  cardFace.position.y = 0.0045;
+  cardFace.receiveShadow = true;
+  card.add(cardFace);
   group.add(card);
 
   /* ---- secondary display: the AI workbench object ---- */
@@ -382,6 +479,26 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
     contact:  { pos: new Vector3(3.1, 2.3, 5.6),  look: new Vector3(0.0, 1.0, 0.1),  fov: 42 },
   };
 
+  /* ---- phone director: the portrait band above the reading column ----
+     Close-ups framed for a ~0.9 aspect window. Every pose sits above the desk
+     surface (y > 1.4) so the straight-line travel between two scenes glides
+     over the wood instead of through it. */
+  const phonePoses = {
+    // Over the desk, the monitor and lamp carry the opening frame.
+    desk:     { pos: new Vector3(-0.4, 2.9, 2.6),   look: new Vector3(0, 1.0, -0.3),      fov: 44 },
+    // Close-ups, each one framed so the object reads at 390 px wide.
+    about:    { pos: new Vector3(-1.5, 1.62, 0.6),  look: new Vector3(-1.15, 0.99, -0.08), fov: 42 },
+    projects: { pos: new Vector3(0.78, 1.9, 1.3),   look: new Vector3(-0.02, 1.56, -0.5),  fov: 43 },
+    approach: { pos: new Vector3(-0.59, 1.87, 1.17),look: new Vector3(-0.64, 0.99, 0.3),   fov: 43 },
+    lab:      { pos: new Vector3(-0.64, 1.65, 1.14),look: new Vector3(-1.16, 0.93, 0.53),  fov: 42 },
+    ai:       { pos: new Vector3(0.95, 1.45, 0.95), look: new Vector3(1.47, 1.29, 0.23),  fov: 42 },
+    // The one wide view, for the map of the years: the whole desk, seen from
+    // the other side, with the monitor still the brightest thing on it.
+    journey:  { pos: new Vector3(-2.3, 2.35, 3.1),  look: new Vector3(0.1, 1.1, -0.15),   fov: 42 },
+    // The desk again, now over the card.
+    contact:  { pos: new Vector3(1.2, 1.55, 1.05),  look: new Vector3(1.02, 0.96, 0.62),  fov: 40 },
+  };
+
   let journey = { from: 'desk', to: 'desk', t: 0 };
 
   // Camera poses are pure functions of the viewport fit; build them once per
@@ -405,8 +522,21 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
     return { d: 1.44, fov: 11, lift: window.innerWidth <= 720 ? 1.5 : 0 };
   }
   function buildPoses() {
-    const fit = viewFit();
     const built = {};
+    if (phone) {
+      const a = camera.aspect || 1;
+      // A wide band (tablet portrait) needs the camera closer, otherwise the
+      // object floats in a much wider horizontal frame than the pose intends.
+      const d = a > 1.28 ? 1.28 / a : 1;
+      for (const key of Object.keys(poses)) {
+        const base = phonePoses[key] || poses[key];
+        const look = base.look.clone();
+        const pos = look.clone().add(base.pos.clone().sub(base.look).multiplyScalar(d));
+        built[key] = { pos, look, fov: base.fov };
+      }
+      return built;
+    }
+    const fit = viewFit();
     for (const key of Object.keys(poses)) {
       const base = poses[key];
       const look = base.look.clone();
@@ -442,7 +572,7 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   }
   function setReducedMotion(value) {
     reduceMotion = Boolean(value);
-    if (reduceMotion) snapTo(poseFor('desk'));
+    if (reduceMotion) snapTo(poseFor(journey.to));
     wake();
   }
   function focus(id) { setScene(id, id, 0); }
@@ -491,6 +621,9 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   const byId = Object.fromEntries(interactables.map(o => [o.userData.id, o]));
 
   canvas.addEventListener('pointermove', e => {
+    // A finger has no hover. Skipping the pointer parallax and the per-frame
+    // hover raycast keeps touch scrolling free of extra GPU/CPU work.
+    if (e.pointerType === 'touch') return;
     const rect = canvasRect;
     if (!reduceMotion) {
       pointerTarget.set(
@@ -509,8 +642,12 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
       const id = pick(e.clientX, e.clientY);
       if (id) {
         const obj = byId[id];
-        if (obj.userData.id === 'lamp') toggleLamp();
-        else _onSelect?.(obj);
+        if (obj.userData.id === 'lamp') {
+          const on = toggleLamp();
+          _onSelect?.(obj, { x: e.clientX, y: e.clientY, on });
+        } else {
+          _onSelect?.(obj, { x: e.clientX, y: e.clientY });
+        }
       }
     }
     downPos = null;
@@ -611,8 +748,9 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
     const wProjects = sceneWeight('projects');
     const wAi = sceneWeight('ai');
     const wApproach = sceneWeight('approach') + sceneWeight('lab');
-    const screenGoal = 0.06 + 0.62 * wDesk + 0.70 * wProjects;
-    const tabletGoal = 0.5 + 0.7 * wAi;
+    const glow = phone ? 1.3 : 1;
+    const screenGoal = 0.06 + 0.62 * wDesk + 0.70 * wProjects * glow;
+    const tabletGoal = 0.5 + 0.7 * wAi * glow;
     const blueprintGoal = 0.06 + 0.22 * Math.min(1, wApproach);
     if (Math.abs(screenGoal - matScreen.emissiveIntensity) < 0.002) matScreen.emissiveIntensity = screenGoal;
     else { matScreen.emissiveIntensity += (screenGoal - matScreen.emissiveIntensity) * k; moving = true; }
@@ -668,6 +806,15 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
       snapTo(poseFor('desk'));
     }
   }
+  const phoneQuery = window.matchMedia(PHONE_MQ);
+  function onPhoneChange() {
+    phone = phoneQuery.matches;
+    poseCache = null;
+    onResize();
+    wake();
+  }
+  phoneQuery.addEventListener?.('change', onPhoneChange);
+
   const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => onResize()) : null;
   ro?.observe(canvas);
   if (canvas.parentElement) ro?.observe(canvas.parentElement);
@@ -712,6 +859,7 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
   /* ---- dispose ---- */
   function dispose() {
     renderer.setAnimationLoop(null);
+    phoneQuery.removeEventListener?.('change', onPhoneChange);
     window.removeEventListener('resize', onResize);
     document.removeEventListener('visibilitychange', onVisibility);
     ro?.disconnect();
@@ -721,6 +869,9 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
     screenTex.dispose();
     blueprintTex.dispose();
     tabletTex.dispose();
+    notebookTex.dispose();
+    clipTex.dispose();
+    cardTex.dispose();
     renderer.dispose();
   }
 

@@ -17,13 +17,13 @@ const caseHref = `${root}work/gym-qr/`;
 const p2pHref = `${root}work/p2p-procurement/`;
 
 const scenes = [
-  ['01', 'About', 'doc-about', 'about'],
-  ['02', 'Projects', 'doc-projects', 'projects'],
-  ['03', 'How I think', 'doc-approach', 'approach'],
-  ['04', 'Decision Lab', 'doc-lab', 'lab'],
-  ['05', 'AI workbench', 'doc-ai', 'ai'],
-  ['06', 'Now', 'doc-journey', 'journey'],
-  ['07', 'Contact', 'doc-contact', 'contact'],
+  ['01', 'About', 'doc-about', 'about', 'Notebook'],
+  ['02', 'Projects', 'doc-projects', 'projects', 'Monitor'],
+  ['03', 'How I think', 'doc-approach', 'approach', 'Blueprint'],
+  ['04', 'Decision Lab', 'doc-lab', 'lab', 'Clipboard'],
+  ['05', 'AI workbench', 'doc-ai', 'ai', 'Tablet'],
+  ['06', 'Now', 'doc-journey', 'journey', 'The desk'],
+  ['07', 'Contact', 'doc-contact', 'contact', 'Card'],
 ];
 ---
 
@@ -32,7 +32,18 @@ const scenes = [
     <!-- persistent 3D stage -->
     <div class="desk__stage" aria-hidden="true">
       <canvas class="desk__canvas" id="desk-canvas"></canvas>
+      <div class="desk__hold"><i aria-hidden="true"></i>Preparing the desk</div>
+      <div class="desk__fallback">
+        <p class="mono">Static view</p>
+        <p>The 3D desk could not start here. The complete portfolio is below.</p>
+      </div>
       <div class="desk__vignette"></div>
+      <div class="desk__band">
+        <div class="desk__band-foot">
+          <p class="desk__band-scene"><span class="desk__band-n" data-band-n>00</span><span class="desk__band-name" data-band-name>The desk</span></p>
+          <p class="desk__band-hint" data-band-hint><i aria-hidden="true"></i>Tap the desk</p>
+        </div>
+      </div>
     </div>
 
     <!-- fixed chrome -->
@@ -58,6 +69,41 @@ const scenes = [
     </nav>
 
     <p class="desk__hint" id="desk-hint" aria-hidden="true">Move the cursor. Click an object to travel.</p>
+
+    <div class="sbar">
+      <p class="sbar__now"><span class="sbar__n mono" data-sbar-n>00</span><span class="sbar__label" data-sbar-label>The desk</span></p>
+      <p class="sbar__ticks" aria-hidden="true">{scenes.map(() => <i></i>)}</p>
+      <button class="sbar__index" type="button" aria-haspopup="dialog" aria-controls="idx" data-idx-open>
+        Index<span class="sbar__plus" aria-hidden="true">+</span>
+      </button>
+    </div>
+
+    <dialog class="idx" id="idx" aria-labelledby="idx-title">
+      <div class="idx__in">
+        <div class="idx__head">
+          <p class="idx__title" id="idx-title">Index / <span class="mono">07 scenes</span></p>
+          <form method="dialog"><button class="idx__close" aria-label="Close the index">Close</button></form>
+        </div>
+        <ol class="idx__list">
+          {scenes.map(([n, label, id, key, object]) => (
+            <li>
+              <a href={`#${id}`} data-idx-link data-idx-key={key}>
+                <span class="idx__n mono">{n}</span>
+                <span class="idx__label">{label}</span>
+                <span class="idx__obj mono">{object}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+        <div class="idx__foot">
+          <a class="idx__mail" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+          <p class="idx__note mono">Scroll is the story. The index is a shortcut.</p>
+        </div>
+      </div>
+    </dialog>
+
+    <p class="tapnote" data-tapnote aria-hidden="true"></p>
+    <span class="tapring" data-tapring aria-hidden="true"></span>
 
     <!-- =================== scenes =================== -->
 
@@ -333,9 +379,30 @@ const scenes = [
     const links = Array.from(document.querySelectorAll<HTMLElement>('[data-scene-link]'));
     const docs = Array.from(document.querySelectorAll<HTMLElement>('.scene .dpanel'));
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const narrowQuery = window.matchMedia('(max-width: 720px)');
+    // The phone experience is the portrait band; landscape and tablets keep the
+    // desktop-style documents on the full stage.
+    const narrowQuery = window.matchMedia('(max-width: 760px) and (orientation: portrait)');
     let reduceMotion = motionQuery.matches;
     root.classList.toggle('reduce-motion', reduceMotion);
+
+    const stage = document.querySelector<HTMLElement>('.desk__stage');
+    const bandN = document.querySelector<HTMLElement>('[data-band-n]');
+    const bandName = document.querySelector<HTMLElement>('[data-band-name]');
+    const sbarN = document.querySelector<HTMLElement>('[data-sbar-n]');
+    const sbarLabel = document.querySelector<HTMLElement>('[data-sbar-label]');
+    const sbarTicks = Array.from(document.querySelectorAll<HTMLElement>('.sbar__ticks i'));
+    const idx = document.getElementById('idx') as HTMLDialogElement | null;
+    const tapNote = document.querySelector<HTMLElement>('[data-tapnote]');
+    const tapRing = document.querySelector<HTMLElement>('[data-tapring]');
+    // The hero is scene 00; the seven rail entries follow it.
+    const sceneOrder = ['desk', ...links.map(l => l.dataset.sceneLink || '')];
+    const sceneMeta = new Map<string, { n: string; label: string }>([['desk', { n: '00', label: 'The desk' }]]);
+    for (const l of links) {
+      const key = l.dataset.sceneLink || '';
+      const n = l.querySelector('.scenenav__n')?.textContent?.trim() || '';
+      const label = l.querySelector('.scenenav__label')?.textContent?.trim() || '';
+      sceneMeta.set(key, { n, label });
+    }
 
     let scrollTarget = { from: 'desk', to: 'desk', t: 0 };
     let currentScene = '';
@@ -369,8 +436,30 @@ const scenes = [
 
     /* ---- scene anchors: each section owns a camera pose ---- */
     const anchors: { key: string; top: number }[] = [];
+    let band = 0;
+    let read = 0;
     function measure() {
       anchors.length = 0;
+      const narrow = narrowQuery.matches;
+      // The band is the fixed 3D window; the reading column is everything below
+      // it. Both come from the same CSS variables the stylesheet uses.
+      // The window's bottom edge is where a paper docks, so the band value is
+      // the edge (hud offset included), not just the canvas height.
+      band = narrow
+        ? (stage?.getBoundingClientRect().bottom || 46 + Math.min(480, Math.max(310, window.innerHeight * 0.52)))
+        : 0;
+      read = Math.max(1, window.innerHeight - band);
+      if (narrow) {
+        const hero = document.getElementById('scene-desk');
+        if (hero) anchors.push({ key: 'desk', top: hero.getBoundingClientRect().top + window.scrollY });
+        // Each scene is docked by its paper: the anchor is the document, not the
+        // section wrapper, so navigation and camera agree on the same edge.
+        for (const el of scenes) {
+          const paper = el.querySelector<HTMLElement>('.dpanel') || el;
+          anchors.push({ key: el.dataset.scene || '', top: paper.getBoundingClientRect().top + window.scrollY });
+        }
+        return;
+      }
       for (const el of scenes) {
         const rect = el.getBoundingClientRect();
         anchors.push({ key: el.dataset.scene || 'desk', top: rect.top + window.scrollY });
@@ -380,6 +469,33 @@ const scenes = [
     /* ---- scroll → hold the section frame, travel as the section leaves ---- */
     function updateScrollTarget() {
       if (!anchors.length) return;
+      if (narrowQuery.matches) {
+        // Travel starts while the next paper is rising into the reading column
+        // and ends exactly when it docks under the band edge.
+        const y = window.scrollY;
+        const lead = Math.max(120, read * 0.4);
+        let from = anchors[0].key, to = anchors[0].key, t = 0;
+        let active = anchors[0].key;
+        for (let i = 1; i < anchors.length; i++) {
+          const dock = anchors[i].top - band;
+          if (y >= dock) { from = anchors[i].key; to = anchors[i].key; t = 0; active = anchors[i].key; continue; }
+          if (y >= dock - lead) {
+            const p = (y - (dock - lead)) / lead;
+            const e = p * p * (3 - 2 * p);
+            from = anchors[i - 1].key; to = anchors[i].key; t = e;
+            active = e >= 0.5 ? anchors[i].key : anchors[i - 1].key;
+          }
+          break;
+        }
+        if (reduceMotion && t > 0) {
+          const key = t >= 0.5 ? to : from;
+          scrollTarget = { from: key, to: key, t: 0 };
+        } else {
+          scrollTarget = { from, to, t };
+        }
+        setActive(active);
+        return;
+      }
       const y = window.scrollY + window.innerHeight / 2;
       if (y <= anchors[0].top) { scrollTarget = { from: anchors[0].key, to: anchors[0].key, t: 0 }; return; }
       const last = anchors[anchors.length - 1];
@@ -421,16 +537,37 @@ const scenes = [
     function setActive(key: string) {
       if (key === currentScene) return;
       currentScene = key;
+      root.dataset.scene = key;
       for (const l of links) {
         const on = l.dataset.sceneLink === key;
         l.classList.toggle('is-current', on);
         if (on) l.setAttribute('aria-current', 'true');
         else l.removeAttribute('aria-current');
       }
+      const meta = sceneMeta.get(key);
+      if (meta) {
+        if (bandN) bandN.textContent = meta.n;
+        if (bandName) bandName.textContent = meta.label;
+        if (sbarN) sbarN.textContent = meta.n;
+        if (sbarLabel) sbarLabel.textContent = meta.label;
+      }
+      const at = sceneOrder.indexOf(key);
+      for (let i = 0; i < sbarTicks.length; i++) {
+        sbarTicks[i].classList.toggle('is-past', at > i + 1);
+        sbarTicks[i].classList.toggle('is-current', at === i + 1);
+      }
+      for (const link of document.querySelectorAll<HTMLElement>('[data-idx-key]')) {
+        const on = link.dataset.idxKey === key;
+        link.classList.toggle('is-current', on);
+        if (on) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      }
     }
 
     if ('IntersectionObserver' in window) {
       const spy = new IntersectionObserver(entries => {
+        // On phones the scroll mapping below owns the active scene.
+        if (narrowQuery.matches) return;
         for (const e of entries) {
           if (e.isIntersecting) setActive((e.target as HTMLElement).dataset.scene || '');
         }
@@ -440,9 +577,17 @@ const scenes = [
 
     /* ---- object interaction: travel to the matching scene ---- */
     function bindDesk(d: any) {
-      d.onSelect((obj: any) => {
+      d.onSelect((obj: any, at?: { x: number; y: number; on?: boolean }) => {
+        root.classList.add('has-tapped');
+        const id = obj.userData.id;
+        const label = id === 'lamp' && at
+          ? (at.on ? 'Lamp on' : 'Lamp off')
+          : obj.userData.hint;
+        if (at) flashTap(at.x, at.y, label);
         const panelId = obj.userData.panelId;
         if (!panelId) return;
+        // Even the scene you are reading: the tap brings its sheet back to the
+        // window edge, which is a real move once you are deep in a long paper.
         const target = document.getElementById(`doc-${panelId}`);
         target?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
       });
@@ -462,11 +607,8 @@ const scenes = [
     let raf = 0;
     function frame() {
       raf = 0;
-      const hideStage = narrowQuery.matches && window.scrollY > window.innerHeight * 0.55;
-      root.classList.toggle('is-mobile-past', hideStage);
       if (desk) {
-        desk.setPaused(hideStage);
-        if (!reduceMotion && !narrowQuery.matches) desk.setScene(scrollTarget.from, scrollTarget.to, scrollTarget.t);
+        if (!reduceMotion) desk.setScene(scrollTarget.from, scrollTarget.to, scrollTarget.t);
         else desk.setScene('desk', 'desk', 0);
       }
     }
@@ -514,6 +656,39 @@ const scenes = [
       schedule();
     }
     if (motionQuery.addEventListener) motionQuery.addEventListener('change', applyMotionPreference);
+
+    /* ---- touch feedback: a label and a ring where the finger landed ---- */
+    let tapTimer = 0;
+    function flashTap(x: number, y: number, text: string) {
+      if (!tapNote || !tapRing) return;
+      tapNote.textContent = text;
+      tapNote.style.left = `${Math.min(window.innerWidth - 12, Math.max(12, x))}px`;
+      tapNote.style.top = `${Math.min(window.innerHeight - 70, Math.max(18, y)) + 20}px`;
+      tapRing.style.left = `${x}px`;
+      tapRing.style.top = `${y}px`;
+      tapNote.classList.remove('is-on');
+      tapRing.classList.remove('is-on');
+      void tapNote.offsetWidth;
+      tapNote.classList.add('is-on');
+      tapRing.classList.add('is-on');
+      clearTimeout(tapTimer);
+      tapTimer = window.setTimeout(() => {
+        tapNote.classList.remove('is-on');
+        tapRing.classList.remove('is-on');
+      }, 1500);
+    }
+
+    /* ---- index sheet: a native dialog, scrolling stays the primary path ---- */
+    const idxOpen = document.querySelector<HTMLButtonElement>('[data-idx-open]');
+    if (idx && idxOpen) {
+      idxOpen.addEventListener('click', () => idx.showModal());
+      idx.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target === idx || target.closest('[data-idx-link]')) idx.close();
+      });
+    }
+
+    narrowQuery.addEventListener?.('change', () => remeasure());
 
     /* ---- keyboard: Escape returns to the desk ---- */
     addEventListener('keydown', e => {
