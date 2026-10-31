@@ -1305,6 +1305,101 @@ html:not(.js) .scene--hero::before { background: rgba(8, 12, 9, 0.55); }
 }
 
 /* ============================================================
+   3D MODE, the floating overlay.
+   Every paper docks under the 3D window as a window of its own: a
+   hairline edge, a soft shadow, a sticky header that keeps the way
+   back to the workspace within reach. The camera holds the selected
+   object in the band above the text, so the content never hides the
+   desk it belongs to.
+   ============================================================ */
+.dpanel__dock { display: none; }
+
+@media (max-width: 760px) and (orientation: portrait) {
+  html.js .desk[data-exp="3d"] .scene { transition: opacity 0.18s linear; }
+
+  html.js .desk[data-exp="3d"] .scene .dpanel,
+  html.js .desk[data-exp="3d"] .scene--lab .dpanel,
+  html.js .desk[data-exp="3d"] .scene--journey .dpanel,
+  html.js .desk[data-exp="3d"] .scene--contact .dpanel {
+    position: relative;
+    width: calc(100% - 20px);
+    margin-inline: auto;
+    border: 1px solid rgba(25, 25, 19, 0.14);
+    box-shadow:
+      0 14px 26px rgba(9, 13, 10, 0.18),
+      0 1px 0 rgba(255, 255, 255, 0.36) inset;
+  }
+  html.js .desk[data-exp="3d"] .scene--lab .dpanel,
+  html.js .desk[data-exp="3d"] .scene--journey .dpanel {
+    border-color: rgba(241, 238, 228, 0.14);
+    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.4);
+  }
+
+  /* the header rides the top of the open paper, right under the window */
+  html.js .desk[data-exp="3d"] .dpanel__dock {
+    display: flex;
+    position: sticky;
+    top: calc(var(--band-top) + var(--band-h));
+    z-index: 2;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin: 0;
+    padding: 0.15rem 18px;
+    background: inherit;
+    border-bottom: 1px solid rgba(25, 25, 19, 0.12);
+  }
+  html.js .desk[data-exp="3d"] .scene--lab .dpanel__dock,
+  html.js .desk[data-exp="3d"] .scene--journey .dpanel__dock {
+    border-bottom-color: rgba(241, 238, 228, 0.14);
+  }
+  .dpanel__ws {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    min-height: 40px;
+    margin: 0 0 0 -0.45rem;
+    padding: 0 0.45rem;
+    border: 0;
+    background: transparent;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 0.52rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dpanel__ws svg { width: 11px; height: 11px; flex: none; }
+  .dpanel__ws:active { color: var(--forest-2); }
+  .dpanel__ws:focus-visible { outline: 1px solid var(--forest-2); outline-offset: 2px; }
+  .dpanel__dock-n { font-size: 0.5rem; letter-spacing: 0.1em; color: var(--ink-3); opacity: 0.6; }
+  html.js .desk[data-exp="3d"] .scene--lab .dpanel__ws,
+  html.js .desk[data-exp="3d"] .scene--journey .dpanel__ws { color: var(--on-board-2); }
+  html.js .desk[data-exp="3d"] .scene--lab .dpanel__ws:active,
+  html.js .desk[data-exp="3d"] .scene--journey .dpanel__ws:active { color: var(--lime); }
+  html.js .desk[data-exp="3d"] .scene--lab .dpanel__dock-n,
+  html.js .desk[data-exp="3d"] .scene--journey .dpanel__dock-n { color: var(--on-board-2); }
+
+  /* the sheet arrives with the camera, not before it */
+  html.js .desk[data-exp="3d"] .scene .dpanel.is-arriving { animation: paperArrive 0.62s var(--ease) both; }
+  @keyframes paperArrive {
+    from { opacity: 0.35; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* a section swap: the column retracts while the camera travels, then the
+     next sheet arrives with it. The same class closes the workspace too. */
+  html.js .desk.is-transit .scene { opacity: 0; }
+  html.js .desk.is-transit .scene .dpanel { transform: translateY(14px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.js .desk[data-exp="3d"] .scene { transition: none; }
+    html.js .desk[data-exp="3d"] .scene .dpanel.is-arriving { animation: none; }
+    html.js .desk.is-transit .scene .dpanel { transform: none; }
+  }
+}
+
+/* ============================================================
    CLASSIC MODE, the document version of the same portfolio.
    The 3D window, its status bar and its overlays step aside; the
    layout returns to the repository's plain mobile documents.

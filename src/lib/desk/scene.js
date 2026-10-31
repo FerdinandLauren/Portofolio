@@ -35,6 +35,14 @@ export async function createDesk({ canvas, reduceMotion: motionPref = false }) {
     return [layer, g];
   }
   /* ---- renderer ---- */
+  // Fail before Three does: a device without WebGL gets the static fallback and
+  // one quiet warning, not a red renderer error in a console nobody can fix.
+  {
+    const probe = document.createElement('canvas');
+    if (!probe.getContext('webgl2') && !probe.getContext('webgl')) {
+      throw new Error('WebGL is not available on this device');
+    }
+  }
   const renderer = new WebGLRenderer({
     canvas, antialias: true, powerPreference: 'high-performance',
     preserveDrawingBuffer: false,

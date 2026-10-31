@@ -442,6 +442,28 @@ const scenes = [
       sceneMeta.set(key, { n, label });
     }
 
+    /* Every paper gets its own overlay header: the way back to the workspace,
+       kept at the top of the sheet while it is read. It is built here from the
+       documents themselves, so the components stay plain articles and the
+       header only exists in the script experiences. */
+    const papersByKey = new Map<string, HTMLElement>();
+    for (const d of docs) {
+      const key = (d.closest('.scene') as HTMLElement | null)?.dataset.scene || '';
+      if (key) papersByKey.set(key, d);
+    }
+    const sectionCount = String(links.length).padStart(2, '0');
+    for (const [key, paper] of papersByKey) {
+      if (paper.querySelector('[data-ws-back]')) continue;
+      const bar = document.createElement('div');
+      bar.className = 'dpanel__dock';
+      bar.innerHTML =
+        '<button class="dpanel__ws" type="button" data-ws-back aria-label="Back to the workspace overview">'
+        + '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M7.4 2.2 3.6 6l3.8 3.8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>'
+        + 'Back to workspace</button>'
+        + `<span class="dpanel__dock-n mono" aria-hidden="true">${sceneMeta.get(key)?.n || ''} / ${sectionCount}</span>`;
+      paper.prepend(bar);
+    }
+
     let scrollTarget = { from: 'desk', to: 'desk', t: 0 };
     let currentScene = '';
 
@@ -507,6 +529,10 @@ const scenes = [
     function applyMode(m: ExpMode, opts: { keepScroll?: boolean } = {}) {
       expMode = m;
       writeStoredMode(m);
+      // A mode switch always lands on a settled controller: no half-finished
+      // travel, no fading column left behind.
+      root.classList.remove('is-transit');
+      if (travelKey) endTravel();
       root.dataset.exp = m;
       root.dataset.scene = root.dataset.scene || 'desk';
       hideSelector();
@@ -594,6 +620,7 @@ const scenes = [
     function updateScrollTarget() {
       if (!anchors.length) return;
       if (narrowQuery.matches && expMode === '3d') {
+        if (travelKey) return;
         // Travel starts while the next paper is rising into the reading column
         // and ends exactly when it docks under the band edge.
         const y = window.scrollY;
@@ -607,7 +634,12 @@ const scenes = [
             const p = (y - (dock - lead)) / lead;
             const e = p * p * (3 - 2 * p);
             from = anchors[i - 1].key; to = anchors[i].key; t = e;
+            // Hysteresis: a section only gives way once the next one clearly
+            // owns the window, so a few pixels of jitter cannot flip the label.
+            const prev = currentScene;
             active = e >= 0.5 ? anchors[i].key : anchors[i - 1].key;
+            if (prev === anchors[i - 1].key) active = e > 0.58 ? anchors[i].key : anchors[i - 1].key;
+            else if (prev === anchors[i].key) active = e < 0.42 ? anchors[i - 1].key : anchors[i].key;
           }
           break;
         }
@@ -688,6 +720,131 @@ const scenes = [
       }
     }
 
+    /* ============================================================
+       NAVIGATION CONTROLLER
+       One controller owns every way into a section: an object tap, the
+       section sheet, a plain anchor, the scroll journey and Back to
+       workspace. It decides what the camera does, which sheet is open and
+       what the rail says, so the three can never disagree. A new target
+       supersedes the one still travelling instead of stacking moves.
+       ============================================================ */
+    let travelKey: string | null = null;
+    let travelSettle = 0;
+    let travelCap = 0;
+
+    function beginTravel(key: string) {
+      travelKey = key;
+      clearTimeout(travelSettle);
+      clearTimeout(travelCap);
+      // A hard cap: if the scroll never settles, the mapping takes over again.
+      travelCap = window.setTimeout(endTravel, 6000);
+      // Camera first. The pose becomes the destination immediately; the scene
+      // damps its way there, which is the cinematic zoom.
+      desk?.focus(key);
+    }
+    function endTravel() {
+      if (!travelKey) return;
+      travelKey = null;
+      clearTimeout(travelSettle);
+      clearTimeout(travelCap);
+      updateScrollTarget();
+      schedule();
+    }
+    function settleTravel() {
+      clearTimeout(travelSettle);
+      travelSettle = window.setTimeout(endTravel, 190);
+    }
+
+    /* The scroll offset at which a paper docks right under the 3D window. */
+    function dockTop(key: string) {
+      for (const a of anchors) if (a.key === key) return Math.max(0, a.top - band);
+      return 0;
+    }
+
+    /* The sheet arrives while the camera is still travelling: one move, two
+       halves that overlap instead of queueing. */
+    function overlayArrive(key: string) {
+      const paper = papersByKey.get(key);
+      if (!paper) return;
+      paper.classList.add('is-in');
+      if (reduceMotion) return;
+      paper.classList.remove('is-arriving');
+      void paper.offsetWidth;
+      paper.classList.add('is-arriving');
+      window.setTimeout(() => paper.classList.remove('is-arriving'), 660);
+    }
+
+    function goToSection(key: string) {
+      const paper = papersByKey.get(key);
+      if (!paper) return;
+      // The lab can grow a panel and the fonts can land late; measure again so
+      // the jump always lands on the edge the stylesheet promises.
+      measure();
+      // ceil, not round: one pixel past the dock keeps the scroll mapping on
+      // the settled side of its edge instead of a hair before the transition.
+      const dock = Math.max(0, Math.ceil(dockTop(key)));
+      const here = Math.abs(window.scrollY - dock) < 4;
+      if (currentScene === key && here && !travelKey) {
+        // A second tap on the section already open is not an error: the camera
+        // answers again, the sheet does not animate twice.
+        desk?.focus(key);
+        return;
+      }
+      beginTravel(key);
+      if (here) { setActive(key); overlayArrive(key); settleTravel(); return; }
+      // One move, two halves: the open sheet retracts, the dock lands on the
+      // next paper, the camera damps toward its object while that sheet
+      // arrives. No page-long rewind between the two.
+      if (!reduceMotion) root.classList.add('is-transit');
+      const hold = reduceMotion ? 0 : 200;
+      window.setTimeout(() => {
+        window.scrollTo({ top: dock, behavior: 'instant' });
+        setActive(key);
+        overlayArrive(key);
+        requestAnimationFrame(() => {
+          root.classList.remove('is-transit');
+          settleTravel();
+        });
+      }, hold);
+    }
+
+    function backToWorkspace() {
+      if (idx?.open) idx.close();
+      if (!(narrowQuery.matches && expMode === '3d')) {
+        window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+        return;
+      }
+      if (root.classList.contains('is-transit')) return;
+      if (currentScene === 'desk' && window.scrollY < 4) return;
+      beginTravel('desk');
+      root.classList.remove('has-tapped');
+      // Exit, then zoom out: the reading column retracts, the camera pulls
+      // back to the overview, and the workspace comes up underneath it.
+      if (!reduceMotion) root.classList.add('is-transit');
+      const hold = reduceMotion ? 0 : 200;
+      window.setTimeout(() => {
+        // 'instant' on purpose: with html { scroll-behavior: smooth } anything
+        // softer would turn the zoom-out into a long rewind through the whole
+        // journey. The overlay has already faded, so the jump is invisible.
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        setActive('desk');
+        updateScrollTarget();
+        requestAnimationFrame(() => {
+          root.classList.remove('is-transit');
+          settleTravel();
+          document.querySelector<HTMLElement>('.sbar__index')?.focus({ preventScroll: true });
+        });
+      }, hold);
+    }
+
+    /* One entry point for the object taps that still live on the full stage. */
+    function openSection(panelId: string) {
+      const paper = papersByKey.get(panelId);
+      if (!paper) return;
+      if (narrowQuery.matches && expMode === '3d') { goToSection(panelId); return; }
+      paper.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    }
+
     if ('IntersectionObserver' in window) {
       const spy = new IntersectionObserver(entries => {
         // In the 3D window the scroll mapping below owns the active scene.
@@ -712,8 +869,7 @@ const scenes = [
         if (!panelId) return;
         // Even the scene you are reading: the tap brings its sheet back to the
         // window edge, which is a real move once you are deep in a long paper.
-        const target = document.getElementById(`doc-${panelId}`);
-        target?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        openSection(panelId);
       });
       d.onHover((obj: any) => {
         if (!hint) return;
@@ -731,13 +887,32 @@ const scenes = [
     let raf = 0;
     function frame() {
       raf = 0;
-      if (desk) {
-        if (!reduceMotion) desk.setScene(scrollTarget.from, scrollTarget.to, scrollTarget.t);
-        else desk.setScene('desk', 'desk', 0);
-      }
+      // While the controller is travelling the scene owns the camera: its own
+      // damping turns the destination pose into one continuous move, and the
+      // scroll mapping must not fight it.
+      if (!desk || travelKey) return;
+      if (!reduceMotion) desk.setScene(scrollTarget.from, scrollTarget.to, scrollTarget.t);
+      // Reduced motion cuts instead of travelling: the phone window still shows
+      // the object of the section being read. The full stage stays still.
+      else if (narrowQuery.matches && expMode === '3d') desk.setScene(scrollTarget.from, scrollTarget.to, scrollTarget.t);
+      else desk.setScene('desk', 'desk', 0);
     }
     function schedule() {
       if (!raf) raf = requestAnimationFrame(frame);
+    }
+
+    // Panels open, images land and fonts arrive: whenever the document height
+    // changes, the docks move with it. One observer keeps the scroll mapping and
+    // the navigation controller reading the same edges.
+    if (typeof ResizeObserver !== 'undefined') {
+      let lastHeight = 0;
+      new ResizeObserver(() => {
+        const h = document.documentElement.scrollHeight;
+        if (Math.abs(h - lastHeight) > 4) {
+          lastHeight = h;
+          remeasure();
+        }
+      }).observe(document.body);
     }
 
     let measureTimer = 0;
@@ -762,6 +937,7 @@ const scenes = [
         root.classList.remove('is-hud-hidden');
       }
       lastScrollY = y;
+      if (travelKey) { settleTravel(); return; }
       updateScrollTarget();
       schedule();
     }, { passive: true });
@@ -788,6 +964,32 @@ const scenes = [
       document.documentElement.classList.remove('is-xps');
       if (expMode === '3d') desk?.setPaused(false);
     });
+
+    /* ---- every other way into a section goes through the controller ---- */
+    document.addEventListener('click', (e) => {
+      if (!(narrowQuery.matches && expMode === '3d')) return;
+      const el = e.target as HTMLElement | null;
+      if (!el) return;
+      if (el.closest('[data-ws-back]') || el.closest('a[href="#scene-desk"]')) {
+        e.preventDefault();
+        backToWorkspace();
+        return;
+      }
+      const a = el.closest<HTMLAnchorElement>('a[href^="#doc-"]');
+      if (!a) return;
+      const id = (a.getAttribute('href') || '').replace('#', '');
+      const key = id.replace(/^doc-/, '');
+      if (!papersByKey.has(key)) return;
+      e.preventDefault();
+      if (idx?.open) idx.close();
+      goToSection(key);
+    });
+
+    // A hand on the page always wins: the next move is the visitor's, not the
+    // controller's, so the locked camera lets the scroll mapping take over.
+    for (const ev of ['wheel', 'touchstart'] as const) {
+      window.addEventListener(ev, () => { if (travelKey) endTravel(); }, { passive: true });
+    }
 
     /* ---- reduced motion: no reveal animation, static camera ---- */
     function applyMotionPreference() {
@@ -849,10 +1051,13 @@ const scenes = [
 
     /* ---- keyboard: Escape returns to the desk ---- */
     addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        const active = document.activeElement as HTMLElement | null;
-        active?.blur();
-      }
+      if (e.key !== 'Escape') return;
+      const active = document.activeElement as HTMLElement | null;
+      active?.blur();
+      // The keyboard way back to the workspace, as long as no dialog sits above
+      // the page and a section is actually open.
+      if (narrowQuery.matches && expMode === '3d' && currentScene && currentScene !== 'desk'
+          && !xps?.open && !idx?.open) backToWorkspace();
     });
 
     window.addEventListener('pagehide', e => {
