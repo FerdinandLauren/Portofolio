@@ -1,6 +1,8 @@
 ---
 const { project } = Astro.props;
 const p = project;
+const prefix = p.idPrefix || 'p2p';
+const caseNo = p.caseNo || '002';
 const base = import.meta.env.BASE_URL;
 const root = base.endsWith('/') ? base : `${base}/`;
 const contents = [
@@ -22,12 +24,12 @@ const contents = [
       <nav class="crumbs" aria-label="Breadcrumb">
         <a href={root}>Workbench</a>
         <span aria-hidden="true">/</span>
-        <span>Case file 002</span>
+        <span>Case file {caseNo}</span>
       </nav>
 
       <div class="cf-head__grid">
         <div class="cf-head__main">
-          <p class="label">Case file 002 · {p.typeLabel}</p>
+          <p class="label">Case file {caseNo} · {p.typeLabel}</p>
           <h1 class="cf-title">{p.title}</h1>
           <p class="cf-sub">{p.subtitle}</p>
           <p class="cf-thesis">{p.thesis}</p>
@@ -47,11 +49,7 @@ const contents = [
       </p>
 
       <div class="cf-head__foot">
-        <p>
-          An independent learning case study: one process, taken from a request through approval,
-          ordering, receiving, invoice verification and payment, documented as rules, requirements
-          and testable acceptance criteria.
-        </p>
+        <p>{p.summary || 'An independent learning case study: one process, taken from a request through approval, ordering, receiving, invoice verification and payment, documented as rules, requirements and testable acceptance criteria.'}</p>
         <a class="cf-head__link" href={root}>← Back to the workbench</a>
       </div>
     </div>
@@ -62,15 +60,15 @@ const contents = [
       <p class="label">Contents</p>
       <ol>
         {contents.map(([n, name, id]) => (
-          <li><a href={`#p2p-${id}`}><span class="mono">{n}</span><span>{name}</span></a></li>
+          <li><a href={`#${prefix}-${id}`}><span class="mono">{n}</span><span>{name}</span></a></li>
         ))}
       </ol>
-      <p class="cf-nav__meta mono">6 process steps · 9 rules · 12 requirements · 10 scenarios</p>
+      <p class="cf-nav__meta mono">{p.process.flow.length} stages · {p.rules.length} rules · {p.requirements.length} requirements · {p.acceptance.length} criteria{p.uatCount ? ` · ${p.uatCount} UAT scenarios` : ''}</p>
     </aside>
 
     <div class="cf-main">
       <!-- CONTEXT -->
-      <section class="cf-stage" id="p2p-context">
+      <section class="cf-stage" id={`${prefix}-context`}>
         <header class="cf-stage__head">
           <span class="cf-stage__n">01</span>
           <div><p class="label">Business context</p><h2>Why this process needs structure</h2></div>
@@ -90,13 +88,13 @@ const contents = [
       </section>
 
       <!-- PROCESS -->
-      <section class="cf-stage" id="p2p-process">
+      <section class="cf-stage" id={`${prefix}-process`}>
         <header class="cf-stage__head">
           <span class="cf-stage__n">02</span>
-          <div><p class="label">Process overview</p><h2>Request to payment, in six steps</h2></div>
+          <div><p class="label">Process overview</p><h2>{p.process.heading || 'Request to payment, in six steps'}</h2></div>
         </header>
         <div class="cf-stage__body">
-          <ol class="p2p-rail" aria-label="Procure-to-pay steps">
+          <ol class="p2p-rail" aria-label={p.process.railLabel || 'Process steps'}>
             {p.process.flow.map((name, i) => (
               <li>
                 <span class="mono">{String(i + 1).padStart(2, '0')}</span>
@@ -134,7 +132,7 @@ const contents = [
       </section>
 
       <!-- ACTORS -->
-      <section class="cf-stage" id="p2p-actors">
+      <section class="cf-stage" id={`${prefix}-actors`}>
         <header class="cf-stage__head">
           <span class="cf-stage__n">03</span>
           <div><p class="label">Stakeholders</p><h2>Who owns which decision</h2></div>
@@ -157,7 +155,7 @@ const contents = [
       </section>
 
       <!-- RULES -->
-      <section class="cf-stage" id="p2p-rules">
+      <section class="cf-stage" id={`${prefix}-rules`}>
         <header class="cf-stage__head">
           <span class="cf-stage__n">04</span>
           <div><p class="label">Business rules</p><h2>The constraints the system must hold</h2></div>
@@ -181,7 +179,7 @@ const contents = [
       </section>
 
       <!-- REQUIREMENTS -->
-      <section class="cf-stage" id="p2p-requirements">
+      <section class="cf-stage" id={`${prefix}-requirements`}>
         <header class="cf-stage__head">
           <span class="cf-stage__n">05</span>
           <div><p class="label">Functional requirements</p><h2>What the system must do</h2></div>
@@ -213,7 +211,7 @@ const contents = [
       </section>
 
       <!-- ACCEPTANCE -->
-      <section class="cf-stage" id="p2p-acceptance">
+      <section class="cf-stage" id={`${prefix}-acceptance`}>
         <header class="cf-stage__head">
           <span class="cf-stage__n">06</span>
           <div><p class="label">Acceptance criteria</p><h2>How the behaviour is checked</h2></div>
@@ -246,7 +244,7 @@ const contents = [
       </section>
 
       <!-- EXCEPTIONS -->
-      <section class="cf-stage" id="p2p-exceptions">
+      <section class="cf-stage" id={`${prefix}-exceptions`}>
         <header class="cf-stage__head">
           <span class="cf-stage__n">07</span>
           <div><p class="label">Exceptions and decision points</p><h2>What happens when the rule says no</h2></div>
@@ -266,7 +264,7 @@ const contents = [
       </section>
 
       <!-- ERP -->
-      <section class="cf-stage" id="p2p-erp">
+      <section class="cf-stage" id={`${prefix}-erp`}>
         <header class="cf-stage__head">
           <span class="cf-stage__n">08</span>
           <div><p class="label">ERP concepts</p><h2>Where this sits in an ERP system</h2></div>
@@ -286,7 +284,7 @@ const contents = [
       </section>
 
       <!-- SCOPE -->
-      <section class="cf-stage" id="p2p-scope">
+      <section class="cf-stage" id={`${prefix}-scope`}>
         <header class="cf-stage__head">
           <span class="cf-stage__n">09</span>
           <div><p class="label">Scope and limitations</p><h2>What this document is, and is not</h2></div>
