@@ -1,10 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
 import CaseStudy from '../../components/CaseStudy.astro';
-import P2PCaseStudy from '../../components/P2PCaseStudy.astro';
 
 // Every JSON file in src/data/projects/ (except the supporting list) becomes a case study
-// at /work/<slug>. The document layout is shared by the p2p and o2c schemas.
+// at /work/<slug>.
 export async function getStaticPaths() {
   const files = import.meta.glob('../../data/projects/*.json', { eager: true });
   return Object.entries(files)
@@ -16,7 +15,6 @@ export async function getStaticPaths() {
 }
 
 const { project } = Astro.props;
-const Body = project.schema === 'p2p' || project.schema === 'o2c' ? P2PCaseStudy : CaseStudy;
 ---
 
 <Base
@@ -24,5 +22,5 @@ const Body = project.schema === 'p2p' || project.schema === 'o2c' ? P2PCaseStudy
   description={`${project.subtitle}. ${project.typeLabel}.`}
   bodyClass="is-casefile"
 >
-  <Body project={project} heading="h1" />
+  <CaseStudy project={project} heading="h1" />
 </Base>

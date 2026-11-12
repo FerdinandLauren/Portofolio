@@ -7,16 +7,12 @@ import site from '../data/site.json';
 import work from '../data/work.json';
 import supporting from '../data/projects/supporting.json';
 import gym from '../data/projects/gym-qr.json';
-import p2p from '../data/projects/p2p-procurement.json';
-import o2c from '../data/projects/o2c-order-to-cash.json';
 
 const featured = work[0];
 const rest = work.slice(1);
 const alsoDone = supporting.filter(p => !work.some(w => w.title === p.name));
 const root = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const caseHref = `${root}work/gym-qr/`;
-const p2pHref = `${root}work/p2p-procurement/`;
-const o2cHref = `${root}work/o2c-order-to-cash/`;
 
 const scenes = [
   ['01', 'About', 'doc-about', 'about', 'Notebook'],
@@ -203,39 +199,6 @@ const scenes = [
         <p class="dpanel__scene"><span class="mono">02</span> Projects</p>
         <h2 class="dpanel__title" id="projects-title">Selected work</h2>
         <div class="dpanel__body">
-          <!-- ERP case study -->
-          <article class="dproject">
-            <h3 class="dproject__title"><a href={p2pHref}>{p2p.title}</a></h3>
-            <p class="dproject__thesis">{p2p.thesis}</p>
-            <p class="dpanel__flag">{p2p.typeLabel}</p>
-            <p class="dproject__ctx">{p2p.context.problem}</p>
-            <dl class="dpanel__facts dpanel__facts--tight">
-              <div><dt>Focus</dt><dd>Process mapping, business rules, requirements, acceptance criteria</dd></div>
-              <div><dt>Process</dt><dd>Request → approval → order → receipt → invoice → payment</dd></div>
-              <div><dt>Boundary</dt><dd>Fictional company; no ERP configured, no measured outcome</dd></div>
-            </dl>
-            <p class="dproject__links">
-              <a href={p2pHref}>Read the case study →</a>
-            </p>
-          </article>
-
-          <!-- ERP case study: order-to-cash -->
-          <article class="dproject">
-            <h3 class="dproject__title"><a href={o2cHref}>{o2c.title}</a></h3>
-            <p class="dproject__thesis">{o2c.thesis}</p>
-            <p class="dpanel__flag">{o2c.typeLabel}</p>
-            <p class="dproject__ctx">{o2c.context.problem}</p>
-            <dl class="dpanel__facts dpanel__facts--tight">
-              <div><dt>Focus</dt><dd>Process design, requirements, fit-gap, UAT and migration planning</dd></div>
-              <div><dt>Process</dt><dd>Order → validation → availability → approval → fulfilment → delivery → invoice → cash</dd></div>
-              <div><dt>Boundary</dt><dd>Fictional company; no ERP configured, no test executed, no measured outcome</dd></div>
-            </dl>
-            <p class="dproject__links">
-              <a href={o2cHref}>Read the case study →</a>
-              <a href={o2c.repository} target="_blank" rel="noopener noreferrer">Repository <span aria-hidden="true">↗</span></a>
-            </p>
-          </article>
-
           <!-- featured -->
           <article class="dproject">
             <h3 class="dproject__title"><a href={caseHref}>{featured.title}</a></h3>

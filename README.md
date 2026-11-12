@@ -1,10 +1,10 @@
 # Ferdinand Lauren, The Systems Workbench
 
 A static portfolio for entry-level IT business analyst / ERP functional consultant roles.
-Built around two honest case studies (GYM-QR and a Procure-to-Pay learning case), a four-stage
-working approach, and an interactive Decision Lab.
+Built around one honest case study (GYM-QR), a four-stage working approach, and an
+interactive Decision Lab.
 
-Stack: Astro 5, static output, no UI framework, no CSS framework. Three routes.
+Stack: Astro 5, static output, no UI framework, no CSS framework. Two routes.
 
 ## Run
 
@@ -24,14 +24,12 @@ Node 22+ (built and tested on Node 24.13.1).
 src/
   data/site.json                 # name, positioning, contact, the 4-stage working approach
   data/projects/gym-qr.json      # the GYM-QR case study (all copy + evidence + metrics)
-  data/projects/p2p-procurement.json # the Procure-to-Pay learning case study
   data/projects/supporting.json  # the "also in the drawer" list, one entry per project
   data/work.json                 # curated index: featured entry + three selected projects
   lib/decision-lab.mjs           # decision rules used by the Lab, plus the 4 scenarios
   components/Approach.astro      # selectable observe → define → design → verify panels
   components/CaseFileTeaser.astro# the featured case file band on the home page
   components/CaseStudy.astro     # the GYM-QR document at /work/<slug>/
-  components/P2PCaseStudy.astro  # the Procure-to-Pay document at /work/<slug>/
   components/DecisionLab.astro   # scenario switcher + decision traces
   components/SelectedWork.astro  # editorial rows for the remaining projects
   layouts/Base.astro             # masthead, footer, metadata, progressive chrome
@@ -132,13 +130,13 @@ or the "Change experience" chip:
 Desktop and landscape keep the original full-stage cinematic scroll. The colophon is hidden in the
 phone 3D experience (its links live in the Contact window and the Explore sheet).
 
-## Verification performed (29 Oct 2026)
+## Verification performed (29 Oct 2026; re-checked 12 Nov 2026)
 
-- `npm run build`: 3 pages built, no errors.
+- `npm run build`: 2 pages built (`/` and `/work/gym-qr/`), no errors.
 - `npm test`: 11 tests pass (rules checked against `docs/UAT.md` of GYM-QR).
 - Rendered at 1440, 1280, 1024, 768, 390 and 360 px in Chromium: `scrollWidth === viewport` at
-  every width on all three routes, no horizontal overflow.
-- Every same-page and cross-page anchor on all three routes resolves; no console messages or uncaught
+  every width on both routes, no horizontal overflow.
+- Every same-page and cross-page anchor on both routes resolves; no console messages or uncaught
   page errors.
 - Keyboard: Arrow keys move between Decision Lab cases and approach stages; focus stays on the
   selected control and the panel updates.
